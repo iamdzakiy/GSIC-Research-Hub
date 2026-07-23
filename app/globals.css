@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Lato', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0a0a2e 0%, #151545 30%, #1a1a55 60%, #0f0c29 100%);
+    color: #f0f4ff;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
+  }
+
+  .glass:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.35);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .card-hover {
+    transition: transform 0.25s ease, box-shadow 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #fff 0%, #5CE3B6 50%, #F2F8C9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-blue {
+    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glow-royal {
+    box-shadow: 0 0 30px rgba(51, 82, 205, 0.3), 0 0 60px rgba(51, 82, 205, 0.1);
+  }
+
+  .glow-mint {
+    box-shadow: 0 0 30px rgba(92, 227, 182, 0.3), 0 0 60px rgba(92, 227, 182, 0.1);
+  }
+
+  .nav-underline {
+    position: relative;
+  }
+
+  .nav-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #5CE3B6;
+    transition: width 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .nav-underline:hover::after,
+  .nav-underline.active::after {
+    width: 80%;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.hidden {
+    display: none;
+  }
+
+  .modal-content {
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #3352CD;
+    border-radius: 10px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #5CE3B6;
+  }
+
+  .filter-btn {
+    cursor: pointer;
+  }
+
+  .filter-btn.active {
+    background: #3352CD !important;
+    color: #fff !important;
+    border-color: #3352CD !important;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+}
