@@ -1,0 +1,9 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/page": "app/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/events/sandbox/page": "app/events/sandbox/page.js",
+  "/events/pkm-bootcamp/page": "app/events/pkm-bootcamp/page.js",
+  "/auth/page": "app/auth/page.js"
+}
