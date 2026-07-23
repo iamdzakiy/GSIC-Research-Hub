@@ -66,7 +66,7 @@ export default function Navbar() {
             <img
               src="/1.png"
               alt="GSIC Hub Logo"
-              className="w-9 h-9 object-contain group-hover:scale-105 transition"
+              className="w-15 h-15 object-contain group-hover:scale-105 transition"
             />
             <span className="text-lg font-bold font-heading">
               <span className="gradient-text">GSIC</span>
