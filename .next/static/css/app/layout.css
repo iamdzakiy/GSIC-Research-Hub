@@ -819,9 +819,6 @@ h1, h2, h3, h4, h5, h6 {
 .h-8{
   height: 2rem;
 }
-.h-9{
-  height: 2.25rem;
-}
 .h-\[350px\]{
   height: 350px;
 }
@@ -881,9 +878,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 .w-8{
   width: 2rem;
-}
-.w-9{
-  width: 2.25rem;
 }
 .w-\[350px\]{
   width: 350px;

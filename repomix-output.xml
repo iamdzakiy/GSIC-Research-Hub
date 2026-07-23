@@ -4575,6 +4575,12 @@ export default function RootLayout({
 }
 </file>
 
+<file path=".gitignore">
+node_modules
+.env.local
+.env
+</file>
+
 <file path="components/Navbar.tsx">
 "use client";
 
@@ -4642,9 +4648,9 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <img
-              src="/1.png"
+              src="/favicon.png"
               alt="GSIC Hub Logo"
-              className="w-9 h-9 object-contain group-hover:scale-105 transition"
+              className="w-12 h-12 object-contain group-hover:scale-105 transition"
             />
             <span className="text-lg font-bold font-heading">
               <span className="gradient-text">GSIC</span>
@@ -4857,12 +4863,6 @@ export default function Navbar() {
     </nav>
   );
 }
-</file>
-
-<file path=".gitignore">
-node_modules
-.env.local
-.env
 </file>
 
 </files>

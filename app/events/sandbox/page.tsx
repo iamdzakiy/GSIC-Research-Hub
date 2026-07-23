@@ -19,29 +19,13 @@ import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
 import {
   SANDBOX_EVENT,
-  STORAGE_KEYS,
   formatDate,
   daysUntil,
   getEventStatusColor,
   getEventStatusText,
-  generateId,
 } from "@/lib/data";
+import { getRegistrations, create } from "@/lib/firestore";
 import { GSICEvent, Registration } from "@/lib/types";
-
-// ============================================================
-// LOCAL STORAGE HELPERS
-// ============================================================
-function getData(key: string): any[] {
-  try {
-    return JSON.parse(localStorage.getItem(key) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function setData(key: string, data: any[]) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
 
 // ============================================================
 // MAIN COMPONENT
@@ -60,9 +44,13 @@ export default function SandboxPage() {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const regs = getData(STORAGE_KEYS.registrations);
-    setRegistrations(regs);
+  const loadData = async () => {
+    try {
+      const regs = await getRegistrations();
+      setRegistrations(regs);
+    } catch (e) {
+      console.error("Firestore load error:", e);
+    }
   };
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
@@ -76,7 +64,7 @@ export default function SandboxPage() {
 
   const isRegistered = !!userRegistration;
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!user) {
       showToast("Please sign in to register.", "error");
       return;
@@ -87,7 +75,7 @@ export default function SandboxPage() {
     }
 
     const newReg: Registration = {
-      id: `reg-${generateId()}`,
+      id: `reg-${Date.now().toString(36)}${Math.random().toString(36).substring(2, 8)}`,
       userId: user.uid,
       eventId: event.id,
       status: "confirmed",
@@ -96,11 +84,14 @@ export default function SandboxPage() {
       registeredAt: new Date().toISOString(),
     };
 
-    const all = getData(STORAGE_KEYS.registrations);
-    all.push(newReg);
-    setData(STORAGE_KEYS.registrations, all);
-    setRegistrations(all);
-    showToast(`🎉 Registered for ${event.title}!`);
+    try {
+      await create("registrations", newReg);
+      setRegistrations([...registrations, newReg]);
+      showToast(`🎉 Registered for ${event.title}!`);
+    } catch (e) {
+      console.error(e);
+      showToast("Failed to register.", "error");
+    }
   };
 
   if (loading) {

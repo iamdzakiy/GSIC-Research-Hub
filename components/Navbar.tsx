@@ -64,7 +64,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
             <img
-              src="/1.png"
+              src="/favicon.png"
               alt="GSIC Hub Logo"
               className="w-12 h-12 object-contain group-hover:scale-105 transition"
             />

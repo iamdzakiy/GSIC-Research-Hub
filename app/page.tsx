@@ -35,13 +35,7 @@ import {
   getEventStatusColor,
   getEventStatusText,
 } from "@/lib/data";
-import {
-  getOpportunities as getOpportunitiesFS,
-  getEvents as getEventsFS,
-  ensureSeed,
-} from "@/lib/firestore";
-import { db } from "@/lib/firebase";
-import { getDocs, collection } from "firebase/firestore";
+import { getOpportunities, getCurated, getEvents, ensureSeed } from "@/lib/firestore";
 import { Opportunity, CuratedOpportunity, GSICEvent } from "@/lib/types";
 
 export default function HomePage() {
@@ -60,14 +54,16 @@ export default function HomePage() {
       await ensureSeed("opportunities", SEED_OPPORTUNITIES);
       await ensureSeed("curated", SEED_CURATED);
       await ensureSeed("events", SEED_EVENTS);
-      const [opps, curatedSnap, eventsList] = await Promise.all([
-        getOpportunitiesFS(),
-        getDocs(collection(db, "curated")),
-        getEventsFS(),
+
+      const [opps, curatedList, eventsList] = await Promise.all([
+        getOpportunities(),
+        getCurated(),
+        getEvents(),
       ]);
-      setOpportunities(opps as Opportunity[]);
-      setCurated(curatedSnap.docs.map((d) => ({ id: d.id, ...(d.data() as CuratedOpportunity) })));
-      setEvents(eventsList as GSICEvent[]);
+
+      setOpportunities(opps);
+      setCurated(curatedList);
+      setEvents(eventsList);
     } catch (e) {
       console.error("Firestore load error:", e);
     }

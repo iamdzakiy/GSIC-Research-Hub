@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { getRegistrations, getTestResults, create, update } from "@/lib/firestore";
 import {
   Calendar,
   Clock,
@@ -21,7 +22,6 @@ import Navbar from "@/components/Navbar";
 import {
   PKM_BOOTCAMP,
   SEED_TESTS,
-  STORAGE_KEYS,
   formatDate,
   daysUntil,
   getEventStatusColor,
@@ -29,21 +29,6 @@ import {
   generateId,
 } from "@/lib/data";
 import { GSICEvent, Test, TestResult, Registration } from "@/lib/types";
-
-// ============================================================
-// LOCAL STORAGE HELPERS
-// ============================================================
-function getData(key: string): any[] {
-  try {
-    return JSON.parse(localStorage.getItem(key) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function setData(key: string, data: any[]) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
 
 // ============================================================
 // MAIN COMPONENT
@@ -70,12 +55,18 @@ export default function PkmBootcampPage() {
     loadData();
   }, []);
 
-  const loadData = () => {
-    const regs = getData(STORAGE_KEYS.registrations);
-    const results = getData(STORAGE_KEYS.testResults);
+const loadData = async () => {
+  try {
+    const [regs, results] = await Promise.all([
+      getRegistrations(),
+      getTestResults(),
+    ]);
     setRegistrations(regs);
     setTestResults(results);
-  };
+  } catch (e) {
+    console.error("Firestore load error:", e);
+  }
+};
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -115,32 +106,29 @@ export default function PkmBootcampPage() {
   // ============================================================
   // HANDLERS
   // ============================================================
-  const handleRegister = () => {
-    if (!user) {
-      showToast("Please sign in to register.", "error");
-      return;
-    }
-    if (!regForm.motivation.trim()) {
-      showToast("Please tell us your motivation.", "error");
-      return;
-    }
+  const handleRegister = async () => {
+  if (!user) { showToast("Please sign in to register.", "error"); return; }
+  if (!regForm.motivation.trim()) { showToast("Please tell us your motivation.", "error"); return; }
 
-    const newReg: Registration = {
-      id: `reg-${generateId()}`,
-      userId: user.uid,
-      eventId: event.id,
-      status: "confirmed",
-      preTestCompleted: false,
-      postTestCompleted: false,
-      registeredAt: new Date().toISOString(),
-    };
-
-    const all = getData(STORAGE_KEYS.registrations);
-    all.push(newReg);
-    setData(STORAGE_KEYS.registrations, all);
-    setRegistrations(all);
-    showToast(`🎉 Registered for ${event.title}!`);
+  const newReg: Registration = {
+    id: `reg-${generateId()}`,
+    userId: user.uid,
+    eventId: event.id,
+    status: "confirmed",
+    preTestCompleted: false,
+    postTestCompleted: false,
+    registeredAt: new Date().toISOString(),
   };
+
+  try {
+    await create("registrations", newReg);
+    setRegistrations([...registrations, newReg]);
+    showToast(`🎉 Registered for ${event.title}!`);
+  } catch (e) {
+    console.error(e);
+    showToast("Failed to register.", "error");
+  }
+};
 
   const startTest = (type: "pre" | "post") => {
     if (!user) {
@@ -167,11 +155,10 @@ export default function PkmBootcampPage() {
     setTestResult(null);
   };
 
-  const submitTest = () => {
-    if (!activeTest || !user) return;
-
-    const test = getTest(activeTest);
-    if (!test) return;
+  const submitTest = async () => {
+  if (!activeTest || !user) return;
+  const test = getTest(activeTest);
+  if (!test) return;
 
     // Check all questions answered
     const unanswered = test.questions.filter((q) => !answers[q.id]);
@@ -194,45 +181,39 @@ export default function PkmBootcampPage() {
     });
 
     const newResult: TestResult = {
-      id: `result-${generateId()}`,
-      testId: test.id,
-      userId: user.uid,
-      answers: Object.entries(answers).map(([questionId, answer]) => ({
-        questionId,
-        answer,
-      })),
-      score,
-      maxScore,
-      completedAt: new Date().toISOString(),
-    };
+    id: `result-${generateId()}`,
+    testId: test.id,
+    userId: user.uid,
+    answers: Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer })),
+    score, maxScore,
+    completedAt: new Date().toISOString(),
+  };
 
-    const allResults = getData(STORAGE_KEYS.testResults);
-    allResults.push(newResult);
-    setData(STORAGE_KEYS.testResults, allResults);
-    setTestResults(allResults);
+  try {
+    // 1. Save test result to Firebase
+    await create("testResults", newResult);
+    setTestResults([...testResults, newResult]);
 
-    // Update registration
-    const allRegs = getData(STORAGE_KEYS.registrations);
-    const regIndex = allRegs.findIndex(
-      (r: Registration) => r.userId === user.uid && r.eventId === event.id
-    );
-    if (regIndex >= 0) {
-      if (activeTest === "pre") {
-        allRegs[regIndex].preTestCompleted = true;
-      } else {
-        allRegs[regIndex].postTestCompleted = true;
-      }
-      setData(STORAGE_KEYS.registrations, allRegs);
-      setRegistrations(allRegs);
+    // 2. Update registration status in Firebase
+    if (userRegistration) {
+      const patch: Partial<Registration> = {};
+      if (activeTest === "pre") patch.preTestCompleted = true;
+      else patch.postTestCompleted = true;
+      
+      await update("registrations", userRegistration.id, patch);
+      setRegistrations(
+        registrations.map((r) => r.id === userRegistration.id ? { ...r, ...patch } : r)
+      );
     }
 
     setTestResult({ score, maxScore });
-    setTestResult({ score, maxScore });
     setActiveTest(null);
-    showToast(
-      `✅ Test submitted! Score: ${score}/${maxScore} (${Math.round((score / maxScore) * 100)}%)`
-    );
-  };
+    showToast(`✅ Test submitted! Score: ${score}/${maxScore}`);
+  } catch (e) {
+    console.error(e);
+    showToast("Failed to submit test.", "error");
+  }
+};
 
   const cancelTest = () => {
     setActiveTest(null);
