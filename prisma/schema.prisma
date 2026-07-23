@@ -1,7 +1,9 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+# ============================================================
+# FIREBASE CONFIGURATION - CENTRALIZED DATABASE
+# ============================================================
+# Semua database terpusat di Firebase (Firestore, Auth, Storage)
+# Tidak ada database eksternal lain (PostgreSQL, MySQL, dll)
+# ============================================================
 
 generator client {
   provider = "prisma-client"
@@ -9,5 +11,8 @@ generator client {
 }
 
 datasource db {
+  // PostgreSQL tidak digunakan - semua data di Firebase Firestore
+  // File ini dipertahankan untuk kompatibilitas, tapi tidak aktif
   provider = "postgresql"
+  url      = env("DATABASE_URL") // Tidak perlu diset jika hanya menggunakan Firebase
 }

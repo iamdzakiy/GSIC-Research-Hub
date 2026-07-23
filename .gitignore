@@ -1,4 +1,31 @@
-node_modules
-.env.local
+```
+# Environment variables
 .env
-/generated/prisma
+.env.local
+.env.*
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.npm/
+.yarn/
+
+# Build outputs
+dist/
+build/
+public/build/
+.next/
+.nuxt/
+out/
+
+# Database
+prisma/migrations/
+
+# Logs
+*.log
+.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
