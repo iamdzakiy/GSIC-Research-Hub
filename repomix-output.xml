@@ -63,7 +63,7 @@ lib/
   firebase.ts
   types.ts
 public/
-  favicon.svg
+  favicon.png
 .env.local
 .gitignore
 next-env.d.ts
@@ -3666,7 +3666,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.png", type: "image/svg+xml" },
       { url: "/favicon.ico" },
     ],
     apple: [{ url: "/apple-touch-icon.png" }],
@@ -5587,7 +5587,7 @@ export interface AdminAccount {
 }
 </file>
 
-<file path="public/favicon.svg">
+<file path="public/favicon.png">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
