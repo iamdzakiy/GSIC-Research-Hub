@@ -12,8 +12,7 @@ import {
   updateProfile,
   signInAnonymously,
 } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { saveUserProfile } from "@/lib/firestore";
 import { FACULTY_MAJOR_MAP } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 
@@ -60,26 +59,26 @@ export default function AuthPage() {
 
         const userCred = await createUserWithEmailAndPassword(auth, form.email, form.password);
         if (userCred.user) {
-          await updateProfile(userCred.user, { displayName: form.name });
-          const profile = {
-            uid: userCred.user.uid,
-            htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-            email: form.email,
-            name: form.name,
-            faculty: form.faculty,
-            major: form.major,
-            year: form.year,
-            whatsapp: form.whatsapp,
-            avatarUrl: null,
-            classcardTheme: "blue",
-            skills: form.skillsCSV.split(",").map((s) => s.trim()).filter(Boolean),
-            bio: "",
-            isVerified: false,
-            role: "user",
-            createdAt: new Date().toISOString(),
-          };
+            await updateProfile(userCred.user, { displayName: form.name });
+const profile = {
+  uid: userCred.user.uid,
+  htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+  email: form.email,
+  name: form.name,
+  faculty: form.faculty,
+  major: form.major,
+  year: form.year,
+  whatsapp: form.whatsapp,
+  avatarUrl: null,
+  classcardTheme: "blue" as const,
+  skills: form.skillsCSV.split(",").map((s) => s.trim()).filter(Boolean),
+  bio: "",
+  isVerified: false,
+  role: "user" as const,
+  createdAt: new Date().toISOString(),
+};
           try {
-            await setDoc(doc(db, "users", userCred.user.uid), profile);
+            await saveUserProfile(userCred.user.uid, profile);
           } catch (err) {
             console.error("Error creating profile:", err);
             localStorage.setItem(`gsic_profile_${userCred.user.uid}`, JSON.stringify(profile));

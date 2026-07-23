@@ -2,8 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { getUserProfile, saveUserProfile } from "@/lib/firestore";
 import { UserProfile } from "@/lib/types";
 
 interface AuthContextType {
@@ -55,10 +54,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
     try {
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserProfile(docSnap.data() as UserProfile);
+      const profile = await getUserProfile(user.uid);
+      if (profile) {
+        setUserProfile(profile);
       }
     } catch (err) {
       console.error("Error refreshing profile:", err);
@@ -78,20 +76,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (firebaseUser) {
         try {
-          const docRef = doc(db, "users", firebaseUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setUserProfile(docSnap.data() as UserProfile);
-          } else {
+          let profile = await getUserProfile(firebaseUser.uid);
+
+          if (!profile) {
             const defaultProfile = createDefaultProfile(
               firebaseUser.uid,
               firebaseUser.email || "",
               firebaseUser.displayName || "User"
             );
-            await setDoc(docRef, defaultProfile);
-            setUserProfile(defaultProfile);
-            localStorage.setItem(`gsic_profile_${firebaseUser.uid}`, JSON.stringify(defaultProfile));
+            await saveUserProfile(firebaseUser.uid, defaultProfile);
+            profile = defaultProfile;
           }
+
+          setUserProfile(profile);
         } catch (err) {
           console.error("Error fetching profile from Firestore:", err);
           try {

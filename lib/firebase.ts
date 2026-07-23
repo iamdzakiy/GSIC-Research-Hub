@@ -22,9 +22,28 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// Validate that all required Firebase env vars are present. This produces a
+// clear, actionable error instead of a cryptic runtime failure. Remember to
+// restart the dev server after editing `.env.local`.
+const missingKeys = Object.entries(firebaseConfig)
+  .filter(([, value]) => !value)
+  .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+  throw new Error(
+    `Firebase configuration error: missing values for [${missingKeys.join(
+      ", "
+    )}]. ` +
+      `Add the corresponding NEXT_PUBLIC_FIREBASE_* variables to .env.local ` +
+      `and restart the dev server (npm run dev).`
+  );
+}
+
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
+
+
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export {
