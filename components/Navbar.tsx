@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -62,9 +63,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#3352CD] to-[#5CE3B6] flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition font-heading">
-              G
-            </div>
+            <img
+              src="/1.png"
+              alt="GSIC Hub Logo"
+              className="w-9 h-9 object-contain group-hover:scale-105 transition"
+            />
             <span className="text-lg font-bold font-heading">
               <span className="gradient-text">GSIC</span>
               <span className="text-white/50 text-sm font-normal">Hub</span>
