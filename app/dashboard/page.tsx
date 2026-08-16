@@ -98,7 +98,7 @@ export default function DashboardPage() {
   };
 
   const userRegistrations = user
-    ? registrations.filter((r) => r.userId === user.uid)
+    ? registrations.filter((r) => r.userId === user.id)
     : [];
 
   const userEvents = userRegistrations
@@ -106,7 +106,7 @@ export default function DashboardPage() {
     .filter(Boolean) as GSICEvent[];
 
   const userTestResults = user
-    ? testResults.filter((r) => r.userId === user.uid)
+    ? testResults.filter((r) => r.userId === user.id)
     : [];
 
   const averageScore =

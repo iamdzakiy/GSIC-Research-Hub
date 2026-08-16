@@ -75,7 +75,7 @@ const loadData = async () => {
 
   // Check if user is registered
   const userRegistration = user
-    ? registrations.find((r) => r.userId === user.uid && r.eventId === event.id)
+    ? registrations.find((r) => r.userId === user.id && r.eventId === event.id)
     : null;
 
   const isRegistered = !!userRegistration;
@@ -91,7 +91,7 @@ const loadData = async () => {
     const test = getTest(type);
     if (!test) return false;
     return testResults.some(
-      (r) => r.testId === test.id && r.userId === user.uid
+      (r) => r.testId === test.id && r.userId === user.id
     );
   };
 
@@ -100,7 +100,7 @@ const loadData = async () => {
     if (!user) return null;
     const test = getTest(type);
     if (!test) return null;
-    return testResults.find((r) => r.testId === test.id && r.userId === user.uid) || null;
+    return testResults.find((r) => r.testId === test.id && r.userId === user.id) || null;
   };
 
   // ============================================================
@@ -112,7 +112,7 @@ const loadData = async () => {
 
   const newReg: Registration = {
     id: `reg-${generateId()}`,
-    userId: user.uid,
+    userId: user.id,
     eventId: event.id,
     status: "confirmed",
     preTestCompleted: false,
