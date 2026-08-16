@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { auth, onAuthStateChanged } from "@/lib/firebase";
-import { getUserProfile, saveUserProfile } from "@/lib/firestore";
+import { supabase } from "@/lib/supabaseClient";
+import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
+import { getUserProfile, saveUserProfile } from "@/services/userService"; // We'll create this
 
 interface AuthContextType {
-  user: any;
+  user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
   isAdmin: boolean;
@@ -17,9 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
   return context;
 }
 
@@ -44,75 +43,40 @@ function createDefaultProfile(uid: string, email: string, name: string): UserPro
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = async () => {
-    if (!user) {
-      setUserProfile(null);
-      return;
-    }
-    try {
-      const profile = await getUserProfile(user.uid);
-      if (profile) {
-        setUserProfile(profile);
-      }
-    } catch (err) {
-      console.error("Error refreshing profile:", err);
-      try {
-        const localProfile = localStorage.getItem(`gsic_profile_${user.uid}`);
-        if (localProfile) {
-          setUserProfile(JSON.parse(localProfile));
-        }
-      } catch {}
-    }
+    if (!user) return;
+    const profile = await getUserProfile(user.id);
+    if (profile) setUserProfile(profile);
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      setLoading(true);
-
-      if (firebaseUser) {
-        try {
-          let profile = await getUserProfile(firebaseUser.uid);
-
-          if (!profile) {
-            const defaultProfile = createDefaultProfile(
-              firebaseUser.uid,
-              firebaseUser.email || "",
-              firebaseUser.displayName || "User"
-            );
-            await saveUserProfile(firebaseUser.uid, defaultProfile);
-            profile = defaultProfile;
-          }
-
-          setUserProfile(profile);
-        } catch (err) {
-          console.error("Error fetching profile from Firestore:", err);
-          try {
-            const localProfile = localStorage.getItem(`gsic_profile_${firebaseUser.uid}`);
-            if (localProfile) {
-              setUserProfile(JSON.parse(localProfile));
-            } else {
-              const defaultProfile = createDefaultProfile(
-                firebaseUser.uid,
-                firebaseUser.email || "",
-                firebaseUser.displayName || "User"
-              );
-              localStorage.setItem(`gsic_profile_${firebaseUser.uid}`, JSON.stringify(defaultProfile));
-              setUserProfile(defaultProfile);
-            }
-          } catch {}
-        }
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+      if (currentUser) {
+        const profile = await getUserProfile(currentUser.id);
+        setUserProfile(profile);
       } else {
         setUserProfile(null);
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user || null);
+      if (session?.user) {
+        getUserProfile(session.user.id).then(profile => setUserProfile(profile));
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
   const isAdmin = userProfile?.role === "admin";

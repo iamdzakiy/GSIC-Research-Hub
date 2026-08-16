@@ -35,7 +35,9 @@ import {
   getEventStatusColor,
   getEventStatusText,
 } from "@/lib/data";
-import { getOpportunities, getCurated, getEvents, ensureSeed } from "@/lib/firestore";
+import { getOpportunities, updateOpportunity } from "@/services/opportunities";
+import { getCurated } from "@/services/curated";
+import { getEvents } from "@/services/events";
 import { Opportunity, CuratedOpportunity, GSICEvent } from "@/lib/types";
 
 export default function HomePage() {
@@ -44,6 +46,7 @@ export default function HomePage() {
   const [curated, setCurated] = useState<CuratedOpportunity[]>([]);
   const [events, setEvents] = useState<GSICEvent[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -51,21 +54,27 @@ export default function HomePage() {
 
   const loadData = async () => {
     try {
-      await ensureSeed("opportunities", SEED_OPPORTUNITIES);
-      await ensureSeed("curated", SEED_CURATED);
-      await ensureSeed("events", SEED_EVENTS);
-
       const [opps, curatedList, eventsList] = await Promise.all([
         getOpportunities(),
         getCurated(),
         getEvents(),
       ]);
 
-      setOpportunities(opps);
+      // Auto-archive expired opportunities
+      const now = new Date();
+      const updated = opps.map(o => {
+        if (new Date(o.deadline) < now && o.status !== "archived") {
+          updateOpportunity(o.id, { status: "archived" }).catch(console.error);
+          return { ...o, status: "archived" as const };
+        }
+        return o;
+      });
+
+      setOpportunities(updated);
       setCurated(curatedList);
       setEvents(eventsList);
     } catch (e) {
-      console.error("Firestore load error:", e);
+      console.error("API load error:", e);
     }
   };
 
@@ -74,7 +83,9 @@ export default function HomePage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const activeOpps = opportunities.filter((o) => o.status === "active");
+  const filtered = opportunities.filter(o => showArchived ? true : o.status !== "archived");
+  const sorted = [...filtered].sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+  const activeOpps = sorted;
   const pkmBootcamp = events.find((e) => e.type === "bootcamp");
   const sandboxEvent = events.find((e) => e.type === "sandbox");
 
@@ -129,7 +140,7 @@ export default function HomePage() {
             </div>
             <div className="mt-10 grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
               {[
-                { label: "Active Opps", value: activeOpps.length, color: "text-[#5CE3B6]" },
+                { label: "Active Opps", value: activeOpps.filter(o => o.status !== "archived").length, color: "text-[#5CE3B6]" },
                 { label: "Curated", value: curated.length, color: "text-[#F2F8C9]" },
                 { label: "Events", value: events.length, color: "text-[#3352CD]" },
                 { label: "Bootcamp", value: pkmBootcamp ? 1 : 0, color: "text-[#5CE3B6]" },
@@ -179,7 +190,7 @@ export default function HomePage() {
                 </div>
                 <div className="mb-4">
                   <div className="text-xs text-white/40 mb-1">Pre/Post Test Info</div>
-                  <div className="text-xs text-white/50 font-body">{pkmBootcamp.preTestExplanation.substring(0, 120)}...</div>
+                  <div className="text-xs text-white/50 font-body">{pkmBootcamp.preTestExplanation?.substring(0, 120) || ""}...</div>
                 </div>
                 <a href="/events/pkm-bootcamp" className="w-full bg-gradient-to-r from-[#3352CD] to-[#4a6cf7] hover:from-[#4a6cf7] hover:to-[#5a7cff] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2">
                   <Rocket className="w-4 h-4" /> View PKM Bootcamp
@@ -231,6 +242,10 @@ export default function HomePage() {
               </h2>
               <p className="text-sm text-white/40 mt-1 font-body">Research, Scholarships, Careers & Competitions</p>
             </div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs text-white/40">
+              <input type="checkbox" checked={showArchived} onChange={(e) => setShowArchived(e.target.checked)} className="accent-[#5CE3B6]" />
+              Show archived
+            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -239,26 +254,39 @@ export default function HomePage() {
                 <Search className="w-12 h-12 mx-auto mb-4 opacity-50" /> No opportunities found.
               </div>
             ) : (
-              activeOpps.map((opp, idx) => (
-                <motion.div key={opp.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.05 }} className="glass rounded-2xl p-5 card-hover border-l-4 border-[#5CE3B6]">
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="inline-block text-[10px] bg-white/10 px-2.5 py-1 rounded-full">{getTypeLabel(opp.type)}</span>
-                  </div>
-                  <h3 className="text-base font-bold leading-snug font-heading">{opp.title}</h3>
-                  <div className="text-xs text-white/40 mt-1">{opp.organizer}</div>
-                  <p className="text-xs text-white/50 mt-2 line-clamp-2">{opp.description}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {opp.link && (
-                      <a href={opp.link} target="_blank" rel="noopener noreferrer" className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
-                        <ExternalLink className="w-3 h-3" /> Apply
+              activeOpps.map((opp, idx) => {
+                const days = Math.ceil((new Date(opp.deadline).getTime() - Date.now()) / (1000*60*60*24));
+                let colorClass = "text-[#5CE3B6]";
+                let borderColor = "border-[#5CE3B6]";
+                if (days < 0) { colorClass = "text-red-400"; borderColor = "border-red-400"; }
+                else if (days <= 7) { colorClass = "text-yellow-400"; borderColor = "border-yellow-400"; }
+                return (
+                  <motion.div key={opp.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.05 }} className={`glass rounded-2xl p-5 card-hover border-l-4 ${borderColor}`}>
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="inline-block text-[10px] bg-white/10 px-2.5 py-1 rounded-full">{getTypeLabel(opp.type)}</span>
+                      <div className={`text-[10px] font-medium ${colorClass}`}>
+                        {days < 0 ? "Expired" : `${days} days left`}
+                      </div>
+                    </div>
+                    <h3 className="text-base font-bold leading-snug font-heading">{opp.title}</h3>
+                    <div className="text-xs text-white/40 mt-1">{opp.organizer}</div>
+                    <p className="text-xs text-white/50 mt-2 line-clamp-2">{opp.description}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <a href={`/opportunities/${opp.id}`} className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
+                        <Layers className="w-3 h-3" /> Details
                       </a>
-                    )}
-                    {opp.requiredSkills && opp.requiredSkills.length > 0 && (
-                      <div className="text-xs text-white/30">Skills: {opp.requiredSkills.join(", ")}</div>
-                    )}
-                  </div>
-                </motion.div>
-              ))
+                      {opp.link && (
+                        <a href={opp.link} target="_blank" rel="noopener noreferrer" className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
+                          <ExternalLink className="w-3 h-3" /> Apply
+                        </a>
+                      )}
+                      {opp.requiredSkills && opp.requiredSkills.length > 0 && (
+                        <div className="text-xs text-white/30">Skills: {opp.requiredSkills.join(", ")}</div>
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })
             )}
           </div>
         </section>
@@ -286,9 +314,11 @@ export default function HomePage() {
                   <div className="text-xs text-white/40 mt-1">{c.organizer}</div>
                   <p className="text-xs text-white/50 mt-2">{c.description}</p>
                   <div className="mt-3">
-                    <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
-                      <ExternalLink className="w-3 h-3" /> Prepare
-                    </a>
+                    {c.link && (
+                      <a href={c.link} target="_blank" rel="noopener noreferrer" className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
+                        <ExternalLink className="w-3 h-3" /> Prepare
+                      </a>
+                    )}
                   </div>
                 </motion.div>
               ))

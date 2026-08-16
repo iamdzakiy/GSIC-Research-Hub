@@ -28,6 +28,8 @@ import {
   Search,
   ArrowUpDown,
   ExternalLink,
+  Zap,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -37,6 +39,7 @@ import {
   SEED_EVENTS,
   SEED_TESTS,
   SEED_DOCUMENTS,
+  PKM_BOOTCAMP,
   formatDate,
   getTypeIcon,
   getTypeLabel,
@@ -52,17 +55,13 @@ import {
   AdminAccount,
   Document,
 } from "@/lib/types";
-import {
-  getOpportunities,
-  getEvents,
-  getTests,
-  getDocuments,
-  getAdminAccounts,
-  ensureSeed,
-  create,
-  update,
-  remove,
-} from "@/lib/firestore";
+import { getOpportunities } from "@/services/opportunities";
+import { getCurated } from "@/services/curated";
+import { getEvents } from "@/services/events";
+import { getTests } from "@/services/tests";
+import { getDocuments } from "@/services/documents";
+import { getAdminAccounts } from "@/services/adminAccounts";
+import { ensureSeed, create, update, remove } from "@/lib/firestore";
 
 export default function AdminDashboard() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -103,6 +102,10 @@ export default function AdminDashboard() {
   const [opportunitySort, setOpportunitySort] = useState<"deadline" | "title" | "status">("deadline");
   const [opportunityDir, setOpportunityDir] = useState<"asc" | "desc">("asc");
 
+  // Quick opportunity state (1 kalimat)
+  const [quickOpp, setQuickOpp] = useState({ title: "", type: "research" as Opportunity["type"], organizer: "" });
+  const [quickOppOpen, setQuickOppOpen] = useState(false);
+
   useEffect(() => {
     loadData();
   }, []);
@@ -110,17 +113,20 @@ export default function AdminDashboard() {
   const loadData = async () => {
     try {
       await ensureSeed("opportunities", SEED_OPPORTUNITIES);
+      await ensureSeed("curated", SEED_CURATED);
       await ensureSeed("events", SEED_EVENTS);
       await ensureSeed("tests", SEED_TESTS);
       await ensureSeed("documents", SEED_DOCUMENTS);
-      const [opps, eventsList, testsList, docsList, admins] = await Promise.all([
+      const [opps, curatedList, eventsList, testsList, docsList, admins] = await Promise.all([
         getOpportunities(),
+        getCurated(),
         getEvents(),
         getTests(),
         getDocuments(),
         getAdminAccounts(),
       ]);
       setOpportunities(opps as Opportunity[]);
+      setCurated(curatedList as CuratedOpportunity[]);
       setEvents(eventsList as GSICEvent[]);
       setTests(testsList as Test[]);
       setDocuments(docsList as Document[]);
@@ -163,7 +169,7 @@ export default function AdminDashboard() {
       postTestId: eventForm.hasPostTest ? `test-${generateId()}` : undefined,
       preTestExplanation: eventForm.preTestExplanation,
       postTestExplanation: eventForm.postTestExplanation,
-      createdBy: user?.uid || "unknown",
+      createdBy: user?.id || "unknown",
       createdAt: new Date().toISOString(),
     };
     try {
@@ -198,7 +204,7 @@ export default function AdminDashboard() {
       name: adminForm.name,
       role: "admin",
       isGenerated: true,
-      generatedBy: user?.uid || "unknown",
+      generatedBy: user?.id || "unknown",
       createdAt: new Date().toISOString(),
     };
     try {
@@ -496,6 +502,46 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
+
+            {/* Auto-Create PKM Bootcamp */}
+            <div className="glass rounded-2xl p-6 border border-[#5CE3B6]/20">
+              <h3 className="font-semibold mb-2 flex items-center gap-2 font-heading">
+                <Zap className="w-4 h-4 text-[#5CE3B6]" /> Auto-Create PKM Bootcamp
+              </h3>
+              <p className="text-xs text-white/40 mb-4">
+                One-click to create the full PKM Bootcamp event with pre-test, post-test, modules, and speakers.
+              </p>
+              <button
+                onClick={async () => {
+                  try {
+                    // Check if PKM Bootcamp already exists
+                    const existing = events.find((e) => e.id === "event-pkm-bootcamp");
+                    if (existing) {
+                      showToast("⚠️ PKM Bootcamp already exists!", "error");
+                      return;
+                    }
+                    // Create the event
+                    await create("events", {
+                      ...PKM_BOOTCAMP,
+                      createdBy: user?.id || "unknown",
+                      createdAt: new Date().toISOString(),
+                    });
+                    // Create pre-test and post-test
+                    for (const test of SEED_TESTS) {
+                      await create("tests", test);
+                    }
+                    showToast("✅ PKM Bootcamp created with pre/post tests!");
+                    await loadData();
+                  } catch (e) {
+                    console.error(e);
+                    showToast("Failed to auto-create PKM Bootcamp", "error");
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-[#5CE3B6] to-[#3352CD] hover:from-[#7ff0cc] hover:to-[#4a6cf7] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2"
+              >
+                <Zap className="w-4 h-4" /> Auto-Create PKM Bootcamp + Pre/Post Tests
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -580,22 +626,104 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Quick Opportunity Form (1 kalimat) */}
+            <div className="glass rounded-2xl p-6 border border-[#F2F8C9]/20">
+              <h3 className="font-semibold mb-2 flex items-center gap-2 font-heading">
+                <MessageSquare className="w-4 h-4 text-[#F2F8C9]" /> Quick Opportunity (1 Kalimat)
+              </h3>
+              <p className="text-xs text-white/40 mb-4">
+                Add an opportunity in one sentence. Just fill in the title, type, and organizer — the rest will be auto-filled.
+              </p>
+              {!quickOppOpen ? (
+                <button onClick={() => setQuickOppOpen(true)} className="bg-gradient-to-r from-[#F2F8C9] to-[#d4df9e] text-[#0a0a2e] hover:from-[#d4df9e] hover:to-[#F2F8C9] transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2">
+                  <Plus className="w-4 h-4" /> Add Quick Opportunity
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
+                      <label className="text-xs text-white/40">Title *</label>
+                      <input type="text" value={quickOpp.title} onChange={(e) => setQuickOpp({ ...quickOpp, title: e.target.value })} placeholder="e.g. GSIC Research Grant 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#F2F8C9]" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/40">Type</label>
+                      <select value={quickOpp.type} onChange={(e) => setQuickOpp({ ...quickOpp, type: e.target.value as Opportunity["type"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#F2F8C9]">
+                        <option value="research">🔬 Research</option>
+                        <option value="scholarship">🎓 Scholarship</option>
+                        <option value="career">💼 Career</option>
+                        <option value="competition">🏆 Competition</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-white/40">Organizer *</label>
+                      <input type="text" value={quickOpp.organizer} onChange={(e) => setQuickOpp({ ...quickOpp, organizer: e.target.value })} placeholder="e.g. GSIC" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#F2F8C9]" />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        if (!quickOpp.title || !quickOpp.organizer) {
+                          showToast("Title and organizer are required.", "error");
+                          return;
+                        }
+                        try {
+                          const newOpp: Opportunity = {
+                            id: `opp-${generateId()}`,
+                            type: quickOpp.type,
+                            title: quickOpp.title,
+                            organizer: quickOpp.organizer,
+                            description: quickOpp.title,
+                            requiredSkills: [],
+                            benefits: [],
+                            deadline: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+                            isAnnual: false,
+                            link: "",
+                            posterUrl: null,
+                            status: "active",
+                            cpName: "",
+                            cpContact: "",
+                          };
+                          await create("opportunities", newOpp);
+                          showToast(`✅ Opportunity "${quickOpp.title}" added!`);
+                          setQuickOpp({ title: "", type: "research", organizer: "" });
+                          setQuickOppOpen(false);
+                          await loadData();
+                        } catch (e) {
+                          showToast("Failed to add opportunity", "error");
+                        }
+                      }}
+                      className="bg-gradient-to-r from-[#F2F8C9] to-[#d4df9e] text-[#0a0a2e] hover:from-[#d4df9e] hover:to-[#F2F8C9] transition py-2 px-4 rounded-xl font-medium text-sm"
+                    >
+                      <Plus className="w-4 h-4" /> Add
+                    </button>
+                    <button onClick={() => { setQuickOppOpen(false); setQuickOpp({ title: "", type: "research", organizer: "" }); }} className="bg-white/10 hover:bg-white/20 transition py-2 px-4 rounded-xl text-sm">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
                 <Calendar className="w-4 h-4 text-[#F2F8C9]" /> Curated Opportunities ({curated.length})
               </h3>
               <div className="space-y-2">
-                {curated.map((c) => (
-                  <div key={c.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
-                    <div className="truncate">
-                      <span className="text-sm font-medium block truncate">{c.title}</span>
-                      <span className="text-[10px] text-white/30">Opens {c.monthOpen}</span>
+                {curated.length === 0 ? (
+                  <div className="text-center py-8 text-white/30">No curated opportunities yet.</div>
+                ) : (
+                  curated.map((c) => (
+                    <div key={c.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
+                      <div className="truncate">
+                        <span className="text-sm font-medium block truncate">{c.title}</span>
+                        <span className="text-[10px] text-white/30">Opens {c.monthOpen}</span>
+                      </div>
+                      <button onClick={async () => { await remove("curated", c.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <button onClick={async () => { await remove("curated", c.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </motion.div>
