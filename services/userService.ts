@@ -26,3 +26,19 @@ export async function createUserProfile(profile: UserProfile): Promise<void> {
   });
   if (!res.ok) throw new Error("Failed to create profile");
 }
+
+export async function getAllUsers(): Promise<UserProfile[]> {
+  const res = await fetch("/api/users");
+  if (!res.ok) throw new Error("Failed to fetch users");
+  return res.json();
+}
+
+export async function updateUserProfile(uid: string, updates: Partial<UserProfile>): Promise<UserProfile> {
+  const res = await fetch("/api/users", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: uid, ...updates }),
+  });
+  if (!res.ok) throw new Error("Failed to update profile");
+  return res.json();
+}

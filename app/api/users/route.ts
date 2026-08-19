@@ -26,6 +26,9 @@ export async function POST(request: Request) {
         bio: body.bio,
         isVerified: body.isVerified || false,
         role: body.role || "user",
+        emailConfirmed: body.emailConfirmed ?? user.email_confirmed_at ? true : false,
+        provider: body.provider || "email",
+        lastSignInAt: body.lastSignInAt ? new Date(body.lastSignInAt) : undefined,
       },
       create: {
         id: body.id || user.id,
@@ -41,6 +44,9 @@ export async function POST(request: Request) {
         bio: body.bio,
         isVerified: body.isVerified || false,
         role: body.role || "user",
+        emailConfirmed: body.emailConfirmed ?? user.email_confirmed_at ? true : false,
+        provider: body.provider || "email",
+        lastSignInAt: body.lastSignInAt ? new Date(body.lastSignInAt) : undefined,
       },
     });
     return NextResponse.json(newUser, { status: 201 });
@@ -74,10 +80,37 @@ export async function PUT(request: Request) {
         bio: body.bio,
         isVerified: body.isVerified,
         role: body.role,
+        emailConfirmed: body.emailConfirmed,
+        provider: body.provider,
+        lastSignInAt: body.lastSignInAt ? new Date(body.lastSignInAt) : undefined,
       },
     });
     return NextResponse.json(updated);
   } catch (e) {
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
+  }
+}
+
+// Get all users (admin only)
+export async function GET(request: Request) {
+  const user = await getUserFromRequest(request);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    // Check if the requesting user is an admin
+    const adminUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+    if (adminUser?.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(users);
+  } catch (e) {
+    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
   }
 }

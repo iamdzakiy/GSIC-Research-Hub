@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
-import { getUserProfile, saveUserProfile, createUserProfile } from "@/services/userService";
+import { getUserProfile, saveUserProfile, createUserProfile, updateUserProfile } from "@/services/userService";
 
 interface AuthContextType {
   user: User | null;
@@ -38,6 +38,9 @@ function createDefaultProfile(uid: string, email: string, name: string): UserPro
     bio: "",
     isVerified: false,
     role: "user",
+    emailConfirmed: false,
+    provider: "email",
+    lastSignInAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
   };
 }
@@ -53,11 +56,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (profile) setUserProfile(profile as UserProfile);
   };
 
+  // Sync auth metadata (email confirmed, last sign in) to the database
+  const syncAuthData = async (currentUser: User) => {
+    try {
+      const emailConfirmed = !!currentUser.email_confirmed_at;
+      const lastSignInAt = currentUser.last_sign_in_at || new Date().toISOString();
+      const provider = currentUser.app_metadata?.provider || "email";
+
+      // Try to update the existing profile with auth metadata
+      await updateUserProfile(currentUser.id, {
+        emailConfirmed,
+        lastSignInAt,
+        provider,
+      }).catch(async () => {
+        // If profile doesn't exist yet, create it
+        const profile = await getUserProfile(currentUser.id);
+        if (!profile) {
+          const newProfile = createDefaultProfile(
+            currentUser.id,
+            currentUser.email || "",
+            currentUser.user_metadata?.name || ""
+          );
+          newProfile.emailConfirmed = emailConfirmed;
+          newProfile.lastSignInAt = lastSignInAt;
+          newProfile.provider = provider;
+          await createUserProfile(newProfile);
+        }
+      });
+    } catch (e) {
+      console.error("Auth data sync error:", e);
+    }
+  };
+
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       const currentUser = session?.user || null;
       setUser(currentUser);
       if (currentUser) {
+        // Sync auth metadata to DB
+        await syncAuthData(currentUser);
+
         const profile = await getUserProfile(currentUser.id) as UserProfile | null;
         if (profile) {
           setUserProfile(profile);
@@ -85,6 +123,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = session?.user || null;
       setUser(currentUser);
       if (currentUser) {
+        // Sync auth metadata to DB
+        await syncAuthData(currentUser);
+
         const profile = await getUserProfile(currentUser.id) as UserProfile | null;
         if (profile) {
           setUserProfile(profile);

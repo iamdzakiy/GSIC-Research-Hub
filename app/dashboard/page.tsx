@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
+import ProfileEditModal from "@/components/ProfileEditModal";
 import {
   formatDate,
   getTypeLabel,
@@ -53,6 +54,7 @@ export default function DashboardPage() {
   const [documents, setDocuments] = useState<Document[]>([]);
 
   const [activeTab, setActiveTab] = useState("tabOverview");
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
   useEffect(() => {
@@ -158,6 +160,14 @@ export default function DashboardPage() {
               <h1 className="text-2xl md:text-3xl font-bold font-heading"><span className="gradient-text">My Dashboard</span></h1>
               <p className="text-sm text-white/40 font-body">{userProfile?.name || "Welcome"} · {userProfile?.major || "Set your major in profile"}</p>
             </div>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => setShowProfileEdit(true)}
+              className="ml-auto px-4 py-2 rounded-xl bg-gradient-to-r from-[#3352CD]/30 to-[#5CE3B6]/30 border border-white/10 hover:border-[#5CE3B6]/40 transition flex items-center gap-2 text-sm font-medium"
+            >
+              <span>⚙️</span> Edit Profile
+            </motion.button>
           </div>
         </motion.div>
 
