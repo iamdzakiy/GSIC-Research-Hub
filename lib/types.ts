@@ -36,7 +36,11 @@ export interface UserProfile {
   bio: string;
   isVerified: boolean;
   role: UserRole;
+  emailConfirmed?: boolean;
+  provider?: string;
+  lastSignInAt?: string | null;
   createdAt: string;
+  updatedAt?: string;
 }
 
 // ============================================================
