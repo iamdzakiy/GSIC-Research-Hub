@@ -59,7 +59,7 @@ export default function SandboxPage() {
   };
 
   const userRegistration = user
-    ? registrations.find((r) => r.userId === user.uid && r.eventId === event.id)
+    ? registrations.find((r) => r.userId === user.id && r.eventId === event.id)
     : null;
 
   const isRegistered = !!userRegistration;
@@ -76,7 +76,7 @@ export default function SandboxPage() {
 
     const newReg: Registration = {
       id: `reg-${Date.now().toString(36)}${Math.random().toString(36).substring(2, 8)}`,
-      userId: user.uid,
+      userId: user.id,
       eventId: event.id,
       status: "confirmed",
       preTestCompleted: false,

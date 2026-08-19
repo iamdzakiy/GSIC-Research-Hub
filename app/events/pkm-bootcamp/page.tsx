@@ -183,7 +183,7 @@ const loadData = async () => {
     const newResult: TestResult = {
     id: `result-${generateId()}`,
     testId: test.id,
-    userId: user.uid,
+    userId: user.id,
     answers: Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer })),
     score, maxScore,
     completedAt: new Date().toISOString(),
