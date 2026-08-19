@@ -4,7 +4,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
-import { getUserProfile, saveUserProfile } from "@/services/userService"; // We'll create this
+import { getUserProfile, saveUserProfile } from "@/services/userService";
+import { getAdminAccounts } from "@/lib/firestore";
 
 interface AuthContextType {
   user: User | null;
@@ -79,7 +80,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const isAdmin = userProfile?.role === "admin";
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (userProfile?.role === "admin") {
+        setIsAdmin(true);
+        return;
+      }
+      if (user?.email) {
+        try {
+          const admins = await getAdminAccounts();
+          const isGeneratedAdmin = admins.some((a) => a.email.toLowerCase() === user.email!.toLowerCase());
+          setIsAdmin(isGeneratedAdmin);
+        } catch (e) {
+          console.error("Admin check error:", e);
+          setIsAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+      }
+    };
+    checkAdmin();
+  }, [user, userProfile]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, isAdmin, refreshProfile }}>

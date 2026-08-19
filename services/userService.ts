@@ -1,15 +1,10 @@
 import { UserProfile } from "@/lib/types";
+import { getUserProfile as getFirestoreProfile, saveUserProfile as saveFirestoreProfile } from "@/lib/firestore";
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  const res = await fetch(`/api/users/${uid}`);
-  if (!res.ok) return null;
-  return res.json();
+  return getFirestoreProfile(uid);
 }
 
 export async function saveUserProfile(uid: string, profile: UserProfile): Promise<void> {
-  await fetch(`/api/users/${uid}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(profile),
-  });
+  await saveFirestoreProfile(uid, profile);
 }
