@@ -15,3 +15,13 @@ export async function createTest(data: Partial<Test>) {
   if (!res.ok) throw new Error("Failed to create");
   return res.json();
 }
+
+export async function deleteTest(id: string) {
+  const res = await fetch("/api/tests", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Failed to delete");
+  return res.json();
+}

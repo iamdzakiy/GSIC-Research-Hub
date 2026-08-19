@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { getRegistrations, getTestResults, create, update } from "@/lib/firestore";
+import { getRegistrations, createRegistration, updateRegistration } from "@/services/registrations";
+import { getTestResults, createTestResult } from "@/services/testResults";
 import {
   Calendar,
   Clock,
@@ -121,7 +122,7 @@ const loadData = async () => {
   };
 
   try {
-    await create("registrations", newReg);
+    await createRegistration(newReg as any);
     setRegistrations([...registrations, newReg]);
     showToast(`🎉 Registered for ${event.title}!`);
   } catch (e) {
@@ -190,17 +191,17 @@ const loadData = async () => {
   };
 
   try {
-    // 1. Save test result to Firebase
-    await create("testResults", newResult);
+    // 1. Save test result
+    await createTestResult(newResult as any);
     setTestResults([...testResults, newResult]);
 
-    // 2. Update registration status in Firebase
+    // 2. Update registration status
     if (userRegistration) {
       const patch: Partial<Registration> = {};
       if (activeTest === "pre") patch.preTestCompleted = true;
       else patch.postTestCompleted = true;
       
-      await update("registrations", userRegistration.id, patch);
+      await updateRegistration(userRegistration.id, patch);
       setRegistrations(
         registrations.map((r) => r.id === userRegistration.id ? { ...r, ...patch } : r)
       );

@@ -24,7 +24,7 @@ import {
   getEventStatusColor,
   getEventStatusText,
 } from "@/lib/data";
-import { getRegistrations, create } from "@/lib/firestore";
+import { getRegistrations, createRegistration } from "@/services/registrations";
 import { GSICEvent, Registration } from "@/lib/types";
 
 // ============================================================
@@ -85,7 +85,7 @@ export default function SandboxPage() {
     };
 
     try {
-      await create("registrations", newReg);
+      await createRegistration(newReg as any);
       setRegistrations([...registrations, newReg]);
       showToast(`🎉 Registered for ${event.title}!`);
     } catch (e) {

@@ -21,16 +21,10 @@ import {
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
 import {
-  SEED_OPPORTUNITIES,
-  SEED_EVENTS,
-  SEED_TESTS,
-  SEED_DOCUMENTS,
   formatDate,
-  getTypeIcon,
   getTypeLabel,
   getCategoryIcon,
   getCategoryLabel,
-  generateId,
 } from "@/lib/data";
 import {
   GSICEvent,
@@ -40,15 +34,13 @@ import {
   Opportunity,
   Document,
 } from "@/lib/types";
-import {
-  getOpportunities,
-  getEvents,
-  getTests,
-  getRegistrations,
-  getTestResults,
-  getDocuments,
-  ensureSeed,
-} from "@/lib/firestore";
+import { getOpportunities } from "@/services/opportunities";
+import { getEvents } from "@/services/events";
+import { getTests } from "@/services/tests";
+import { getRegistrations } from "@/services/registrations";
+import { getTestResults } from "@/services/testResults";
+import { getDocuments } from "@/services/documents";
+import { ensureSeed } from "@/services/seed";
 
 export default function DashboardPage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -69,10 +61,10 @@ export default function DashboardPage() {
 
   const loadData = async () => {
     try {
-      await ensureSeed("opportunities", SEED_OPPORTUNITIES);
-      await ensureSeed("events", SEED_EVENTS);
-      await ensureSeed("tests", SEED_TESTS);
-      await ensureSeed("documents", SEED_DOCUMENTS);
+      await ensureSeed("opportunities");
+      await ensureSeed("events");
+      await ensureSeed("tests");
+      await ensureSeed("documents");
       const [eventsList, testsList, regsList, resultsList, oppsList, docsList] = await Promise.all([
         getEvents(),
         getTests(),

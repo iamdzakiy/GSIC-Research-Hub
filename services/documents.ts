@@ -15,3 +15,13 @@ export async function createDocument(data: Partial<Document>) {
   if (!res.ok) throw new Error("Failed to create");
   return res.json();
 }
+
+export async function deleteDocument(id: string) {
+  const res = await fetch("/api/documents", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Failed to delete");
+  return res.json();
+}
