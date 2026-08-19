@@ -1,18 +1,18 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
-  "/api/admin-accounts/route": "app/api/admin-accounts/route.js",
-  "/admin/page": "app/admin/page.js",
   "/api/curated/route": "app/api/curated/route.js",
+  "/admin/page": "app/admin/page.js",
   "/api/documents/route": "app/api/documents/route.js",
-  "/api/events/route": "app/api/events/route.js",
   "/api/opportunities/route": "app/api/opportunities/route.js",
-  "/api/registrations/route": "app/api/registrations/route.js",
   "/api/test-results/route": "app/api/test-results/route.js",
-  "/api/tests/route": "app/api/tests/route.js",
-  "/auth/page": "app/auth/page.js",
-  "/dashboard/page": "app/dashboard/page.js",
+  "/api/admin-accounts/route": "app/api/admin-accounts/route.js",
+  "/api/registrations/route": "app/api/registrations/route.js",
+  "/api/events/route": "app/api/events/route.js",
   "/events/pkm-bootcamp/page": "app/events/pkm-bootcamp/page.js",
   "/events/sandbox/page": "app/events/sandbox/page.js",
-  "/opportunities/[id]/page": "app/opportunities/[id]/page.js",
-  "/page": "app/page.js"
+  "/auth/page": "app/auth/page.js",
+  "/api/tests/route": "app/api/tests/route.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/page": "app/page.js",
+  "/opportunities/[id]/page": "app/opportunities/[id]/page.js"
 }
