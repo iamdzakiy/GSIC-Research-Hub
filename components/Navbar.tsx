@@ -17,6 +17,7 @@ import {
   Home,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function Navbar() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -46,7 +47,7 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     try {
-      // Keep empty sign-out stub if real signOut is not wired here
+      await supabase.auth.signOut();
     } catch (err) {
       console.error("Sign out error:", err);
     }

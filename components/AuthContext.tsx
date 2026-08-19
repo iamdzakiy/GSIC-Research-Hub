@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
 import { getUserProfile, saveUserProfile, createUserProfile } from "@/services/userService";
-import { getAdminAccounts } from "@/services/adminAccounts";
 
 interface AuthContextType {
   user: User | null;
@@ -111,29 +110,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Admin status is controlled solely by the user's `role` field set to "admin"
+  // in the Supabase database (User table). No separate admin account system.
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (userProfile?.role === "admin") {
-        setIsAdmin(true);
-        return;
-      }
-      if (user?.email) {
-        try {
-          const admins = await getAdminAccounts();
-          const isGeneratedAdmin = admins.some((a) => a.email.toLowerCase() === user.email!.toLowerCase());
-          setIsAdmin(isGeneratedAdmin);
-        } catch (e) {
-          console.error("Admin check error:", e);
-          setIsAdmin(false);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-    };
-    checkAdmin();
-  }, [user, userProfile]);
+    setIsAdmin(userProfile?.role === "admin");
+  }, [userProfile]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, isAdmin, refreshProfile }}>
