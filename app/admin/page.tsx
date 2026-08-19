@@ -6,9 +6,6 @@ import {
   Shield,
   Plus,
   Trash2,
-  Archive,
-  Users,
-  BookOpen,
   FileText,
   Calendar,
   Target,
@@ -16,18 +13,12 @@ import {
   Upload,
   CheckCircle,
   AlertCircle,
-  Edit,
   Copy,
-  Mail,
-  BarChart3,
   Award,
-  Settings,
   Layers,
   GraduationCap,
   Sparkles,
-  Search,
   ArrowUpDown,
-  ExternalLink,
   Zap,
   MessageSquare,
 } from "lucide-react";
@@ -44,7 +35,6 @@ import {
   CuratedOpportunity,
   GSICEvent,
   Test,
-  AdminAccount,
   Document,
 } from "@/lib/types";
 import {
@@ -57,11 +47,6 @@ import { getCurated, createCurated, deleteCurated } from "@/services/curated";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
-import {
-  getAdminAccounts,
-  createAdminAccount,
-  deleteAdminAccount as apiDeleteAdminAccount,
-} from "@/services/adminAccounts";
 import { ensureSeed } from "@/services/seed";
 
 export default function AdminDashboard() {
@@ -72,7 +57,6 @@ export default function AdminDashboard() {
   const [events, setEvents] = useState<GSICEvent[]>([]);
   const [tests, setTests] = useState<Test[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
-  const [adminAccounts, setAdminAccounts] = useState<AdminAccount[]>([]);
 
   const [activeTab, setActiveTab] = useState("tabEvents");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
@@ -94,11 +78,6 @@ export default function AdminDashboard() {
     postTestExplanation: "",
   });
 
-  const [adminForm, setAdminForm] = useState({
-    email: "",
-    name: "",
-  });
-
   const [opportunitySearch, setOpportunitySearch] = useState("");
   const [opportunitySort, setOpportunitySort] = useState<"deadline" | "title" | "status">("deadline");
   const [opportunityDir, setOpportunityDir] = useState<"asc" | "desc">("asc");
@@ -118,20 +97,18 @@ export default function AdminDashboard() {
       await ensureSeed("events");
       await ensureSeed("tests");
       await ensureSeed("documents");
-      const [opps, curatedList, eventsList, testsList, docsList, admins] = await Promise.all([
+      const [opps, curatedList, eventsList, testsList, docsList] = await Promise.all([
         getOpportunities(),
         getCurated(),
         getEvents(),
         getTests(),
         getDocuments(),
-        getAdminAccounts(),
       ]);
       setOpportunities(opps as Opportunity[]);
       setCurated(curatedList as CuratedOpportunity[]);
       setEvents(eventsList as GSICEvent[]);
       setTests(testsList as Test[]);
       setDocuments(docsList as Document[]);
-      setAdminAccounts(admins as AdminAccount[]);
     } catch (e) {
       console.error("Firestore load error:", e);
     }
@@ -194,40 +171,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleGenerateAdminAccount = async () => {
-    if (!adminForm.email || !adminForm.name) {
-      showToast("Email and name are required.", "error");
-      return;
-    }
-    const newAdmin: AdminAccount = {
-      id: `admin-${generateId()}`,
-      email: adminForm.email,
-      name: adminForm.name,
-      role: "admin",
-      isGenerated: true,
-      generatedBy: user?.id || "unknown",
-      createdAt: new Date().toISOString(),
-    };
-    try {
-      await createAdminAccount(newAdmin as Partial<AdminAccount>);
-      setAdminAccounts([...adminAccounts, newAdmin]);
-      showToast(`✅ Admin account generated for ${adminForm.name}!`);
-    } catch (e) {
-      showToast("Failed to create admin account", "error");
-    }
-  };
-
-  const handleDeleteAdminAccount = async (id: string) => {
-    if (!confirm("Remove this admin account?")) return;
-    try {
-      await apiDeleteAdminAccount(id);
-      setAdminAccounts(adminAccounts.filter((a) => a.id !== id));
-      showToast("Admin account removed.");
-    } catch (e) {
-      showToast("Failed to remove admin account", "error");
-    }
-  };
-
   const exportData = async () => {
     try {
       const data = {
@@ -235,7 +178,6 @@ export default function AdminDashboard() {
         events: await getEvents(),
         tests: await getTests(),
         documents: await getDocuments(),
-        adminAccounts: await getAdminAccounts(),
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -365,7 +307,6 @@ export default function AdminDashboard() {
             { id: "tabEvents", label: "📅 Events" },
             { id: "tabOpps", label: "🎯 Opportunities" },
             { id: "tabTests", label: "📝 Tests" },
-            { id: "tabAdmins", label: "👑 Admin Accounts" },
             { id: "tabDocs", label: "📄 Documents" },
           ].map((tab) => (
             <button
@@ -752,64 +693,6 @@ export default function AdminDashboard() {
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === "tabAdmins" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            <div className="glass rounded-2xl p-6 md:p-8">
-              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Plus className="w-4 h-4 text-[#5CE3B6]" /> Generate Admin Account
-              </h3>
-              <p className="text-xs text-white/40 mb-4 font-body">
-                Generate a new admin account. The admin will receive an email with credentials and a link to set their password.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-xs text-white/40">Full Name *</label>
-                  <input type="text" value={adminForm.name} onChange={(e) => setAdminForm({ ...adminForm, name: e.target.value })} placeholder="e.g. Admin User" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
-                </div>
-                <div>
-                  <label className="text-xs text-white/40">Email *</label>
-                  <input type="email" value={adminForm.email} onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })} placeholder="admin@gsic.ganesha.edu" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
-                </div>
-                <div className="flex items-end">
-                  <button onClick={handleGenerateAdminAccount} className="w-full bg-gradient-to-r from-[#7c3aed] to-[#a78bfa] hover:from-[#a78bfa] hover:to-[#7c3aed] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2">
-                    <Plus className="w-4 h-4" /> Generate
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div className="glass rounded-2xl p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Shield className="w-4 h-4 text-[#5CE3B6]" /> Admin Accounts ({adminAccounts.length})
-              </h3>
-              <p className="text-xs text-white/40 mb-3">Note: Admin status is controlled via Firestore user profile `role` field set to `admin`.</p>
-              <div className="space-y-2">
-                {adminAccounts.length === 0 ? (
-                  <div className="text-center py-8 text-white/30">No admin accounts generated yet.</div>
-                ) : (
-                  adminAccounts.map((admin) => (
-                    <div key={admin.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
-                      <div className="truncate">
-                        <span className="text-sm font-medium block truncate">{admin.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-white/30">{admin.email}</span>
-                          <button onClick={() => { navigator.clipboard.writeText(admin.email); showToast("📋 Email copied to clipboard!"); }} className="text-white/30 hover:text-white/60" title="Copy email">
-                            <Copy className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <span className="text-[10px] text-white/40">Generated {new Date(admin.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <button onClick={() => handleDeleteAdminAccount(admin.id)} className="text-xs text-red-400 hover:text-red-300" title="Remove">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
                     </div>
                   ))
                 )}
