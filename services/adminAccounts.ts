@@ -15,3 +15,13 @@ export async function createAdminAccount(data: Partial<AdminAccount>) {
   if (!res.ok) throw new Error("Failed to create");
   return res.json();
 }
+
+export async function deleteAdminAccount(id: string) {
+  const res = await fetch("/api/admin-accounts", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Failed to delete");
+  return res.json();
+}

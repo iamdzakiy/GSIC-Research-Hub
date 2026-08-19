@@ -1,10 +1,28 @@
 import { UserProfile } from "@/lib/types";
-import { getUserProfile as getFirestoreProfile, saveUserProfile as saveFirestoreProfile } from "@/lib/firestore";
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  return getFirestoreProfile(uid);
+  const res = await fetch(`/api/users/${uid}`);
+  if (!res.ok) {
+    if (res.status === 404) return null;
+    throw new Error("Failed to fetch profile");
+  }
+  return res.json();
 }
 
 export async function saveUserProfile(uid: string, profile: UserProfile): Promise<void> {
-  await saveFirestoreProfile(uid, profile);
+  const res = await fetch("/api/users", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: uid, ...profile }),
+  });
+  if (!res.ok) throw new Error("Failed to save profile");
+}
+
+export async function createUserProfile(profile: UserProfile): Promise<void> {
+  const res = await fetch("/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profile),
+  });
+  if (!res.ok) throw new Error("Failed to create profile");
 }

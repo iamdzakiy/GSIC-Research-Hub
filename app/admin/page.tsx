@@ -34,17 +34,9 @@ import {
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
 import {
-  SEED_OPPORTUNITIES,
-  SEED_CURATED,
-  SEED_EVENTS,
-  SEED_TESTS,
-  SEED_DOCUMENTS,
   PKM_BOOTCAMP,
-  formatDate,
-  getTypeIcon,
+  SEED_TESTS,
   getTypeLabel,
-  getCategoryIcon,
-  getCategoryLabel,
   generateId,
 } from "@/lib/data";
 import {
@@ -55,13 +47,22 @@ import {
   AdminAccount,
   Document,
 } from "@/lib/types";
-import { getOpportunities } from "@/services/opportunities";
-import { getCurated } from "@/services/curated";
-import { getEvents } from "@/services/events";
-import { getTests } from "@/services/tests";
-import { getDocuments } from "@/services/documents";
-import { getAdminAccounts } from "@/services/adminAccounts";
-import { ensureSeed, create, update, remove } from "@/lib/firestore";
+import {
+  getOpportunities,
+  createOpportunity,
+  updateOpportunity,
+  deleteOpportunity,
+} from "@/services/opportunities";
+import { getCurated, createCurated, deleteCurated } from "@/services/curated";
+import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
+import { getTests, createTest, deleteTest } from "@/services/tests";
+import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
+import {
+  getAdminAccounts,
+  createAdminAccount,
+  deleteAdminAccount as apiDeleteAdminAccount,
+} from "@/services/adminAccounts";
+import { ensureSeed } from "@/services/seed";
 
 export default function AdminDashboard() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -112,11 +113,11 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      await ensureSeed("opportunities", SEED_OPPORTUNITIES);
-      await ensureSeed("curated", SEED_CURATED);
-      await ensureSeed("events", SEED_EVENTS);
-      await ensureSeed("tests", SEED_TESTS);
-      await ensureSeed("documents", SEED_DOCUMENTS);
+      await ensureSeed("opportunities");
+      await ensureSeed("curated");
+      await ensureSeed("events");
+      await ensureSeed("tests");
+      await ensureSeed("documents");
       const [opps, curatedList, eventsList, testsList, docsList, admins] = await Promise.all([
         getOpportunities(),
         getCurated(),
@@ -173,7 +174,7 @@ export default function AdminDashboard() {
       createdAt: new Date().toISOString(),
     };
     try {
-      await create("events", newEvent);
+      await createEvent(newEvent as Partial<GSICEvent>);
       setEvents([...events, newEvent]);
       showToast(`✅ Event "${newEvent.title}" created!`);
     } catch (e) {
@@ -182,10 +183,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const deleteEvent = async (id: string) => {
+  const handleDeleteEvent = async (id: string) => {
     if (!confirm("Delete this event? This will also delete associated tests.")) return;
     try {
-      await remove("events", id);
+      await apiDeleteEvent(id);
       setEvents(events.filter((e) => e.id !== id));
       showToast("🗑️ Event deleted.");
     } catch (e) {
@@ -208,7 +209,7 @@ export default function AdminDashboard() {
       createdAt: new Date().toISOString(),
     };
     try {
-      await create("adminAccounts", newAdmin);
+      await createAdminAccount(newAdmin as Partial<AdminAccount>);
       setAdminAccounts([...adminAccounts, newAdmin]);
       showToast(`✅ Admin account generated for ${adminForm.name}!`);
     } catch (e) {
@@ -216,10 +217,10 @@ export default function AdminDashboard() {
     }
   };
 
-  const deleteAdminAccount = async (id: string) => {
+  const handleDeleteAdminAccount = async (id: string) => {
     if (!confirm("Remove this admin account?")) return;
     try {
-      await remove("adminAccounts", id);
+      await apiDeleteAdminAccount(id);
       setAdminAccounts(adminAccounts.filter((a) => a.id !== id));
       showToast("Admin account removed.");
     } catch (e) {
@@ -288,7 +289,7 @@ export default function AdminDashboard() {
             cpName: cols[cpNameIdx] || "",
             cpContact: cols[cpContactIdx] || "",
           };
-          await create("opportunities", opp);
+          await createOpportunity(opp as Partial<Opportunity>);
           imported++;
         }
         showToast(`📥 Imported ${imported} opportunities`);
@@ -494,7 +495,7 @@ export default function AdminDashboard() {
                           <span className="text-[10px] text-white/30">{evt.type} · {evt.status}</span>
                         </div>
                       </div>
-                      <button onClick={() => deleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
+                      <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -521,14 +522,14 @@ export default function AdminDashboard() {
                       return;
                     }
                     // Create the event
-                    await create("events", {
+                    await createEvent({
                       ...PKM_BOOTCAMP,
                       createdBy: user?.id || "unknown",
                       createdAt: new Date().toISOString(),
-                    });
+                    } as Partial<GSICEvent>);
                     // Create pre-test and post-test
                     for (const test of SEED_TESTS) {
-                      await create("tests", test);
+                      await createTest(test as Partial<Test>);
                     }
                     showToast("✅ PKM Bootcamp created with pre/post tests!");
                     await loadData();
@@ -615,8 +616,8 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-2 text-xs text-white/60">{opp.cpName} · {opp.cpContact}</td>
                           <td className="py-2 flex gap-2">
-                            <button onClick={async () => { opp.status = opp.status === "active" ? "archived" : "active"; await update("opportunities", opp.id, { status: opp.status }); loadData(); }} className="text-xs bg-white/10 px-2 py-1 rounded hover:bg-white/20">Toggle</button>
-                            <button onClick={async () => { await remove("opportunities", opp.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">Delete</button>
+                            <button onClick={async () => { opp.status = opp.status === "active" ? "archived" : "active"; await updateOpportunity(opp.id, { status: opp.status }); loadData(); }} className="text-xs bg-white/10 px-2 py-1 rounded hover:bg-white/20">Toggle</button>
+                            <button onClick={async () => { await deleteOpportunity(opp.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">Delete</button>
                           </td>
                         </tr>
                       );
@@ -683,7 +684,7 @@ export default function AdminDashboard() {
                             cpName: "",
                             cpContact: "",
                           };
-                          await create("opportunities", newOpp);
+                          await createOpportunity(newOpp as Partial<Opportunity>);
                           showToast(`✅ Opportunity "${quickOpp.title}" added!`);
                           setQuickOpp({ title: "", type: "research", organizer: "" });
                           setQuickOppOpen(false);
@@ -718,7 +719,7 @@ export default function AdminDashboard() {
                         <span className="text-sm font-medium block truncate">{c.title}</span>
                         <span className="text-[10px] text-white/30">Opens {c.monthOpen}</span>
                       </div>
-                      <button onClick={async () => { await remove("curated", c.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
+                      <button onClick={async () => { await deleteCurated(c.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -747,7 +748,7 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex gap-1 flex-shrink-0">
                         <span className="text-xs bg-white/10 px-2 py-1 rounded">{test.type === "pre" ? "Pre" : "Post"}</span>
-                        <button onClick={async () => { await remove("tests", test.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
+                        <button onClick={async () => { await deleteTest(test.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -806,7 +807,7 @@ export default function AdminDashboard() {
                         </div>
                         <span className="text-[10px] text-white/40">Generated {new Date(admin.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <button onClick={() => deleteAdminAccount(admin.id)} className="text-xs text-red-400 hover:text-red-300" title="Remove">
+                      <button onClick={() => handleDeleteAdminAccount(admin.id)} className="text-xs text-red-400 hover:text-red-300" title="Remove">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -833,7 +834,7 @@ export default function AdminDashboard() {
                         <span className="text-sm font-medium block truncate">{doc.title}</span>
                         <span className="text-[10px] text-white/30">{doc.type} · {doc.url}</span>
                       </div>
-                      <button onClick={async () => { await remove("documents", doc.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
+                      <button onClick={async () => { await deleteDocument(doc.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>

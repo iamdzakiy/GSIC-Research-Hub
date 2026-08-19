@@ -15,3 +15,23 @@ export async function createRegistration(data: Partial<Registration>) {
   if (!res.ok) throw new Error("Failed to create");
   return res.json();
 }
+
+export async function updateRegistration(id: string, data: Partial<Registration>) {
+  const res = await fetch("/api/registrations", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, ...data }),
+  });
+  if (!res.ok) throw new Error("Failed to update");
+  return res.json();
+}
+
+export async function deleteRegistration(id: string) {
+  const res = await fetch("/api/registrations", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id }),
+  });
+  if (!res.ok) throw new Error("Failed to delete");
+  return res.json();
+}

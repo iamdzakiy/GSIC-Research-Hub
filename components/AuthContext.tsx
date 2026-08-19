@@ -4,8 +4,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
-import { getUserProfile, saveUserProfile } from "@/services/userService";
-import { getAdminAccounts } from "@/lib/firestore";
+import { getUserProfile, saveUserProfile, createUserProfile } from "@/services/userService";
+import { getAdminAccounts } from "@/services/adminAccounts";
 
 interface AuthContextType {
   user: User | null;
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = async () => {
     if (!user) return;
     const profile = await getUserProfile(user.id);
-    if (profile) setUserProfile(profile);
+    if (profile) setUserProfile(profile as UserProfile);
   };
 
   useEffect(() => {
@@ -59,18 +59,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const currentUser = session?.user || null;
       setUser(currentUser);
       if (currentUser) {
-        const profile = await getUserProfile(currentUser.id);
-        setUserProfile(profile);
+        const profile = await getUserProfile(currentUser.id) as UserProfile | null;
+        if (profile) {
+          setUserProfile(profile);
+        } else {
+          // Create a new profile if the user doesn't have one yet
+          const newProfile = createDefaultProfile(
+            currentUser.id,
+            currentUser.email || "",
+            currentUser.user_metadata?.name || ""
+          );
+          try {
+            await createUserProfile(newProfile);
+          } catch (e) {
+            console.error("Profile creation error:", e);
+          }
+          setUserProfile(newProfile);
+        }
       } else {
         setUserProfile(null);
       }
       setLoading(false);
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (session?.user) {
-        getUserProfile(session.user.id).then(profile => setUserProfile(profile));
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      const currentUser = session?.user || null;
+      setUser(currentUser);
+      if (currentUser) {
+        const profile = await getUserProfile(currentUser.id) as UserProfile | null;
+        if (profile) {
+          setUserProfile(profile);
+        } else {
+          const newProfile = createDefaultProfile(
+            currentUser.id,
+            currentUser.email || "",
+            currentUser.user_metadata?.name || ""
+          );
+          try {
+            await createUserProfile(newProfile);
+          } catch (e) {
+            console.error("Profile creation error:", e);
+          }
+          setUserProfile(newProfile);
+        }
       }
       setLoading(false);
     });

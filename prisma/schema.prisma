@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   id             String   @id @default(cuid())
+  htaId          String   @default("")
   email          String   @unique
   name           String?
   faculty        String?
@@ -99,6 +100,7 @@ model Registration {
   id                String   @id @default(cuid())
   userId            String
   eventId           String
+  motivation        String?
   status            String   @default("confirmed")
   preTestCompleted  Boolean  @default(false)
   postTestCompleted Boolean  @default(false)
