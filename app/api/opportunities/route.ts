@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest } from "@/lib/auth-helper";
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "")
+    .substring(0, 80);
+}
+
 export async function GET() {
   const opportunities = await prisma.opportunity.findMany({
     orderBy: { deadline: "asc" },
@@ -12,17 +20,24 @@ export async function GET() {
 export async function POST(request: Request) {
   const user = await getUserFromRequest(request);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  // Optionally check if user is admin via DB
 
   const body = await request.json();
-  // Validate required fields
   if (!body.title || !body.type || !body.organizer || !body.deadline) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  }
+
+  const baseSlug = body.slug || slugify(body.title);
+  // Ensure unique slug
+  let slug = baseSlug;
+  let counter = 1;
+  while (await prisma.opportunity.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${counter++}`;
   }
 
   const newOpp = await prisma.opportunity.create({
     data: {
       ...body,
+      slug,
       deadline: new Date(body.deadline),
     },
   });
@@ -41,6 +56,7 @@ export async function PUT(request: Request) {
     where: { id },
     data: {
       ...data,
+      slug: data.slug || (data.title ? slugify(data.title) : undefined),
       deadline: data.deadline ? new Date(data.deadline) : undefined,
     },
   });

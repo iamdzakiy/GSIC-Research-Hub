@@ -191,7 +191,7 @@ export default function ProfileEditModal({ open, onClose }: ProfileEditModalProp
                 >
                   <option value="">Select</option>
                   {availableMajors.map((m) => (
-                    <option key={m} value={m}>{m}</option>
+                    <option key={m.code} value={`${m.code} - ${m.name}`}>{m.code} - {m.name}</option>
                   ))}
                 </select>
               </div>

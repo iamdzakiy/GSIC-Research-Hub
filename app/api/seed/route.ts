@@ -20,6 +20,7 @@ export async function POST(request: Request) {
               id: item.id,
               type: item.type,
               title: item.title,
+              slug: item.slug || item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").substring(0, 80),
               organizer: item.organizer,
               description: item.description,
               requiredSkills: item.requiredSkills || [],

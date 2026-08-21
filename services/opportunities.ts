@@ -6,6 +6,13 @@ export async function getOpportunities(): Promise<Opportunity[]> {
   return res.json();
 }
 
+export async function getOpportunityBySlug(slug: string): Promise<Opportunity | null> {
+  const res = await fetch(`/api/opportunities?slug=${slug}`);
+  if (!res.ok) return null;
+  const opps = await res.json();
+  return opps.find((o: Opportunity) => o.slug === slug) || null;
+}
+
 export async function createOpportunity(data: Partial<Opportunity>) {
   const res = await fetch("/api/opportunities", {
     method: "POST",
