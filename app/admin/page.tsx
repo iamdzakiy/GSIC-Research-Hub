@@ -21,6 +21,11 @@ import {
   ArrowUpDown,
   Zap,
   MessageSquare,
+  Users,
+  User as UserIcon,
+  Link2,
+  Image as ImageIcon,
+  Filter,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -36,6 +41,9 @@ import {
   GSICEvent,
   Test,
   Document,
+  Speaker,
+  UserProfile,
+  FACULTY_MAJOR_MAP,
 } from "@/lib/types";
 import {
   getOpportunities,
@@ -47,6 +55,8 @@ import { getCurated, createCurated, deleteCurated } from "@/services/curated";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
+import { getSpeakers, createSpeaker, updateSpeaker, deleteSpeaker } from "@/services/speakers";
+import { getAllUsers } from "@/services/userService";
 import { ensureSeed } from "@/services/seed";
 
 export default function AdminDashboard() {
@@ -57,6 +67,18 @@ export default function AdminDashboard() {
   const [events, setEvents] = useState<GSICEvent[]>([]);
   const [tests, setTests] = useState<Test[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [speakerForm, setSpeakerForm] = useState({
+    name: "",
+    roleTitle: "",
+    institution: "",
+    avatarUrl: "",
+    bio: "",
+    linkedinUrl: "",
+    order: 0,
+  });
+  const [userFilter, setUserFilter] = useState({ faculty: "", majorCode: "", verified: "" });
 
   const [activeTab, setActiveTab] = useState("tabEvents");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
@@ -97,18 +119,22 @@ export default function AdminDashboard() {
       await ensureSeed("events");
       await ensureSeed("tests");
       await ensureSeed("documents");
-      const [opps, curatedList, eventsList, testsList, docsList] = await Promise.all([
+      const [opps, curatedList, eventsList, testsList, docsList, speakersList, usersList] = await Promise.all([
         getOpportunities(),
         getCurated(),
         getEvents(),
         getTests(),
         getDocuments(),
+        getSpeakers(),
+        getAllUsers(),
       ]);
       setOpportunities(opps as Opportunity[]);
       setCurated(curatedList as CuratedOpportunity[]);
       setEvents(eventsList as GSICEvent[]);
       setTests(testsList as Test[]);
       setDocuments(docsList as Document[]);
+      setSpeakers(speakersList as Speaker[]);
+      setUsers(usersList as UserProfile[]);
     } catch (e) {
       console.error("Firestore load error:", e);
     }
@@ -219,6 +245,7 @@ export default function AdminDashboard() {
             id: `opp-${generateId()}`,
             type: (cols[typeIdx] as Opportunity["type"]) || "research",
             title: cols[titleIdx] || `Imported ${i}`,
+            slug: (cols[titleIdx] || `Imported ${i}`).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").substring(0, 80),
             organizer: cols[organizerIdx] || "",
             description: cols[descriptionIdx] || "",
             requiredSkills: cols[requiredSkillsIdx] ? cols[requiredSkillsIdx].split(";").map((s) => s.trim()) : [],
@@ -306,6 +333,8 @@ export default function AdminDashboard() {
           {[
             { id: "tabEvents", label: "📅 Events" },
             { id: "tabOpps", label: "🎯 Opportunities" },
+            { id: "tabSpeakers", label: "👥 Speakers" },
+            { id: "tabUsers", label: "👤 Users" },
             { id: "tabTests", label: "📝 Tests" },
             { id: "tabDocs", label: "📄 Documents" },
           ].map((tab) => (
@@ -613,6 +642,7 @@ export default function AdminDashboard() {
                             id: `opp-${generateId()}`,
                             type: quickOpp.type,
                             title: quickOpp.title,
+                            slug: quickOpp.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "").substring(0, 80),
                             organizer: quickOpp.organizer,
                             description: quickOpp.title,
                             requiredSkills: [],
@@ -666,6 +696,191 @@ export default function AdminDashboard() {
                     </div>
                   ))
                 )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "tabSpeakers" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
+                <Users className="w-4 h-4 text-[#8B5CF6]" /> Speaker Management ({speakers.length})
+              </h3>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-xs text-white/40">Full Name *</label>
+                    <input type="text" value={speakerForm.name} onChange={(e) => setSpeakerForm({ ...speakerForm, name: e.target.value })} placeholder="e.g. Dr. Rina Wijaya" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/40">Role / Title *</label>
+                    <input type="text" value={speakerForm.roleTitle} onChange={(e) => setSpeakerForm({ ...speakerForm, roleTitle: e.target.value })} placeholder="e.g. Lead AI Researcher" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/40">Institution *</label>
+                    <input type="text" value={speakerForm.institution} onChange={(e) => setSpeakerForm({ ...speakerForm, institution: e.target.value })} placeholder="e.g. GSIC & Ganesha University" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/40">Avatar URL</label>
+                    <input type="text" value={speakerForm.avatarUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, avatarUrl: e.target.value })} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/40">Bio</label>
+                    <textarea value={speakerForm.bio} onChange={(e) => setSpeakerForm({ ...speakerForm, bio: e.target.value })} rows={3} placeholder="Short bio..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6] resize-none" />
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/40">LinkedIn URL</label>
+                    <input type="text" value={speakerForm.linkedinUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, linkedinUrl: e.target.value })} placeholder="https://linkedin.com/in/..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!speakerForm.name || !speakerForm.roleTitle || !speakerForm.institution) {
+                        showToast("Name, role, and institution are required.", "error");
+                        return;
+                      }
+                      try {
+                        await createSpeaker({
+                          name: speakerForm.name,
+                          roleTitle: speakerForm.roleTitle,
+                          institution: speakerForm.institution,
+                          avatarUrl: speakerForm.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(speakerForm.name)}&background=2563EB&color=fff`,
+                          bio: speakerForm.bio,
+                          linkedinUrl: speakerForm.linkedinUrl,
+                          order: speakers.length,
+                          isActive: true,
+                        });
+                        showToast(`✅ Speaker "${speakerForm.name}" added!`);
+                        setSpeakerForm({ name: "", roleTitle: "", institution: "", avatarUrl: "", bio: "", linkedinUrl: "", order: 0 });
+                        await loadData();
+                      } catch (e) {
+                        showToast("Failed to add speaker", "error");
+                      }
+                    }}
+                    className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4] hover:from-[#A78BFA] hover:to-[#22D3EE] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Add Speaker
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {speakers.length === 0 ? (
+                    <div className="text-center py-8 text-white/30">No speakers yet. Add one above!</div>
+                  ) : (
+                    speakers.map((s) => (
+                      <div key={s.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white text-sm font-bold overflow-hidden flex-shrink-0">
+                            {s.avatarUrl ? <img src={s.avatarUrl} alt={s.name} className="w-full h-full object-cover" /> : s.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="truncate">
+                            <span className="text-sm font-medium block truncate">{s.name}</span>
+                            <span className="text-[10px] text-white/30">{s.roleTitle} · {s.institution}</span>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0">
+                          <button onClick={async () => { await updateSpeaker(s.id, { isActive: !s.isActive }); loadData(); }} className={`text-xs px-2 py-1 rounded ${s.isActive ? "bg-[#10B981]/20 text-[#34D399]" : "bg-white/10 text-white/40"}`}>
+                            {s.isActive ? "Active" : "Inactive"}
+                          </button>
+                          <button onClick={async () => { await deleteSpeaker(s.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === "tabUsers" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <div className="glass rounded-2xl p-6">
+              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
+                <UserIcon className="w-4 h-4 text-[#60A5FA]" /> Registered Participants ({users.length})
+              </h3>
+
+              <div className="flex flex-wrap gap-2 mb-4">
+                <select value={userFilter.faculty} onChange={(e) => setUserFilter({ ...userFilter, faculty: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
+                  <option value="">All Faculties</option>
+                  {Object.keys(FACULTY_MAJOR_MAP).map((f) => <option key={f} value={f}>{f}</option>)}
+                </select>
+                <select value={userFilter.majorCode} onChange={(e) => setUserFilter({ ...userFilter, majorCode: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
+                  <option value="">All Majors</option>
+                  {Object.values(FACULTY_MAJOR_MAP).flat().map((m) => <option key={m.code} value={m.code}>{m.code} - {m.name}</option>)}
+                </select>
+                <select value={userFilter.verified} onChange={(e) => setUserFilter({ ...userFilter, verified: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
+                  <option value="">All Status</option>
+                  <option value="verified">Verified</option>
+                  <option value="unverified">Unverified</option>
+                </select>
+                <button
+                  onClick={() => {
+                    const filtered = users.filter(u => {
+                      if (userFilter.faculty && u.faculty !== userFilter.faculty) return false;
+                      if (userFilter.majorCode && u.majorCode !== userFilter.majorCode) return false;
+                      if (userFilter.verified === "verified" && !u.isVerified) return false;
+                      if (userFilter.verified === "unverified" && u.isVerified) return false;
+                      return true;
+                    });
+                    const csv = [
+                      ["Name", "Email", "Faculty", "Major", "Major Code", "Verified", "Role", "Created"],
+                      ...filtered.map(u => [u.name, u.email, u.faculty, u.major, u.majorCode || "", u.isVerified ? "Yes" : "No", u.role, u.createdAt])
+                    ].map(row => row.join(",")).join("\n");
+                    const blob = new Blob([csv], { type: "text/csv" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `gsic-users-${new Date().toISOString().split("T")[0]}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast("📥 Users exported to CSV!");
+                  }}
+                  className="bg-white/10 px-3 py-2 rounded-xl border border-white/10 flex items-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Export CSV
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="text-white/40 border-b border-white/10">
+                      <th className="py-2">Name</th>
+                      <th className="py-2">Email</th>
+                      <th className="py-2">Faculty</th>
+                      <th className="py-2">Major</th>
+                      <th className="py-2">Code</th>
+                      <th className="py-2">Verified</th>
+                      <th className="py-2">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.filter(u => {
+                      if (userFilter.faculty && u.faculty !== userFilter.faculty) return false;
+                      if (userFilter.majorCode && u.majorCode !== userFilter.majorCode) return false;
+                      if (userFilter.verified === "verified" && !u.isVerified) return false;
+                      if (userFilter.verified === "unverified" && u.isVerified) return false;
+                      return true;
+                    }).map((u) => (
+                      <tr key={u.uid} className="border-b border-white/5">
+                        <td className="py-2 font-medium">{u.name || "—"}</td>
+                        <td className="py-2 text-white/60">{u.email}</td>
+                        <td className="py-2">{u.faculty || "—"}</td>
+                        <td className="py-2">{u.major || "—"}</td>
+                        <td className="py-2 text-white/40">{u.majorCode || "—"}</td>
+                        <td className="py-2">
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${u.isVerified ? "bg-[#10B981]/20 text-[#34D399]" : "bg-yellow-500/20 text-yellow-400"}`}>
+                            {u.isVerified ? "Verified" : "Pending"}
+                          </span>
+                        </td>
+                        <td className="py-2 text-white/40">{u.role}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </motion.div>

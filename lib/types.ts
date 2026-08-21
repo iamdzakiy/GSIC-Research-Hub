@@ -2,19 +2,104 @@
 // GSIC-Research-Hub - Type Definitions
 // ============================================================
 
-export const FACULTY_MAJOR_MAP = {
-  "FITB": ["Meteorology (ME)", "Oceanography (OS)", "Geodesy and Geomatics Engineering (GD)", "Geological Engineering (GL)"],
-  "FMIPA": ["Actuarial Science (AK)", "Astronomy (AS)", "Physics (FI)", "Chemistry (KI)", "Mathematics (MA)"],
-  "FSRD": ["Interior Design (DI)", "Visual Communication Design (DKV)", "Product Design (DP)", "Craft (KR)", "Visual Art (SR)"],
-  "FTMD": ["Aerospace Engineering (AE)", "Material Engineering (MT)", "Mechanical Engineering (MS)"],
-  "FTTM": ["Geophysical Engineering (TG)", "Metallurgical Engineering (MG)", "Petroleum Engineering (TM)", "Mining Engineering (TA)"],
-  "FTSL": ["Environmental Infrastructure Engineering (IL)", "Water Resources Engineering (SA)", "Ocean Engineering (KL)", "Environmental Engineering (TL)", "Civil Engineering (SI)"],
-  "FTI": ["Engineering Management (MR)", "Bioenergy and Chemurgical Engineering (TB)", "Engineering Physics (TF)", "Industrial Engineering (TI)", "Chemical Engineering (TK)", "Food Engineering (PG)"],
-  "SAPPK": ["Architecture (AR)", "Urban and Regional Planning (PL)"],
-  "SBM": ["Entrepreneurship (MK)", "Management (MB)"],
-  "SF": ["Clinical and Community Pharmacy (FK)", "Pharmaceutical Science and Technology (FA)"],
-  "SITH": ["Biology (BI)", "Microbiology (BM)", "Bioengineering (BE)", "Forestry Engineering (BW)", "Agricultural Engineering (BA)", "Postharvest Technology (BP)"],
-  "STEI": ["Information System and Technology (II)", "Biomedical Engineering (EB)", "Electrical Engineering (EL)", "Electrical Power Engineering (EP)", "Informatics Engineering (IF)", "Telecommunication Engineering (ET)"]
+export interface MajorInfo {
+  code: string;
+  name: string;
+}
+
+export const FACULTY_MAJOR_MAP: Record<string, MajorInfo[]> = {
+  "FMIPA": [
+    { code: "101", name: "Mathematics" },
+    { code: "102", name: "Physics" },
+    { code: "103", name: "Astronomy" },
+    { code: "105", name: "Chemistry" },
+    { code: "108", name: "Actuarial Science" },
+  ],
+  "FITB": [
+    { code: "120", name: "Geological Engineering" },
+    { code: "128", name: "Meteorology" },
+    { code: "129", name: "Oceanography" },
+    { code: "151", name: "Geodesy and Geomatics Engineering" },
+  ],
+  "FTI": [
+    { code: "130", name: "Chemical Engineering" },
+    { code: "133", name: "Engineering Physics" },
+    { code: "134", name: "Industrial Engineering" },
+    { code: "143", name: "Food Engineering" },
+    { code: "144", name: "Engineering Management" },
+    { code: "145", name: "Bioenergy and Chemurgical Engineering" },
+    { code: "194", name: "Industrial Engineering (Cirebon Campus)" },
+  ],
+  "FTMD": [
+    { code: "131", name: "Mechanical Engineering" },
+    { code: "136", name: "Aerospace Engineering" },
+    { code: "137", name: "Materials Engineering" },
+  ],
+  "FTTM": [
+    { code: "121", name: "Mining Engineering" },
+    { code: "122", name: "Petroleum Engineering" },
+    { code: "123", name: "Geophysical Engineering" },
+    { code: "125", name: "Metallurgical Engineering" },
+  ],
+  "FTSL": [
+    { code: "150", name: "Civil Engineering" },
+    { code: "153", name: "Environmental Engineering" },
+    { code: "155", name: "Ocean Engineering" },
+    { code: "157", name: "Environmental Infrastructure Engineering" },
+    { code: "158", name: "Water Resources Engineering and Management" },
+  ],
+  "FSRD": [
+    { code: "170", name: "Fine Arts" },
+    { code: "171", name: "Craft (Cirebon Campus)" },
+    { code: "172", name: "Craft" },
+    { code: "173", name: "Interior Design" },
+    { code: "174", name: "Visual Communication Design" },
+    { code: "175", name: "Product Design" },
+  ],
+  "SITH": [
+    { code: "104", name: "Microbiology" },
+    { code: "106", name: "Biology" },
+    { code: "112", name: "Bioengineering" },
+    { code: "114", name: "Agricultural Engineering" },
+    { code: "115", name: "Forestry Engineering" },
+    { code: "119", name: "Postharvest Technology" },
+  ],
+  "STEI": [
+    { code: "132", name: "Electrical Engineering" },
+    { code: "135", name: "Informatics (Computer Science)" },
+    { code: "180", name: "Power Engineering" },
+    { code: "181", name: "Telecommunication Engineering" },
+    { code: "182", name: "Information Systems and Technology" },
+    { code: "183", name: "Biomedical Engineering" },
+  ],
+  "SF": [
+    { code: "107", name: "Pharmaceutical Science and Technology" },
+    { code: "116", name: "Clinical and Community Pharmacy" },
+  ],
+  "SAPPK": [
+    { code: "152", name: "Architecture" },
+    { code: "154", name: "Urban and Regional Planning" },
+    { code: "156", name: "Urban and Regional Planning (Cirebon Campus)" },
+  ],
+  "SBM": [
+    { code: "190", name: "Management" },
+    { code: "192", name: "Entrepreneurship" },
+  ],
+};
+
+export const FACULTY_NAMES: Record<string, string> = {
+  "FMIPA": "Faculty of Mathematics and Natural Sciences",
+  "FITB": "Faculty of Earth Sciences and Technology",
+  "FTI": "Faculty of Industrial Technology",
+  "FTMD": "Faculty of Mechanical and Aerospace Engineering",
+  "FTTM": "Faculty of Mining and Petroleum Engineering",
+  "FTSL": "Faculty of Civil and Environmental Engineering",
+  "FSRD": "Faculty of Art and Design",
+  "SITH": "School of Life Sciences and Technology",
+  "STEI": "School of Electrical Engineering and Informatics",
+  "SF": "School of Pharmacy",
+  "SAPPK": "School of Architecture, Planning, and Policy Development",
+  "SBM": "School of Business and Management",
 };
 
 export type Rumpun = "Art" | "Technology" | "Discovery";
@@ -28,6 +113,7 @@ export interface UserProfile {
   name: string;
   faculty: string;
   major: string;
+  majorCode?: string;
   year: number;
   whatsapp?: string;
   avatarUrl: string | null;
@@ -44,6 +130,23 @@ export interface UserProfile {
 }
 
 // ============================================================
+// SPEAKERS
+// ============================================================
+export interface Speaker {
+  id: string;
+  name: string;
+  roleTitle: string;
+  institution: string;
+  avatarUrl: string;
+  bio?: string;
+  linkedinUrl?: string;
+  order: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// ============================================================
 // OPPORTUNITIES
 // ============================================================
 export type OpportunityType = "research" | "scholarship" | "career" | "competition";
@@ -52,6 +155,7 @@ export interface Opportunity {
   id: string;
   type: OpportunityType;
   title: string;
+  slug: string;
   organizer: string;
   description: string;
   requiredSkills: string[];

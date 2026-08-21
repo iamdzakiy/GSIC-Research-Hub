@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Target,
   GraduationCap,
@@ -21,6 +21,11 @@ import {
   Search,
   Layers,
   Mail,
+  Link2,
+  X,
+  ArrowRight,
+  Microscope,
+  FlaskConical,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -38,15 +43,18 @@ import {
 import { getOpportunities, updateOpportunity } from "@/services/opportunities";
 import { getCurated } from "@/services/curated";
 import { getEvents } from "@/services/events";
-import { Opportunity, CuratedOpportunity, GSICEvent } from "@/lib/types";
+import { getSpeakers } from "@/services/speakers";
+import { Opportunity, CuratedOpportunity, GSICEvent, Speaker } from "@/lib/types";
 
 export default function HomePage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [curated, setCurated] = useState<CuratedOpportunity[]>([]);
   const [events, setEvents] = useState<GSICEvent[]>([]);
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
 
   useEffect(() => {
     loadData();
@@ -54,10 +62,11 @@ export default function HomePage() {
 
   const loadData = async () => {
     try {
-      const [opps, curatedList, eventsList] = await Promise.all([
+      const [opps, curatedList, eventsList, speakersList] = await Promise.all([
         getOpportunities(),
         getCurated(),
         getEvents(),
+        getSpeakers(),
       ]);
 
       // Auto-archive expired opportunities
@@ -73,6 +82,7 @@ export default function HomePage() {
       setOpportunities(updated);
       setCurated(curatedList);
       setEvents(eventsList);
+      setSpeakers(speakersList);
     } catch (e) {
       console.error("API load error:", e);
     }
@@ -88,6 +98,7 @@ export default function HomePage() {
   const activeOpps = sorted;
   const pkmBootcamp = events.find((e) => e.type === "bootcamp");
   const sandboxEvent = events.find((e) => e.type === "sandbox");
+  const activeSpeakers = speakers.filter(s => s.isActive).sort((a, b) => a.order - b.order);
 
   if (loading) {
     return (
@@ -153,6 +164,69 @@ export default function HomePage() {
               ))}
             </div>
           </motion.div>
+        </section>
+
+        {/* SPEAKERS SECTION */}
+        <section id="speakers" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="flex items-center gap-3 mb-2">
+            <Users className="w-7 h-7 text-[#8B5CF6]" />
+            <h2 className="text-2xl md:text-3xl font-bold font-heading">Featured Speakers</h2>
+          </motion.div>
+          <p className="text-sm text-white/40 mb-6 font-body">World-class researchers, mentors, and industry leaders</p>
+
+          {activeSpeakers.length === 0 ? (
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="glass rounded-2xl p-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#8B5CF6]/20 to-[#06B6D4]/20 flex items-center justify-center mx-auto mb-4">
+                <Sparkles className="w-8 h-8 text-[#A78BFA]" />
+              </div>
+              <h3 className="text-xl font-bold font-heading mb-2">Curating World-Class Speakers</h3>
+              <p className="text-white/50 max-w-md mx-auto">We're curating world-class speakers and mentors. Stay tuned for exciting announcements!</p>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeSpeakers.map((speaker, idx) => (
+                <motion.div
+                  key={speaker.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="glass rounded-2xl p-6 card-hover glow-border"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white font-bold text-xl overflow-hidden flex-shrink-0">
+                      {speaker.avatarUrl ? (
+                        <img src={speaker.avatarUrl} alt={speaker.name} className="w-full h-full object-cover" />
+                      ) : (
+                        speaker.name.charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold font-heading truncate">{speaker.name}</h3>
+                      <div className="text-xs text-[#A78BFA] font-medium">{speaker.roleTitle}</div>
+                      <div className="text-xs text-white/40 mt-0.5">{speaker.institution}</div>
+                    </div>
+                  </div>
+                  {speaker.bio && (
+                    <p className="text-xs text-white/50 mt-4 line-clamp-3">{speaker.bio}</p>
+                  )}
+                  <div className="mt-4 flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedSpeaker(speaker)}
+                      className="text-xs bg-[#8B5CF6]/20 hover:bg-[#8B5CF6]/30 text-[#A78BFA] px-3 py-1.5 rounded-full transition flex items-center gap-1"
+                    >
+                      <BookOpen className="w-3 h-3" /> View Bio
+                    </button>
+                    {speaker.linkedinUrl && (
+                      <a href={speaker.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full transition flex items-center gap-1">
+                        <Link2 className="w-3 h-3" /> LinkedIn
+                      </a>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section id="events" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -388,6 +462,55 @@ export default function HomePage() {
           </div>
         </footer>
       </main>
+
+      {/* Speaker Bio Modal */}
+      <AnimatePresence>
+        {selectedSpeaker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedSpeaker(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="glass-strong rounded-2xl p-8 max-w-md w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white font-bold text-xl overflow-hidden">
+                    {selectedSpeaker.avatarUrl ? (
+                      <img src={selectedSpeaker.avatarUrl} alt={selectedSpeaker.name} className="w-full h-full object-cover" />
+                    ) : (
+                      selectedSpeaker.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold font-heading">{selectedSpeaker.name}</h3>
+                    <div className="text-xs text-[#A78BFA]">{selectedSpeaker.roleTitle}</div>
+                    <div className="text-xs text-white/40">{selectedSpeaker.institution}</div>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedSpeaker(null)} className="text-white/40 hover:text-white/60">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              {selectedSpeaker.bio && (
+                <p className="text-sm text-white/60 leading-relaxed">{selectedSpeaker.bio}</p>
+              )}
+              {selectedSpeaker.linkedinUrl && (
+                <a href={selectedSpeaker.linkedinUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-1 text-xs text-[#A78BFA] hover:underline">
+                  <Link2 className="w-3 h-3" /> Connect on LinkedIn
+                </a>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {toast && (
         <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>
