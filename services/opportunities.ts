@@ -1,16 +1,22 @@
 import { Opportunity } from "@/lib/types";
 
-export async function getOpportunities(): Promise<Opportunity[]> {
-  const res = await fetch("/api/opportunities");
+export async function getOpportunities(params?: { page?: number; pageSize?: number; slug?: string }): Promise<Opportunity[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  if (params?.slug) qs.set("slug", params.slug);
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/opportunities${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.opportunities || []);
 }
 
 export async function getOpportunityBySlug(slug: string): Promise<Opportunity | null> {
-  const res = await fetch(`/api/opportunities?slug=${slug}`);
+  const res = await fetch(`/api/opportunities?slug=${encodeURIComponent(slug)}`);
   if (!res.ok) return null;
-  const opps = await res.json();
-  return opps.find((o: Opportunity) => o.slug === slug) || null;
+  const list = await getOpportunities({ slug });
+  return list.find((o: Opportunity) => o.slug === slug) || null;
 }
 
 export async function createOpportunity(data: Partial<Opportunity>) {

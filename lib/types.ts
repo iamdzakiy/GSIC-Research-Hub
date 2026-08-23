@@ -2,6 +2,11 @@
 // GSIC-Research-Hub - Type Definitions
 // ============================================================
 
+// Re-export Prisma enums so string fields are type-safe without duplicating
+// the literal unions in this file.
+import { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme } from "../generated/prisma/enums";
+export { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme } from "../generated/prisma/enums";
+
 export interface MajorInfo {
   code: string;
   name: string;
@@ -104,8 +109,6 @@ export const FACULTY_NAMES: Record<string, string> = {
 
 export type Rumpun = "Art" | "Technology" | "Discovery";
 
-export type UserRole = "user" | "admin";
-
 export interface UserProfile {
   uid: string;
   htaId: string;
@@ -117,7 +120,7 @@ export interface UserProfile {
   year: number;
   whatsapp?: string;
   avatarUrl: string | null;
-  classcardTheme: "blue" | "mint" | "cream" | "dark" | "purple" | "sunset";
+  classcardTheme: Theme;
   skills: string[];
   bio: string;
   isVerified: boolean;
@@ -149,8 +152,6 @@ export interface Speaker {
 // ============================================================
 // OPPORTUNITIES
 // ============================================================
-export type OpportunityType = "research" | "scholarship" | "career" | "competition";
-
 export interface Opportunity {
   id: string;
   type: OpportunityType;
@@ -164,7 +165,7 @@ export interface Opportunity {
   isAnnual: boolean;
   link: string;
   posterUrl: string | null;
-  status: "active" | "expiring_soon" | "archived";
+  status: Status;
   cpName: string;
   cpContact: string;
 }
@@ -182,8 +183,6 @@ export interface CuratedOpportunity {
 // ============================================================
 // EVENTS (PKM-Bootcamp & The Sandbox)
 // ============================================================
-export type EventType = "bootcamp" | "sandbox";
-
 export interface EventSpeaker {
   name: string;
   title: string;
@@ -213,7 +212,7 @@ export interface GSICEvent {
   location: string;
   maxParticipants: number;
   currentParticipants: number;
-  status: "upcoming" | "ongoing" | "completed";
+  status: Status;
   clusters: ("art" | "technology" | "discovery")[];
   modules: EventModule[];
   speakers: EventSpeaker[];
@@ -242,7 +241,7 @@ export interface TestQuestion {
 export interface Test {
   id: string;
   eventId: string;
-  type: "pre" | "post";
+  type: TestType;
   title: string;
   description: string;
   questions: TestQuestion[];
@@ -272,7 +271,7 @@ export interface Registration {
   id: string;
   userId: string;
   eventId: string;
-  status: "pending" | "confirmed" | "completed" | "cancelled";
+  status: RegistrationStatus;
   preTestCompleted: boolean;
   postTestCompleted: boolean;
   registeredAt: string;
@@ -286,7 +285,7 @@ export interface Document {
   userId: string;
   title: string;
   author?: string;
-  type: "report" | "portfolio" | "proposal";
+  type: DocumentType;
   url: string;
   uploadedAt: string;
 }
@@ -302,17 +301,4 @@ export interface UserProgress {
   opportunitiesApplied: number;
   sandboxEventsJoined: number;
   skills: string[];
-}
-
-// ============================================================
-// ADMIN ACCOUNTS
-// ============================================================
-export interface AdminAccount {
-  id: string;
-  email: string;
-  name: string;
-  role: "admin";
-  isGenerated: boolean;
-  generatedBy: string;
-  createdAt: string;
 }

@@ -1,17 +1,23 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromRequest } from "@/lib/auth-helper";
+import { requireAdmin } from "@/lib/auth-helper";
+import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 
-export async function GET() {
-  const curated = await prisma.curatedOpportunity.findMany({
-    orderBy: { id: "asc" },
-  });
-  return NextResponse.json(curated);
-}
+export const GET = withErrorHandler(async (request: Request) => {
+  const { skip, take } = parsePagination(request.url);
+  const [curated, total] = await Promise.all([
+    prisma.curatedOpportunity.findMany({
+      orderBy: { id: "asc" },
+      skip,
+      take,
+    }),
+    prisma.curatedOpportunity.count(),
+  ]);
+  return NextResponse.json({ curated, total, page: Math.floor(skip / take) + 1, pageSize: take });
+});
 
-export async function POST(request: Request) {
-  const user = await getUserFromRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const POST = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
 
   const body = await request.json();
   if (!body.title || !body.type || !body.organizer || !body.monthOpen) {
@@ -29,14 +35,13 @@ export async function POST(request: Request) {
     },
   });
   return NextResponse.json(newCurated, { status: 201 });
-}
+});
 
-export async function DELETE(request: Request) {
-  const user = await getUserFromRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const DELETE = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
 
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await prisma.curatedOpportunity.delete({ where: { id } });
   return NextResponse.json({ success: true });
-}
+});

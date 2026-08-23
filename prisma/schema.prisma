@@ -7,6 +7,58 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  user
+  admin
+}
+
+enum OpportunityType {
+  research
+  scholarship
+  career
+  competition
+}
+
+enum Status {
+  active
+  archived
+  upcoming
+  ongoing
+  completed
+}
+
+enum EventType {
+  bootcamp
+  sandbox
+}
+
+enum DocumentType {
+  report
+  portfolio
+  proposal
+}
+
+enum TestType {
+  pre
+  post
+}
+
+enum RegistrationStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+}
+
+enum Theme {
+  blue
+  mint
+  cream
+  dark
+  purple
+  sunset
+}
+
 model User {
   id             String   @id @default(cuid())
   htaId          String   @default("")
@@ -18,11 +70,11 @@ model User {
   year           Int?
   whatsapp       String?
   avatarUrl      String?
-  classcardTheme String   @default("blue")
+  classcardTheme Theme    @default(blue)
   skills         String[]
   bio            String?
   isVerified     Boolean  @default(false)
-  role           String   @default("user")
+  role           UserRole @default(user)
   emailConfirmed Boolean  @default(false)
   provider       String   @default("email")
   lastSignInAt   DateTime?
@@ -49,28 +101,28 @@ model Speaker {
 }
 
 model Opportunity {
-  id             String   @id @default(cuid())
-  type           String
+  id             String          @id @default(cuid())
+  type           OpportunityType
   title          String
-  slug           String   @unique
+  slug           String          @unique
   organizer      String
   description    String
   requiredSkills String[]
   benefits       String[]
   deadline       DateTime
-  isAnnual       Boolean  @default(false)
+  isAnnual       Boolean         @default(false)
   link           String?
   posterUrl      String?
-  status         String   @default("active")
+  status         Status          @default(active)
   cpName         String?
   cpContact      String?
-  createdAt      DateTime @default(now())
+  createdAt      DateTime        @default(now())
 }
 
 model CuratedOpportunity {
-  id          String  @id @default(cuid())
+  id          String          @id @default(cuid())
   title       String
-  type        String
+  type        OpportunityType
   organizer   String
   monthOpen   String
   description String
@@ -78,8 +130,8 @@ model CuratedOpportunity {
 }
 
 model Event {
-  id                   String         @id @default(cuid())
-  type                 String
+  id                   String        @id @default(cuid())
+  type                 EventType
   title                String
   description          String
   shortDescription     String
@@ -88,26 +140,26 @@ model Event {
   registrationDeadline DateTime
   location             String
   maxParticipants      Int
-  currentParticipants  Int            @default(0)
-  status               String         @default("upcoming")
+  currentParticipants  Int           @default(0)
+  status               Status        @default(upcoming)
   clusters             String[]
   modules              Json
   speakers             Json
-  hasPreTest           Boolean        @default(false)
-  hasPostTest          Boolean        @default(false)
+  hasPreTest           Boolean       @default(false)
+  hasPostTest          Boolean       @default(false)
   preTestId            String?
   postTestId           String?
   preTestExplanation   String?
   postTestExplanation  String?
   createdBy            String
-  createdAt            DateTime       @default(now())
+  createdAt            DateTime      @default(now())
   registrations        Registration[]
 }
 
 model Test {
   id              String       @id @default(cuid())
   eventId         String
-  type            String
+  type            TestType
   title           String
   description     String?
   questions       Json
@@ -117,14 +169,14 @@ model Test {
 }
 
 model Registration {
-  id                String   @id @default(cuid())
+  id                String             @id @default(cuid())
   userId            String
   eventId           String
   motivation        String?
-  status            String   @default("confirmed")
-  preTestCompleted  Boolean  @default(false)
-  postTestCompleted Boolean  @default(false)
-  registeredAt      DateTime @default(now())
+  status            RegistrationStatus @default(confirmed)
+  preTestCompleted  Boolean            @default(false)
+  postTestCompleted Boolean            @default(false)
+  registeredAt      DateTime           @default(now())
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
@@ -144,22 +196,12 @@ model TestResult {
 }
 
 model Document {
-  id         String   @id @default(cuid())
+  id         String       @id @default(cuid())
   userId     String
   title      String
   author     String?
-  type       String
+  type       DocumentType
   url        String
-  uploadedAt DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id])
-}
-
-model AdminAccount {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  name        String
-  role        String   @default("admin")
-  isGenerated Boolean  @default(true)
-  generatedBy String?
-  createdAt   DateTime @default(now())
+  uploadedAt DateTime     @default(now())
+  user       User         @relation(fields: [userId], references: [id])
 }

@@ -57,7 +57,6 @@ import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
 import { getSpeakers, createSpeaker, updateSpeaker, deleteSpeaker } from "@/services/speakers";
 import { getAllUsers } from "@/services/userService";
-import { ensureSeed } from "@/services/seed";
 
 export default function AdminDashboard() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -114,11 +113,6 @@ export default function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      await ensureSeed("opportunities");
-      await ensureSeed("curated");
-      await ensureSeed("events");
-      await ensureSeed("tests");
-      await ensureSeed("documents");
       const [opps, curatedList, eventsList, testsList, docsList, speakersList, usersList] = await Promise.all([
         getOpportunities(),
         getCurated(),

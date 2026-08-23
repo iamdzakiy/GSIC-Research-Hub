@@ -27,10 +27,15 @@ export async function createUserProfile(profile: UserProfile): Promise<void> {
   if (!res.ok) throw new Error("Failed to create profile");
 }
 
-export async function getAllUsers(): Promise<UserProfile[]> {
-  const res = await fetch("/api/users");
+export async function getAllUsers(params?: { page?: number; pageSize?: number }): Promise<UserProfile[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/users${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch users");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.users || []);
 }
 
 export async function updateUserProfile(uid: string, updates: Partial<UserProfile>): Promise<UserProfile> {

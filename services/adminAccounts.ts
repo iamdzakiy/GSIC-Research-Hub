@@ -1,12 +1,13 @@
-import { AdminAccount } from "@/lib/types";
+import { UserProfile } from "@/lib/types";
 
-export async function getAdminAccounts(): Promise<AdminAccount[]> {
+export async function getAdminAccounts(): Promise<UserProfile[]> {
   const res = await fetch("/api/admin-accounts");
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.admins || []);
 }
 
-export async function createAdminAccount(data: Partial<AdminAccount>) {
+export async function createAdminAccount(data: { id?: string; email?: string } & Record<string, unknown>) {
   const res = await fetch("/api/admin-accounts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
