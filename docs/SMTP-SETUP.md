@@ -51,10 +51,42 @@ GSIC Hub uses Supabase Auth for email/password sign-up. By default, Supabase use
 
 ## Customize the Email Template
 
-1. In **Supabase Dashboard → Authentication → Email Templates**.
+1. In **Supabase Dashboard → Authentication → Emails → Templates**.
 2. Select **Confirm signup**.
-3. Customize the subject/body. The confirmation link is auto-injected via `{{ .ConfirmationURL }}`.
-4. Ensure the **Redirect URL** matches your app (e.g. `http://localhost:3000/auth` in dev, `https://your-domain.com/auth` in prod).
+3. Paste the ready-made dark template from [`docs/email-template.html`](./email-template.html) into the message body (switch the editor to source/HTML mode). The confirmation link is auto-injected via `{{ .ConfirmationURL }}`.
+4. Suggested subject: `Confirm your email — GSIC Research Hub ✨`
+5. Ensure the **Redirect URL** matches your app (e.g. `http://localhost:3000/auth` in dev, `https://your-domain.com/auth` in prod).
+
+---
+
+## Required Environment Variables
+
+Add these to `.env.local` (dev) and your hosting provider's env settings (production):
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+
+# Site URL — used for email confirmation redirects and password reset links.
+# In production this MUST be your deployed URL, otherwise confirmation emails
+# will redirect users to localhost.
+NEXT_PUBLIC_SITE_URL=http://localhost:3000        # dev
+# NEXT_PUBLIC_SITE_URL=https://gsic-research-hub.vercel.app   # production
+
+# Dev fallback: skip "check your email" step when Confirm email is OFF
+NEXT_PUBLIC_DEV_AUTO_CONFIRM=1                    # dev only
+
+# Hero "Watch Teaser" video (YouTube or Instagram link)
+NEXT_PUBLIC_TEASER_VIDEO_URL=https://www.youtube.com/watch?v=YOUR_VIDEO_ID
+
+# Optional: server-side admin script (scripts/create-admin-account.ts)
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>      # keep secret, never NEXT_PUBLIC_
+ADMIN_EMAIL=admin@gsic.km.itb.ac.id
+ADMIN_PASSWORD=your-secure-password
+```
+
+Also add your production URL to **Supabase Dashboard → Authentication → URL Configuration → Redirect URLs**, e.g. `https://your-domain.com/auth`.
 
 ---
 

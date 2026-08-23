@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
@@ -198,12 +197,20 @@ export default function Navbar() {
                     </button>
                   </>
                 ) : (
-                  <Link
-                    href="/auth"
-                    className="text-xs bg-[#5CE3B6]/20 text-[#5CE3B6] px-3 py-1.5 rounded-full border border-[#5CE3B6]/30 hover:bg-[#5CE3B6]/30 transition"
-                  >
-                    Sign In
-                  </Link>
+                  <>
+                    <Link
+                      href="/auth?mode=signin"
+                      className="text-xs bg-white/5 text-white/60 px-3 py-1.5 rounded-full border border-white/10 hover:bg-white/10 transition"
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/auth?mode=signup"
+                      className="text-xs bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-3 py-1.5 rounded-full transition shadow-lg shadow-[#3352CD]/30"
+                    >
+                      Register
+                    </Link>
+                  </>
                 )}
               </>
             )}
