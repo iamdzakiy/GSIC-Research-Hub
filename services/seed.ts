@@ -6,8 +6,11 @@ import {
   SEED_DOCUMENTS,
 } from "@/lib/data";
 
+// Manual seeding helpers — these are intended to be called during deployment,
+// NOT automatically on page load. The `/api/seed` route is admin-only and
+// disabled in production.
 export async function ensureSeed(collection: string): Promise<void> {
-  let data: any[] = [];
+  let data: unknown[] = [];
 
   switch (collection) {
     case "opportunities":

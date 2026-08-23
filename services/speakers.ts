@@ -1,9 +1,14 @@
 import { Speaker } from "@/lib/types";
 
-export async function getSpeakers(): Promise<Speaker[]> {
-  const res = await fetch("/api/speakers");
+export async function getSpeakers(params?: { page?: number; pageSize?: number }): Promise<Speaker[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/speakers${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch speakers");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.speakers || []);
 }
 
 export async function createSpeaker(data: Partial<Speaker>) {

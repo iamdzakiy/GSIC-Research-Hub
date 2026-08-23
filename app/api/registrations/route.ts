@@ -1,24 +1,32 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromRequest } from "@/lib/auth-helper";
+import { requireAdmin, requireUser } from "@/lib/auth-helper";
+import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 
-export async function GET() {
-  const registrations = await prisma.registration.findMany({
-    orderBy: { registeredAt: "desc" },
-  });
-  return NextResponse.json(registrations);
-}
+export const GET = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
 
-export async function POST(request: Request) {
-  const user = await getUserFromRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { skip, take } = parsePagination(request.url);
+  const [registrations, total] = await Promise.all([
+    prisma.registration.findMany({
+      orderBy: { registeredAt: "desc" },
+      skip,
+      take,
+    }),
+    prisma.registration.count(),
+  ]);
+  return NextResponse.json({ registrations, total, page: Math.floor(skip / take) + 1, pageSize: take });
+});
+
+export const POST = withErrorHandler(async (request: Request) => {
+  const user = await requireUser(request);
 
   const body = await request.json();
   if (!body.eventId) return NextResponse.json({ error: "Missing eventId" }, { status: 400 });
 
   const newRegistration = await prisma.registration.create({
     data: {
-      userId: body.userId || user.id,
+      userId: user.id,
       eventId: body.eventId,
       status: body.status || "confirmed",
       preTestCompleted: body.preTestCompleted || false,
@@ -26,11 +34,10 @@ export async function POST(request: Request) {
     },
   });
   return NextResponse.json(newRegistration, { status: 201 });
-}
+});
 
-export async function PUT(request: Request) {
-  const user = await getUserFromRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const PUT = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
 
   const body = await request.json();
   const { id, ...data } = body;
@@ -38,19 +45,16 @@ export async function PUT(request: Request) {
 
   const updated = await prisma.registration.update({
     where: { id },
-    data: {
-      ...data,
-    },
+    data: { ...data },
   });
   return NextResponse.json(updated);
-}
+});
 
-export async function DELETE(request: Request) {
-  const user = await getUserFromRequest(request);
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export const DELETE = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
 
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await prisma.registration.delete({ where: { id } });
   return NextResponse.json({ success: true });
-}
+});

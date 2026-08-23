@@ -9,23 +9,24 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const admin = await prisma.adminAccount.upsert({
-    where: { email: 'admin@gsic.km.itb.ac.id' },
+  const email = process.env.ADMIN_EMAIL || 'admin@gsic.km.itb.ac.id';
+
+  const user = await prisma.user.upsert({
+    where: { email },
     update: {
       name: 'GSIC Admin',
       role: 'admin',
-      isGenerated: true,
-      generatedBy: 'system',
     },
     create: {
-      email: 'admin@gsic.km.itb.ac.id',
+      email,
+      htaId: `HTA-${new Date().getFullYear()}-ADMIN`,
       name: 'GSIC Admin',
       role: 'admin',
-      isGenerated: true,
-      generatedBy: 'system',
+      isVerified: true,
+      classcardTheme: 'blue',
     },
   });
-  console.log('✅ Admin account created successfully:', JSON.stringify(admin, null, 2));
+  console.log('✅ Admin account created successfully:', JSON.stringify(user, null, 2));
   await prisma.$disconnect();
 }
 

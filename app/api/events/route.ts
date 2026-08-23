@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-helper";
+import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 
-export async function GET() {
-  const events = await prisma.event.findMany({
-    orderBy: { startDate: "asc" },
-  });
-  return NextResponse.json(events);
-}
+export const GET = withErrorHandler(async (request: Request) => {
+  const { skip, take } = parsePagination(request.url);
+  const [events, total] = await Promise.all([
+    prisma.event.findMany({
+      orderBy: { startDate: "asc" },
+      skip,
+      take,
+    }),
+    prisma.event.count(),
+  ]);
+  return NextResponse.json({ events, total, page: Math.floor(skip / take) + 1, pageSize: take });
+});
 
-export async function POST(request: Request) {
+export const POST = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
   const body = await request.json();
   const newEvent = await prisma.event.create({
     data: {
@@ -16,9 +25,10 @@ export async function POST(request: Request) {
     },
   });
   return NextResponse.json(newEvent, { status: 201 });
-}
+});
 
-export async function PUT(request: Request) {
+export const PUT = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
   const body = await request.json();
   const { id, ...data } = body;
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
@@ -30,11 +40,12 @@ export async function PUT(request: Request) {
     },
   });
   return NextResponse.json(updated);
-}
+});
 
-export async function DELETE(request: Request) {
+export const DELETE = withErrorHandler(async (request: Request) => {
+  await requireAdmin(request);
   const { id } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   await prisma.event.delete({ where: { id } });
   return NextResponse.json({ success: true });
-}
+});

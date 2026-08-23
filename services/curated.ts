@@ -1,9 +1,14 @@
 import { CuratedOpportunity } from "@/lib/types";
 
-export async function getCurated(): Promise<CuratedOpportunity[]> {
-  const res = await fetch("/api/curated");
+export async function getCurated(params?: { page?: number; pageSize?: number }): Promise<CuratedOpportunity[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/curated${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.curated || []);
 }
 
 export async function createCurated(data: Partial<CuratedOpportunity>) {

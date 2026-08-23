@@ -1,9 +1,14 @@
 import { Registration } from "@/lib/types";
 
-export async function getRegistrations(): Promise<Registration[]> {
-  const res = await fetch("/api/registrations");
+export async function getRegistrations(params?: { page?: number; pageSize?: number }): Promise<Registration[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/registrations${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.registrations || []);
 }
 
 export async function createRegistration(data: Partial<Registration>) {

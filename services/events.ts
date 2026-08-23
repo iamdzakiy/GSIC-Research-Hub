@@ -1,9 +1,20 @@
 import { GSICEvent } from "@/lib/types";
 
-export async function getEvents(): Promise<GSICEvent[]> {
-  const res = await fetch("/api/events");
+export interface PaginatedResponse<T> {
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export async function getEvents(params?: { page?: number; pageSize?: number }): Promise<GSICEvent[]> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
+  const suffix = qs.toString() ? `?${qs.toString()}` : "";
+  const res = await fetch(`/api/events${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  return Array.isArray(data) ? data : (data.events || []);
 }
 
 export async function createEvent(data: Partial<GSICEvent>) {

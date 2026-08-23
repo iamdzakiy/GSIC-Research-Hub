@@ -41,7 +41,6 @@ import { getTests } from "@/services/tests";
 import { getRegistrations } from "@/services/registrations";
 import { getTestResults } from "@/services/testResults";
 import { getDocuments } from "@/services/documents";
-import { ensureSeed } from "@/services/seed";
 
 export default function DashboardPage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -63,10 +62,6 @@ export default function DashboardPage() {
 
   const loadData = async () => {
     try {
-      await ensureSeed("opportunities");
-      await ensureSeed("events");
-      await ensureSeed("tests");
-      await ensureSeed("documents");
       const [eventsList, testsList, regsList, resultsList, oppsList, docsList] = await Promise.all([
         getEvents(),
         getTests(),
