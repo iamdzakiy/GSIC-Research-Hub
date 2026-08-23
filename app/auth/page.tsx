@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -15,7 +15,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { signUp, signIn } from "@/lib/supabaseClient";
+import { signUp, signIn, DEV_AUTO_CONFIRM } from "@/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
 import { FACULTY_MAJOR_MAP, FACULTY_NAMES } from "@/lib/types";
 
@@ -53,6 +53,12 @@ export default function AuthPage() {
   const strength = getPasswordStrength(password);
   const majors = useMemo(() => (faculty ? FACULTY_MAJOR_MAP[faculty] || [] : []), [faculty]);
 
+  // Read the initial mode from the URL (?mode=signin or ?mode=signup)
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === "signin") setIsSignUp(false);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -60,8 +66,13 @@ export default function AuthPage() {
     try {
       if (isSignUp) {
         await signUp(email, password, name);
-        setStep(2);
-        setMessage("✅ Check your email to verify your account.");
+        // If email confirmation is disabled (dev mode), auto-sign-in
+        if (DEV_AUTO_CONFIRM) {
+          router.push("/dashboard");
+        } else {
+          setStep(2);
+          setMessage("✅ Check your email to verify your account.");
+        }
       } else {
         const { user, session } = await signIn(email, password);
         if (user && !user.confirmed_at) {
@@ -217,7 +228,15 @@ export default function AuthPage() {
 
                   <p className="text-center text-xs text-white/40 mt-6">
                     {isSignUp ? "Already have an account?" : "Don't have an account?"}
-                    <button onClick={() => setIsSignUp(!isSignUp)} className="text-[#06B6D4] hover:underline ml-1">{isSignUp ? "Sign In" : "Sign Up"}</button>
+                    <button
+                      onClick={() => {
+                        setIsSignUp(!isSignUp);
+                        router.push(`/auth?mode=${!isSignUp ? "signup" : "signin"}`, { scroll: false });
+                      }}
+                      className="text-[#06B6D4] hover:underline ml-1"
+                    >
+                      {isSignUp ? "Sign In" : "Sign Up"}
+                    </button>
                   </p>
                 </motion.div>
               )}
@@ -239,7 +258,7 @@ export default function AuthPage() {
                         After verifying, you can sign in with your email and password.
                       </p>
                     </div>
-                    <button onClick={() => { setIsSignUp(false); setStep(1); }} className="w-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:from-[#3B82F6] hover:to-[#22D3EE] transition font-medium py-3 rounded-xl shadow-lg shadow-[#2563EB]/30 flex items-center justify-center gap-2">
+                    <button onClick={() => { setIsSignUp(false); setStep(1); router.push("/auth?mode=signin", { scroll: false }); }} className="w-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:from-[#3B82F6] hover:to-[#22D3EE] transition font-medium py-3 rounded-xl shadow-lg shadow-[#2563EB]/30 flex items-center justify-center gap-2">
                       <ArrowLeft className="w-3 h-3" /> Back to Sign In
                     </button>
                   </div>

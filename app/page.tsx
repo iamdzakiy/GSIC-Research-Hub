@@ -26,6 +26,7 @@ import {
   ArrowRight,
   Microscope,
   FlaskConical,
+  Play,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -46,6 +47,10 @@ import { getEvents } from "@/services/events";
 import { getSpeakers } from "@/services/speakers";
 import { Opportunity, CuratedOpportunity, GSICEvent, Speaker } from "@/lib/types";
 import OpportunityCard from "@/components/OpportunityCard";
+import VideoModal from "@/components/VideoModal";
+
+// Teaser video URL (YouTube or Instagram). Update this to your actual teaser link.
+const TEASER_VIDEO_URL = process.env.NEXT_PUBLIC_TEASER_VIDEO_URL || "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
 
 export default function HomePage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -59,6 +64,7 @@ export default function HomePage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"deadline" | "title" | "type" | "organizer">("deadline");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -168,6 +174,16 @@ export default function HomePage() {
               <a href="#about" className="px-6 py-3 rounded-full bg-[#5CE3B6]/10 hover:bg-[#5CE3B6]/20 transition border border-[#5CE3B6]/20 flex items-center gap-2 text-[#5CE3B6]">
                 <Globe className="w-4 h-4" /> About GSIC
               </a>
+              <button
+                onClick={() => setVideoModalOpen(true)}
+                className="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 transition border border-white/10 flex items-center gap-2 group"
+              >
+                <span className="relative flex items-center justify-center w-5 h-5">
+                  <span className="absolute inset-0 rounded-full bg-[#5CE3B6]/30 animate-ping group-hover:bg-[#5CE3B6]/50" />
+                  <Play className="relative w-3.5 h-3.5 text-[#5CE3B6] fill-current ml-0.5" />
+                </span>
+                Watch Teaser
+              </button>
             </div>
             <div className="mt-10 grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
               {[
@@ -566,6 +582,14 @@ export default function HomePage() {
           {toast.msg}
         </div>
       )}
+
+      {/* Teaser Video Modal */}
+      <VideoModal
+        open={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        videoUrl={TEASER_VIDEO_URL}
+        title="GSIC Research Hub — Teaser"
+      />
     </div>
   );
 }
