@@ -45,6 +45,7 @@ import { getCurated } from "@/services/curated";
 import { getEvents } from "@/services/events";
 import { getSpeakers } from "@/services/speakers";
 import { Opportunity, CuratedOpportunity, GSICEvent, Speaker } from "@/lib/types";
+import OpportunityCard from "@/components/OpportunityCard";
 
 export default function HomePage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
@@ -55,6 +56,9 @@ export default function HomePage() {
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"deadline" | "title" | "type" | "organizer">("deadline");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     loadData();
@@ -93,8 +97,24 @@ export default function HomePage() {
     setTimeout(() => setToast(null), 3500);
   };
 
-  const filtered = opportunities.filter(o => showArchived ? true : o.status !== "archived");
-  const sorted = [...filtered].sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+  const filtered = opportunities.filter(o => {
+    if (!showArchived && o.status === "archived") return false;
+    if (typeFilter !== "all" && o.type !== typeFilter) return false;
+    return true;
+  });
+  const sorted = [...filtered].sort((a, b) => {
+    // Archived always pushed to bottom
+    const aArch = a.status === "archived" ? 1 : 0;
+    const bArch = b.status === "archived" ? 1 : 0;
+    if (aArch !== bArch) return aArch - bArch;
+
+    let cmp = 0;
+    if (sortBy === "deadline") cmp = new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+    else if (sortBy === "title") cmp = a.title.localeCompare(b.title);
+    else if (sortBy === "type") cmp = a.type.localeCompare(b.type);
+    else if (sortBy === "organizer") cmp = a.organizer.localeCompare(b.organizer);
+    return sortDir === "asc" ? cmp : -cmp;
+  });
   const activeOpps = sorted;
   const pkmBootcamp = events.find((e) => e.type === "bootcamp");
   const sandboxEvent = events.find((e) => e.type === "sandbox");
@@ -322,45 +342,73 @@ export default function HomePage() {
             </label>
           </div>
 
+          {/* Filter pills */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {[
+              { id: "all", label: "All", icon: "✨" },
+              { id: "research", label: "Research", icon: "🔬" },
+              { id: "scholarship", label: "Scholarship", icon: "🎓" },
+              { id: "career", label: "Career", icon: "💼" },
+              { id: "competition", label: "Competition", icon: "🏆" },
+            ].map((f) => (
+              <motion.button
+                key={f.id}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setTypeFilter(f.id)}
+                className={`text-xs px-3.5 py-1.5 rounded-full border transition font-medium ${
+                  typeFilter === f.id
+                    ? "bg-[#3352CD] border-[#3352CD] text-white shadow-lg shadow-[#3352CD]/30"
+                    : "bg-white/5 border-white/10 text-white/50 hover:text-white/80 hover:bg-white/10"
+                }`}
+              >
+                {f.icon} {f.label}
+              </motion.button>
+            ))}
+
+            {/* Sort controls */}
+            <div className="ml-auto flex items-center gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="text-xs bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-white/70 focus:outline-none focus:border-[#5CE3B6] cursor-pointer"
+              >
+                <option value="deadline">Sort: Deadline</option>
+                <option value="title">Sort: Title (A-Z)</option>
+                <option value="type">Sort: Category</option>
+                <option value="organizer">Sort: Organizer</option>
+              </select>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}
+                className="text-xs bg-white/5 border border-white/10 rounded-full px-3 py-1.5 text-white/70 hover:bg-white/10 transition"
+                title={sortDir === "asc" ? "Ascending" : "Descending"}
+              >
+                {sortDir === "asc" ? "↑" : "↓"}
+              </motion.button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeOpps.length === 0 ? (
               <div className="col-span-full text-center py-12 text-white/30">
                 <Search className="w-12 h-12 mx-auto mb-4 opacity-50" /> No opportunities found.
               </div>
             ) : (
-              activeOpps.map((opp, idx) => {
-                const days = Math.ceil((new Date(opp.deadline).getTime() - Date.now()) / (1000*60*60*24));
-                let colorClass = "text-[#5CE3B6]";
-                let borderColor = "border-[#5CE3B6]";
-                if (days < 0) { colorClass = "text-red-400"; borderColor = "border-red-400"; }
-                else if (days <= 7) { colorClass = "text-yellow-400"; borderColor = "border-yellow-400"; }
-                return (
-                  <motion.div key={opp.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.05 }} className={`glass rounded-2xl p-5 card-hover border-l-4 ${borderColor}`}>
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="inline-block text-[10px] bg-white/10 px-2.5 py-1 rounded-full">{getTypeLabel(opp.type)}</span>
-                      <div className={`text-[10px] font-medium ${colorClass}`}>
-                        {days < 0 ? "Expired" : `${days} days left`}
-                      </div>
-                    </div>
-                    <h3 className="text-base font-bold leading-snug font-heading">{opp.title}</h3>
-                    <div className="text-xs text-white/40 mt-1">{opp.organizer}</div>
-                    <p className="text-xs text-white/50 mt-2 line-clamp-2">{opp.description}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <a href={`/opportunities/${opp.id}`} className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
-                        <Layers className="w-3 h-3" /> Details
-                      </a>
-                      {opp.link && (
-                        <a href={opp.link} target="_blank" rel="noopener noreferrer" className="text-xs bg-[#3352CD]/30 hover:bg-[#3352CD]/50 px-3 py-1 rounded-full transition flex items-center gap-1">
-                          <ExternalLink className="w-3 h-3" /> Apply
-                        </a>
-                      )}
-                      {opp.requiredSkills && opp.requiredSkills.length > 0 && (
-                        <div className="text-xs text-white/30">Skills: {opp.requiredSkills.join(", ")}</div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })
+              activeOpps.map((opp, idx) => (
+                <OpportunityCard
+                  key={opp.id}
+                  opp={opp}
+                  index={idx}
+                  onExpire={(id) => {
+                    setOpportunities((prev) =>
+                      prev.map((o) => (o.id === id ? { ...o, status: "archived" as const } : o))
+                    );
+                    updateOpportunity(id, { status: "archived" }).catch(console.error);
+                  }}
+                />
+              ))
             )}
           </div>
         </section>
