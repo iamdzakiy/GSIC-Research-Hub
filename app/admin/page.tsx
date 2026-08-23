@@ -107,6 +107,25 @@ export default function AdminDashboard() {
   const [quickOpp, setQuickOpp] = useState({ title: "", type: "research" as Opportunity["type"], organizer: "" });
   const [quickOppOpen, setQuickOppOpen] = useState(false);
 
+  // Full opportunity editor state
+  const [oppEditorOpen, setOppEditorOpen] = useState(false);
+  const [editingOppId, setEditingOppId] = useState<string | null>(null);
+  const [oppForm, setOppForm] = useState({
+    title: "",
+    type: "research" as Opportunity["type"],
+    organizer: "",
+    description: "",
+    requiredSkills: "",
+    benefits: "",
+    deadline: "",
+    link: "",
+    posterUrl: "",
+    status: "active" as Opportunity["status"],
+    cpName: "",
+    cpContact: "",
+    isAnnual: false,
+  });
+
   useEffect(() => {
     loadData();
   }, []);
@@ -263,6 +282,66 @@ export default function AdminDashboard() {
       }
     };
     reader.readAsText(file);
+  };
+
+  const openOppEditor = (opp?: Opportunity) => {
+    if (opp) {
+      setEditingOppId(opp.id);
+      setOppForm({
+        title: opp.title,
+        type: opp.type,
+        organizer: opp.organizer,
+        description: opp.description,
+        requiredSkills: opp.requiredSkills.join("; "),
+        benefits: opp.benefits.join("; "),
+        deadline: new Date(opp.deadline).toISOString().split("T")[0],
+        link: opp.link || "",
+        posterUrl: opp.posterUrl || "",
+        status: opp.status,
+        cpName: opp.cpName || "",
+        cpContact: opp.cpContact || "",
+        isAnnual: opp.isAnnual,
+      });
+    } else {
+      setEditingOppId(null);
+      setOppForm({
+        title: "", type: "research", organizer: "", description: "",
+        requiredSkills: "", benefits: "", deadline: "", link: "",
+        posterUrl: "", status: "active", cpName: "", cpContact: "", isAnnual: false,
+      });
+    }
+    setOppEditorOpen(true);
+  };
+
+  const handleSaveOpportunity = async () => {
+    if (!oppForm.title || !oppForm.organizer || !oppForm.deadline) {
+      showToast("Title, organizer, and deadline are required.", "error");
+      return;
+    }
+    try {
+      const payload: Partial<Opportunity> = {
+        ...oppForm,
+        requiredSkills: oppForm.requiredSkills.split(";").map((s) => s.trim()).filter(Boolean),
+        benefits: oppForm.benefits.split(";").map((s) => s.trim()).filter(Boolean),
+        deadline: new Date(oppForm.deadline).toISOString(),
+      };
+      if (editingOppId) {
+        await updateOpportunity(editingOppId, payload);
+        showToast(`✅ Opportunity "${oppForm.title}" updated!`);
+      } else {
+        await createOpportunity(payload);
+        showToast(`✅ Opportunity "${oppForm.title}" created!`);
+      }
+      setOppEditorOpen(false);
+      await loadData();
+    } catch (e) {
+      console.error(e);
+      showToast(editingOppId ? "Failed to update opportunity" : "Failed to create opportunity", "error");
+    }
+  };
+
+  const insertMarkdown = (prefix: string) => {
+    setOppForm((prev) => ({ ...prev, description: prev.description + prefix }));
   };
 
   const sortableOpps = [...opportunities].sort((a, b) => {
@@ -580,6 +659,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-2 text-xs text-white/60">{opp.cpName} · {opp.cpContact}</td>
                           <td className="py-2 flex gap-2">
+                            <button onClick={() => openOppEditor(opp)} className="text-xs bg-[#3352CD]/30 px-2 py-1 rounded hover:bg-[#3352CD]/50">Edit</button>
                             <button onClick={async () => { opp.status = opp.status === "active" ? "archived" : "active"; await updateOpportunity(opp.id, { status: opp.status }); loadData(); }} className="text-xs bg-white/10 px-2 py-1 rounded hover:bg-white/20">Toggle</button>
                             <button onClick={async () => { await deleteOpportunity(opp.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">Delete</button>
                           </td>
@@ -589,6 +669,24 @@ export default function AdminDashboard() {
                   </tbody>
                 </table>
               </div>
+            </div>
+
+            {/* Full Opportunity Editor */}
+            <div className="glass rounded-2xl p-6 border border-[#5CE3B6]/20">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold flex items-center gap-2 font-heading">
+                  <FileText className="w-4 h-4 text-[#5CE3B6]" /> Rich Opportunity Editor
+                </h3>
+                <button
+                  onClick={() => openOppEditor()}
+                  className="bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> New Opportunity
+                </button>
+              </div>
+              <p className="text-xs text-white/40">
+                Create detailed, Notion-like opportunities with formatted sections, bullet lists, and links. Supports markdown-style formatting.
+              </p>
             </div>
 
             {/* Quick Opportunity Form (1 kalimat) */}
@@ -937,6 +1035,137 @@ export default function AdminDashboard() {
           </motion.div>
         )}
       </main>
+
+      {/* Opportunity Editor Modal */}
+      {oppEditorOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setOppEditorOpen(false)}>
+          <div className="glass-strong rounded-2xl p-6 md:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold font-heading">
+                {editingOppId ? "Edit Opportunity" : "Create New Opportunity"}
+              </h3>
+              <button onClick={() => setOppEditorOpen(false)} className="text-white/40 hover:text-white/60 text-xl">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/40">Title *</label>
+                  <input type="text" value={oppForm.title} onChange={(e) => setOppForm({ ...oppForm, title: e.target.value })} placeholder="e.g. GSIC Research Grant 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40">Type *</label>
+                  <select value={oppForm.type} onChange={(e) => setOppForm({ ...oppForm, type: e.target.value as Opportunity["type"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]">
+                    <option value="research">🔬 Research</option>
+                    <option value="scholarship">🎓 Scholarship</option>
+                    <option value="career">💼 Career</option>
+                    <option value="competition">🏆 Competition</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/40">Organizer *</label>
+                  <input type="text" value={oppForm.organizer} onChange={(e) => setOppForm({ ...oppForm, organizer: e.target.value })} placeholder="e.g. Ministry of Education" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40">Deadline *</label>
+                  <input type="date" value={oppForm.deadline} onChange={(e) => setOppForm({ ...oppForm, deadline: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+              </div>
+
+              {/* Description with markdown toolbar */}
+              <div>
+                <label className="text-xs text-white/40 mb-1 block">Description (supports markdown-style formatting)</label>
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {[
+                    { label: "H2", prefix: "\n## " },
+                    { label: "H3", prefix: "\n### " },
+                    { label: "• Bullet", prefix: "\n- " },
+                    { label: "1. Numbered", prefix: "\n1. " },
+                    { label: "**Bold**", prefix: "**" },
+                    { label: "*Italic*", prefix: "*" },
+                    { label: "[Link](url)", prefix: "[text](https://)" },
+                    { label: "> Quote", prefix: "\n> " },
+                  ].map((btn) => (
+                    <button
+                      key={btn.label}
+                      type="button"
+                      onClick={() => insertMarkdown(btn.prefix)}
+                      className="text-[10px] bg-white/5 border border-white/10 hover:bg-white/10 px-2 py-1 rounded-lg text-white/60 transition"
+                    >
+                      {btn.label}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  value={oppForm.description}
+                  onChange={(e) => setOppForm({ ...oppForm, description: e.target.value })}
+                  rows={8}
+                  placeholder={"Write a detailed description...\n\n## Requirements\n- Bullet point 1\n- Bullet point 2\n\n## Timeline\n1. Phase one\n2. Phase two\n\n[Apply here](https://example.com)"}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] resize-y font-mono text-sm"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/40">Required Skills (separate with ;)</label>
+                  <input type="text" value={oppForm.requiredSkills} onChange={(e) => setOppForm({ ...oppForm, requiredSkills: e.target.value })} placeholder="Python; Data Analysis; Writing" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40">Benefits (separate with ;)</label>
+                  <input type="text" value={oppForm.benefits} onChange={(e) => setOppForm({ ...oppForm, benefits: e.target.value })} placeholder="Full funding; Mentorship; Certificate" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-white/40">Application Link</label>
+                  <input type="url" value={oppForm.link} onChange={(e) => setOppForm({ ...oppForm, link: e.target.value })} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40">Contact Name</label>
+                  <input type="text" value={oppForm.cpName} onChange={(e) => setOppForm({ ...oppForm, cpName: e.target.value })} placeholder="e.g. John Doe" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+                <div>
+                  <label className="text-xs text-white/40">Contact Info</label>
+                  <input type="text" value={oppForm.cpContact} onChange={(e) => setOppForm({ ...oppForm, cpContact: e.target.value })} placeholder="e.g. +62 812-3456-7890" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-white/40">Status</label>
+                  <select value={oppForm.status} onChange={(e) => setOppForm({ ...oppForm, status: e.target.value as Opportunity["status"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]">
+                    <option value="active">Active (Live)</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="archived">Archived</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <label className="flex items-center gap-2 cursor-pointer pb-2">
+                    <input type="checkbox" checked={oppForm.isAnnual} onChange={(e) => setOppForm({ ...oppForm, isAnnual: e.target.checked })} className="accent-[#5CE3B6]" />
+                    <span className="text-xs text-white/60">Annual / Recurring</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setOppEditorOpen(false)} className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 hover:bg-white/5 transition font-medium text-sm">
+                  Cancel
+                </button>
+                <button onClick={handleSaveOpportunity} className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] transition font-medium text-sm flex items-center justify-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  {editingOppId ? "Save Changes" : "Publish Opportunity"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {toast && (
         <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>

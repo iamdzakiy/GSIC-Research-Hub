@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireUser } from "@/lib/auth-helper";
 import { withErrorHandler, parsePagination } from "@/lib/api-utils";
+import { mapPrismaUserToProfile } from "@/services/userService";
 
 // Create a new user profile (authenticated)
 export const POST = withErrorHandler(async (request: Request) => {
@@ -52,7 +53,7 @@ export const POST = withErrorHandler(async (request: Request) => {
       lastSignInAt: body.lastSignInAt ? new Date(body.lastSignInAt) : undefined,
     },
   });
-  return NextResponse.json(newUser, { status: 201 });
+  return NextResponse.json(mapPrismaUserToProfile(newUser), { status: 201 });
 });
 
 // Update a user profile — non-admins can only update their own profile
@@ -96,7 +97,7 @@ export const PUT = withErrorHandler(async (request: Request) => {
     where: { id },
     data,
   });
-  return NextResponse.json(updated);
+  return NextResponse.json(mapPrismaUserToProfile(updated));
 });
 
 // Get all users (admin only, paginated)
@@ -112,5 +113,10 @@ export const GET = withErrorHandler(async (request: Request) => {
     }),
     prisma.user.count(),
   ]);
-  return NextResponse.json({ users, total, page: Math.floor(skip / take) + 1, pageSize: take });
+  return NextResponse.json({
+    users: users.map(mapPrismaUserToProfile),
+    total,
+    page: Math.floor(skip / take) + 1,
+    pageSize: take,
+  });
 });
