@@ -8,25 +8,20 @@ import {
   Lock,
   Eye,
   EyeOff,
-  Shield,
   Rocket,
-  GraduationCap,
   CheckCircle2,
-  ArrowRight,
   ArrowLeft,
-  Sparkles,
   Building2,
   BookOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { signUp, signIn, supabase } from "@/lib/supabaseClient";
+import { signUp, signIn } from "@/lib/supabaseClient";
 import Navbar from "@/components/Navbar";
 import { FACULTY_MAJOR_MAP, FACULTY_NAMES } from "@/lib/types";
 
 const STEPS = [
   { id: 1, label: "Sign Up", desc: "Identity & Credentials" },
-  { id: 2, label: "Verify Email", desc: "Secure Authentication" },
-  { id: 3, label: "Enter Arena", desc: "Join PKM-Bootcamp / Sandbox" },
+  { id: 2, label: "Check Email", desc: "Confirm your email" },
 ];
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
@@ -54,8 +49,6 @@ export default function AuthPage() {
   const [major, setMajor] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [otp, setOtp] = useState("");
-  const [verified, setVerified] = useState(false);
 
   const strength = getPasswordStrength(password);
   const majors = useMemo(() => (faculty ? FACULTY_MAJOR_MAP[faculty] || [] : []), [faculty]);
@@ -66,7 +59,7 @@ export default function AuthPage() {
     setMessage("");
     try {
       if (isSignUp) {
-        const { user, session } = await signUp(email, password, name);
+        await signUp(email, password, name);
         setStep(2);
         setMessage("✅ Check your email to verify your account.");
       } else {
@@ -78,25 +71,6 @@ export default function AuthPage() {
         }
         router.push("/dashboard");
       }
-    } catch (err: any) {
-      setMessage(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    setLoading(true);
-    setMessage("");
-    try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: otp,
-        type: "email",
-      });
-      if (error) throw error;
-      setVerified(true);
-      setStep(3);
     } catch (err: any) {
       setMessage(err.message);
     } finally {
@@ -252,60 +226,25 @@ export default function AuthPage() {
                 <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                   <div className="text-center mb-8">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 glow-blue">
-                      <Shield className="w-8 h-8" />
+                      <Mail className="w-8 h-8" />
                     </div>
-                    <h1 className="text-2xl font-bold font-heading">Verify Your Email</h1>
-                    <p className="text-sm text-white/40 mt-2 font-body">We sent a 6-digit OTP to <span className="text-[#06B6D4]">{email}</span></p>
+                    <h1 className="text-2xl font-bold font-heading">Check Your Email</h1>
+                    <p className="text-sm text-white/40 mt-2 font-body">We sent a confirmation link to <span className="text-[#06B6D4]">{email}</span></p>
                   </div>
 
                   <div className="space-y-5">
-                    <div>
-                      <label className="block text-xs text-white/40 mb-1.5 uppercase tracking-wider">6-Digit OTP</label>
-                      <input
-                        type="text"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                        placeholder="••••••"
-                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-center text-2xl tracking-[0.5em] text-white placeholder-white/20 focus:outline-none focus:border-[#2563EB] input-glow transition"
-                      />
+                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
+                      <p className="text-sm text-white/70">
+                        Open your email and click the confirmation link to verify your account.
+                        After verifying, you can sign in with your email and password.
+                      </p>
                     </div>
-                    <button onClick={handleVerify} disabled={loading || otp.length !== 6} className="w-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:from-[#3B82F6] hover:to-[#22D3EE] transition font-medium py-3 rounded-xl shadow-lg shadow-[#2563EB]/30 flex items-center justify-center gap-2 disabled:opacity-50">
-                      {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Shield className="w-4 h-4" />}
-                      Verify My Account
-                    </button>
-                    <button onClick={() => setStep(1)} className="w-full text-xs text-white/40 hover:text-white/60 flex items-center justify-center gap-1">
-                      <ArrowLeft className="w-3 h-3" /> Back to Sign Up
+                    <button onClick={() => { setIsSignUp(false); setStep(1); }} className="w-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:from-[#3B82F6] hover:to-[#22D3EE] transition font-medium py-3 rounded-xl shadow-lg shadow-[#2563EB]/30 flex items-center justify-center gap-2">
+                      <ArrowLeft className="w-3 h-3" /> Back to Sign In
                     </button>
                   </div>
 
                   {message && <div className="mt-4 text-center text-sm text-white/70">{message}</div>}
-                </motion.div>
-              )}
-
-              {step === 3 && (
-                <motion.div key="step3" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    className="w-20 h-20 rounded-full bg-gradient-to-br from-[#10B981] to-[#06B6D4] flex items-center justify-center mx-auto mb-6 glow-emerald"
-                  >
-                    <CheckCircle2 className="w-10 h-10 text-white" />
-                  </motion.div>
-                  <h1 className="text-2xl font-bold font-heading mb-2">You're Verified!</h1>
-                  <p className="text-sm text-white/50 mb-6">Welcome to the GSIC Research & PKM-Bootcamp ecosystem.</p>
-                  <div className="bg-white/5 rounded-xl p-4 mb-6 border border-white/10">
-                    <div className="text-xs text-white/40 mb-1">Your Participant ID</div>
-                    <div className="text-xl font-bold font-heading gradient-text">GSIC-{new Date().getFullYear()}-{Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
-                  </div>
-                  <div className="space-y-3">
-                    <button onClick={() => router.push("/")} className="w-full bg-gradient-to-r from-[#2563EB] to-[#06B6D4] hover:from-[#3B82F6] hover:to-[#22D3EE] transition font-medium py-3 rounded-xl shadow-lg shadow-[#2563EB]/30 flex items-center justify-center gap-2">
-                      <Sparkles className="w-4 h-4" /> Explore Sandbox
-                    </button>
-                    <button onClick={() => router.push("/dashboard")} className="w-full bg-white/5 hover:bg-white/10 transition font-medium py-3 rounded-xl border border-white/10 flex items-center justify-center gap-2">
-                      <GraduationCap className="w-4 h-4" /> Complete Bootcamp Profile
-                    </button>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
