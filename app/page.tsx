@@ -130,9 +130,11 @@ export default function HomePage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-hero-gradient">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#3352CD] to-[#5CE3B6] flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 animate-pulse">
-            G
-          </div>
+          <img 
+              src="/favicon.svg" 
+              alt="Logo" 
+              className="w-16 h-16 mx-auto mb-4 animate-pulse object-contain"
+            />
           <div className="text-white/60 font-body">Loading GSIC Hub...</div>
         </div>
       </div>
