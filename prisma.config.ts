@@ -6,8 +6,11 @@ import { defineConfig } from '@prisma/config';
 export default defineConfig({
   schema: './prisma/schema.prisma',
   datasource: {
-    // Migrate uses this URL directly; port 5432 is required
-    url: process.env.DIRECT_URL,
+    // Connection via PgBouncer pooler for Prisma Client and general CLI operations
+    url: process.env.DATABASE_URL,
+    // Direct connection for migrations/schema changes (port 5432, bypasses pooler)
+    // Type assertion needed: @prisma/config Datasource type omits directUrl in v7.9.1,
+    // but the schema engine reads it at runtime.
     directUrl: process.env.DIRECT_URL,
-  },
+  } as { url?: string; shadowDatabaseUrl?: string; directUrl?: string },
 });
