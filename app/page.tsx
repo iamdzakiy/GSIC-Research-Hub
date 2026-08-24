@@ -131,7 +131,7 @@ export default function HomePage() {
       <div className="min-h-screen flex items-center justify-center bg-hero-gradient">
         <div className="text-center">
           <img 
-              src="/favicon.svg" 
+              src="/favicon.png" 
               alt="Logo" 
               className="w-16 h-16 mx-auto mb-4 animate-pulse object-contain"
             />
