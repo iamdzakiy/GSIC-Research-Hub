@@ -34,3 +34,22 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Database backups
+*.sql
+*.sqlite
+*.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Local development certificates
+*.pem
+*.key
