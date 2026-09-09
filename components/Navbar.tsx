@@ -14,6 +14,8 @@ import {
   User,
   LogOut,
   Home,
+  Newspaper,
+  FolderOpen,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
@@ -42,6 +44,8 @@ export default function Navbar() {
         { href: "/events/sandbox", label: "The Sandbox", icon: Sparkles },
       ],
     },
+    { href: "/blog", label: "Blog", icon: Newspaper },
+    { href: "/documents", label: "Resources", icon: FolderOpen },
   ];
 
   const handleSignOut = async () => {
@@ -218,7 +222,9 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden text-white/60 hover:text-white ml-1"
+              aria-expanded={mobileMenuOpen}
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              className="md:hidden text-white/60 hover:text-white ml-1 p-2 -m-1"
             >
               {mobileMenuOpen ? <X {...iconPropsMd} /> : <Menu {...iconPropsMd} />}
             </button>
@@ -261,6 +267,20 @@ export default function Navbar() {
                 className="block py-2.5 px-3 rounded-lg hover:bg-white/5"
               >
                 ✨ The Sandbox
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2.5 px-3 rounded-lg hover:bg-white/5"
+              >
+                📰 Blog
+              </Link>
+              <Link
+                href="/documents"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block py-2.5 px-3 rounded-lg hover:bg-white/5"
+              >
+                📂 Resources
               </Link>
               {isAdmin && (
                 <Link

@@ -26,9 +26,15 @@ import {
   Link2,
   Image as ImageIcon,
   Filter,
+  Newspaper,
+  RefreshCw,
+  CloudUpload,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
+import BlogManager from "@/components/admin/BlogManager";
+import DataSyncPanel from "@/components/admin/DataSyncPanel";
+import TestBuilder from "@/components/tests/TestBuilder";
 import {
   PKM_BOOTCAMP,
   SEED_TESTS,
@@ -81,6 +87,10 @@ export default function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState("tabEvents");
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  // Test builder state
+  const [testBuilderOpen, setTestBuilderOpen] = useState(false);
+  const [builderEventId, setBuilderEventId] = useState("");
 
   // Form states
   const [eventForm, setEventForm] = useState({
@@ -410,6 +420,8 @@ export default function AdminDashboard() {
             { id: "tabUsers", label: "👤 Users" },
             { id: "tabTests", label: "📝 Tests" },
             { id: "tabDocs", label: "📄 Documents" },
+            { id: "tabBlog", label: "✍️ Blog" },
+            { id: "tabSync", label: "🔄 Data Sync" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -984,6 +996,30 @@ export default function AdminDashboard() {
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
                 <Award className="w-4 h-4 text-[#5CE3B6]" /> Tests ({tests.length})
               </h3>
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <select
+                  value={builderEventId}
+                  onChange={(e) => setBuilderEventId(e.target.value)}
+                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
+                >
+                  <option value="">Select event…</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={() => {
+                    if (!builderEventId) {
+                      setToast({ msg: "Select an event first", type: "error" });
+                      return;
+                    }
+                    setTestBuilderOpen(true);
+                  }}
+                  className="flex items-center gap-1 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-4 py-2 rounded-full font-medium transition"
+                >
+                  <Plus className="w-4 h-4" /> New Test
+                </button>
+              </div>
               <div className="space-y-2">
                 {tests.length === 0 ? (
                   <div className="text-center py-8 text-white/30">No tests yet. Tests are created automatically when you create an event with pre/post test enabled.</div>
@@ -1034,6 +1070,19 @@ export default function AdminDashboard() {
             </div>
           </motion.div>
         )}
+
+        {activeTab === "tabBlog" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <BlogManager />
+          </motion.div>
+        )}
+
+        {activeTab === "tabSync" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <DataSyncPanel />
+          </motion.div>
+        )}
+
       </main>
 
       {/* Opportunity Editor Modal */}
@@ -1165,6 +1214,19 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Test Builder Modal */}
+      {testBuilderOpen && builderEventId && (
+        <TestBuilder
+          eventId={builderEventId}
+          onClose={() => setTestBuilderOpen(false)}
+          onSaved={async () => {
+            setTestBuilderOpen(false);
+            setToast({ msg: "✅ Test saved!", type: "success" });
+            await loadData();
+          }}
+        />
       )}
 
       {toast && (

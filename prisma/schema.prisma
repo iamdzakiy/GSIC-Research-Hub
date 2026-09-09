@@ -36,6 +36,13 @@ enum DocumentType {
   report
   portfolio
   proposal
+  template
+  guideline
+}
+
+enum PostStatus {
+  draft
+  published
 }
 
 enum TestType {
@@ -84,6 +91,7 @@ model User {
   registrations Registration[]
   testResults   TestResult[]
   documents     Document[]
+  posts         BlogPost[]
 }
 
 model Speaker {
@@ -116,7 +124,15 @@ model Opportunity {
   status         Status          @default(active)
   cpName         String?
   cpContact      String?
+  location       String?
+  programBenefits String?        @db.Text
+  eligibility    String?         @db.Text
+  howToApply     String?         @db.Text
+  timeline       Json?
   createdAt      DateTime        @default(now())
+  documents      Document[]
+
+  @@index([status])
 }
 
 model CuratedOpportunity {
@@ -154,6 +170,26 @@ model Event {
   createdBy            String
   createdAt            DateTime      @default(now())
   registrations        Registration[]
+  documents            Document[]
+}
+
+model BlogPost {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  content     String     @db.Text
+  excerpt     String?    @db.Text
+  coverImage  String?
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id])
+  status      PostStatus @default(draft)
+  tags        String[]
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([status])
 }
 
 model Test {
@@ -196,12 +232,22 @@ model TestResult {
 }
 
 model Document {
-  id         String       @id @default(cuid())
-  userId     String
-  title      String
-  author     String?
-  type       DocumentType
-  url        String
-  uploadedAt DateTime     @default(now())
-  user       User         @relation(fields: [userId], references: [id])
+  id            String       @id @default(cuid())
+  userId        String
+  title         String
+  author        String?
+  type          DocumentType
+  url           String
+  description   String?      @db.Text
+  tags          String[]
+  opportunityId String?
+  eventId       String?
+  uploadedAt    DateTime     @default(now())
+  user          User         @relation(fields: [userId], references: [id])
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+  event         Event?       @relation(fields: [eventId], references: [id])
+
+  @@index([type])
+  @@index([opportunityId])
+  @@index([eventId])
 }

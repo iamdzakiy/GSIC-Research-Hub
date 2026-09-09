@@ -4,8 +4,17 @@
 
 // Re-export Prisma enums so string fields are type-safe without duplicating
 // the literal unions in this file.
-import { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme } from "../generated/prisma/enums";
-export { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme } from "../generated/prisma/enums";
+import { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme, PostStatus } from "../generated/prisma/enums";
+export { UserRole, OpportunityType, Status, EventType, DocumentType, TestType, RegistrationStatus, Theme, PostStatus } from "../generated/prisma/enums";
+
+// ============================================================
+// GENERIC API RESPONSE
+// ============================================================
+export interface ApiResponse<T> {
+  data?: T;
+  error?: string;
+  success: boolean;
+}
 
 export interface MajorInfo {
   code: string;
@@ -168,6 +177,18 @@ export interface Opportunity {
   status: Status;
   cpName: string;
   cpContact: string;
+  location?: string;
+  programBenefits?: string;
+  eligibility?: string;
+  howToApply?: string;
+  timeline?: OpportunityTimeline[];
+  createdAt?: string;
+}
+
+export interface OpportunityTimeline {
+  phase: string;
+  date: string;
+  description: string;
 }
 
 export interface CuratedOpportunity {
@@ -198,6 +219,9 @@ export interface EventModule {
   cluster: "art" | "technology" | "discovery";
   durationHours: number;
   order: number;
+  pdfUrl?: string;
+  preTestId?: string;
+  postTestId?: string;
 }
 
 export interface GSICEvent {
@@ -280,14 +304,46 @@ export interface Registration {
 // ============================================================
 // DOCUMENTS
 // ============================================================
-export interface Document {
+export interface GsicDocument {
   id: string;
   userId: string;
   title: string;
   author?: string;
   type: DocumentType;
   url: string;
+  description?: string;
+  tags: string[];
+  opportunityId?: string;
+  eventId?: string;
   uploadedAt: string;
+}
+
+// Backwards-compatible alias used throughout the existing codebase.
+export interface Document extends GsicDocument {}
+
+// ============================================================
+// BLOG
+// ============================================================
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  coverImage?: string;
+  authorId: string;
+  author?: {
+    id: string;
+    name?: string | null;
+    avatarUrl?: string | null;
+    email?: string;
+  };
+  status: PostStatus;
+  tags: string[];
+  publishedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  readingTimeMinutes?: number;
 }
 
 // ============================================================

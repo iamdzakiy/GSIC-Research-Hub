@@ -7,7 +7,7 @@ import { getOpportunities } from "@/services/opportunities";
 import { Opportunity } from "@/lib/types";
 import Navbar from "@/components/Navbar";
 import CountdownTimer from "@/components/CountdownTimer";
-import MarkdownRenderer from "@/components/MarkdownRenderer";
+import RichTextRenderer from "@/components/ui/RichTextRenderer";
 import {
   Calendar,
   User,
@@ -100,7 +100,7 @@ export default function OpportunityDetail() {
       <div className="fixed w-[600px] h-[600px] rounded-full bg-[#3352CD] opacity-[0.06] blur-[100px] pointer-events-none -top-[250px] -left-[250px] animate-float-blob z-0" />
       <div className="fixed w-[450px] h-[450px] rounded-full bg-[#5CE3B6] opacity-[0.06] blur-[100px] pointer-events-none -bottom-[200px] -right-[200px] animate-float-blob z-0" style={{ animationDelay: "8s" }} />
 
-      <main className="max-w-4xl mx-auto px-4 py-10 relative z-10">
+      <main id="main-content" className="max-w-4xl mx-auto px-4 py-10 relative z-10">
         {/* Back link */}
         <Link href="/#opportunities" className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/70 transition mb-6">
           <ArrowLeft className="w-4 h-4" /> All Opportunities
@@ -176,7 +176,7 @@ export default function OpportunityDetail() {
                 <ListChecks className="w-5 h-5 text-[#5CE3B6]" /> About This Opportunity
               </h2>
               <div className="max-w-none">
-                <MarkdownRenderer content={opp.description} />
+                <RichTextRenderer content={opp.description} />
               </div>
             </div>
 

@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
   content: [
@@ -16,13 +17,15 @@ const config: Config = {
         gsic: {
           navy: "#0B1120",
           slate: "#0F172A",
-          blue: "#2563EB",
+          blue: "#3352CD",
           "blue-light": "#60A5FA",
           cyan: "#06B6D4",
           "cyan-light": "#22D3EE",
           violet: "#8B5CF6",
           emerald: "#10B981",
           "emerald-light": "#34D399",
+          mint: "#5CE3B6",
+          cream: "#F2F8C9",
           dark: "#0B1120",
           "dark-light": "#111C33",
           glass: "rgba(255, 255, 255, 0.04)",
@@ -82,7 +85,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [typography],
 };
 
 export default config;

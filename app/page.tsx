@@ -149,7 +149,7 @@ export default function HomePage() {
       <div className="fixed w-[450px] h-[450px] rounded-full bg-[#5CE3B6] opacity-[0.08] blur-[100px] pointer-events-none -bottom-[200px] -right-[200px] animate-float-blob z-0" style={{ animationDelay: "8s" }} />
       <div className="fixed w-[350px] h-[350px] rounded-full bg-[#F2F8C9] opacity-[0.06] blur-[100px] pointer-events-none top-[40%] right-[10%] animate-float-blob z-0" style={{ animationDelay: "16s" }} />
 
-      <main className="pt-20 pb-12 relative z-10">
+      <main id="main-content" className="pt-20 pb-12 relative z-10">
         <section id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-3xl p-8 md:p-12 text-center backdrop-blur-2xl">
             <div className="inline-flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full text-xs text-white/50 mb-6 border border-white/5">

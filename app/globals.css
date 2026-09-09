@@ -60,10 +60,21 @@
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, #fff 0%, #60A5FA 50%, #22D3EE 100%);
+    background: linear-gradient(135deg, #F2F8C9 0%, #5CE3B6 45%, #3352CD 130%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .btn-gradient {
+    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
   }
 
   .gradient-text-blue {
