@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
+import { getEvents } from "@/services/events";
 import {
   SANDBOX_EVENT,
   formatDate,
@@ -32,6 +33,7 @@ import { GSICEvent, Registration } from "@/lib/types";
 // ============================================================
 export default function SandboxPage() {
   const { user, userProfile, loading } = useAuth();
+  // Muat dari database; nilai awal = fallback agar render pertama tidak crash.
   const [event, setEvent] = useState<GSICEvent>(SANDBOX_EVENT);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
@@ -46,10 +48,15 @@ export default function SandboxPage() {
 
   const loadData = async () => {
     try {
-      const regs = await getRegistrations();
+      const [evts, regs] = await Promise.all([
+        getEvents().catch(() => []),
+        getRegistrations(),
+      ]);
+      const sandbox = (evts as GSICEvent[]).find((e) => (e.type as string) === "sandbox") ?? null;
+      if (sandbox) setEvent(sandbox as unknown as GSICEvent);
       setRegistrations(regs);
     } catch (e) {
-      console.error("Firestore load error:", e);
+      console.error("load error:", e);
     }
   };
 

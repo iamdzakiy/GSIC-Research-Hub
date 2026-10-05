@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
+import { getEvents } from "@/services/events";
 import {
   PKM_BOOTCAMP,
   SEED_TESTS,
@@ -37,6 +38,8 @@ import { GSICEvent, Test, TestResult, Registration } from "@/lib/types";
 // ============================================================
 export default function PkmBootcampPage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
+  // Muat dari database; nilai awal = fallback agar render pertama tidak crash,
+  // langsung ditimpa data DB di loadData().
   const [event, setEvent] = useState<GSICEvent>(PKM_BOOTCAMP);
   const [tests, setTests] = useState<Test[]>(SEED_TESTS);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -59,14 +62,18 @@ export default function PkmBootcampPage() {
 
 const loadData = async () => {
   try {
-    const [regs, results] = await Promise.all([
+    const [evts, regs, results] = await Promise.all([
+      getEvents().catch(() => []),
       getRegistrations(),
       getTestResults(),
     ]);
+    // Halaman ini = event bootcamp; cocokkan by type agar ikut update dari admin.
+    const bootcamp = (evts as GSICEvent[]).find((e) => (e.type as string) === "bootcamp") ?? (evts as GSICEvent[])[0] ?? null;
+    if (bootcamp) setEvent(bootcamp as unknown as GSICEvent);
     setRegistrations(regs);
     setTestResults(results);
   } catch (e) {
-    console.error("Firestore load error:", e);
+    console.error("load error:", e);
   }
 };
 

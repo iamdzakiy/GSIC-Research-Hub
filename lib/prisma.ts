@@ -6,7 +6,7 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createClient(): PrismaClient {
-  const connectionString = process.env.DATABASE_URL
+  const connectionString = process.env.DATABASE_URL ?? process.env.DIRECT_URL;
   if (!connectionString) {
     console.warn(
       '[prisma] DATABASE_URL is not set — database queries will fail at runtime. ' +

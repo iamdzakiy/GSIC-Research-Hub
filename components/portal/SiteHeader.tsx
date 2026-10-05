@@ -18,7 +18,7 @@ const TYPES = [
 const LINKS = [
   { href: "/links", label: "Pranala" },
   { href: "/blog", label: "Blog" },
-  { href: "/events/pkm-bootcamp", label: "Events" },
+  { href: "/events", label: "Events" },
   { href: "/documents", label: "Resources" },
 ];
 

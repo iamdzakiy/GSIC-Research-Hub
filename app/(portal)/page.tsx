@@ -32,20 +32,29 @@ function Heading({ title, href, cta = "Lihat semua" }: { title: string; href?: s
 
 export default async function HomePage() {
   const [counts, closing, latest, links, events, curated, speakers, posts, gallery] = await Promise.all([
-    getTypeCounts().catch(() => ({ all: 0, byType: {} as Record<string, number> })),
-    getClosingSoon(4).catch(() => []),
-    getLatest(6).catch(() => []),
-    prisma.resourceLink.findMany({ where: { status: "published", isFeatured: true }, orderBy: [{ order: "asc" }, { title: "asc" }], take: 6 }).catch(() => []),
-    prisma.event.findMany({ where: { status: { not: "archived" } }, orderBy: { startDate: "asc" }, take: 3 }).catch(() => []),
-    prisma.curatedOpportunity.findMany({ take: 6 }).catch(() => []),
-    prisma.speaker.findMany({ where: { isActive: true }, orderBy: { order: "asc" }, take: 8 }).catch(() => []),
-    prisma.blogPost.findMany({ where: { status: "published" }, orderBy: { publishedAt: "desc" }, take: 3, include: { author: { select: { id: true, name: true, avatarUrl: true } } } }).catch(() => []),
-    prisma.galleryItem.findMany({ where: { isPublished: true }, orderBy: [{ order: "asc" }, { createdAt: "desc" }], take: 16 }).catch(() => []),
+    getTypeCounts().catch((e) => { console.error("[home] getTypeCounts failed:", e); return { all: 0, byType: {} as Record<string, number> }; }),
+    getClosingSoon(4).catch((e) => { console.error("[home] getClosingSoon failed:", e); return []; }),
+    getLatest(6).catch((e) => { console.error("[home] getLatest failed:", e); return []; }),
+    prisma.resourceLink.findMany({ where: { status: "published", isFeatured: true }, orderBy: [{ order: "asc" }, { title: "asc" }], take: 6 }).catch((e) => { console.error("[home] featured links failed:", e); return []; }),
+    prisma.event.findMany({ where: { status: { not: "archived" } }, orderBy: { startDate: "asc" }, take: 3 }).catch((e) => { console.error("[home] events failed:", e); return []; }),
+    prisma.curatedOpportunity.findMany({ take: 6 }).catch((e) => { console.error("[home] curated failed:", e); return []; }),
+    prisma.speaker.findMany({ where: { isActive: true }, orderBy: { order: "asc" }, take: 8 }).catch((e) => { console.error("[home] speakers failed:", e); return []; }),
+    prisma.blogPost.findMany({ where: { status: "published" }, orderBy: { publishedAt: "desc" }, take: 3, include: { author: { select: { id: true, name: true, avatarUrl: true } } } }).catch((e) => { console.error("[home] posts failed:", e); return []; }),
+    prisma.galleryItem.findMany({ where: { isPublished: true }, orderBy: [{ order: "asc" }, { createdAt: "desc" }], take: 16 }).catch((e) => { console.error("[home] gallery failed:", e); return []; }),
   ]);
+  const dbDown = counts.all === 0 && closing.length === 0 && latest.length === 0 && links.length === 0 && events.length === 0 && posts.length === 0 && !process.env.DATABASE_URL && !process.env.DIRECT_URL;
   const teaser = process.env.NEXT_PUBLIC_TEASER_VIDEO_URL ?? "";
 
   return (
     <>
+      {dbDown && (
+        <div role="alert" className="bg-amber-50">
+          <p className="mx-auto max-w-7xl px-4 py-3 text-sm text-amber-900 sm:px-6 lg:px-8">
+            Database belum terhubung (DATABASE_URL / DIRECT_URL belum di-set), jadi halaman ini tampil kosong.
+            Cek <Link href="/api/health" className="font-semibold underline">/api/health</Link> lalu isi environment variables dan redeploy.
+          </p>
+        </div>
+      )}
       {/* HERO */}
       <section className="bg-navy text-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:px-8 lg:py-20">
