@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     locale: "id_ID",
   },
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png" }, { url: "/favicon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon.png", type: "image/png" }, { url: "/favicon.pvg", type: "image/svg+xml" }],
     apple: [{ url: "/apple-touch-icon.png" }],
   },
 };
