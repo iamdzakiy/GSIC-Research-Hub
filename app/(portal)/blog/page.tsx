@@ -9,10 +9,10 @@ import EmptyState from "@/components/portal/EmptyState";
 import { getTagCounts, listPosts, tagKey } from "@/lib/blog";
 
 export const metadata: Metadata = {
-  title: "Blog — Panduan Beasiswa, Riset & Kompetisi · GSIC Hub",
-  description: "Tips riset, panduan beasiswa, dan persiapan kompetisi dari komunitas GSIC.",
+  title: "Blog: Scholarship, Research and Competition Guides · GSIC Hub",
+  description: "Research tips, scholarship guides and competition preparation from the GSIC community.",
 };
-export const revalidate = 120;
+export const dynamic = "force-dynamic";
 
 type SP = Record<string, string | string[] | undefined>;
 const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -34,29 +34,29 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <header className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-heading">Blog</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">Tips riset, panduan beasiswa, dan persiapan kompetisi dari komunitas GSIC.</p>
+        <p className="mt-2 max-w-2xl text-sm text-slate-600">Research tips, scholarship guides and competition preparation from the GSIC community.</p>
       </header>
 
       <Suspense>
-        <SearchBox label="Cari artikel" placeholder="Cari artikel atau topik…" value={q} />
+        <SearchBox label="Search articles" placeholder="Search articles or topics…" value={q} />
       </Suspense>
 
-      <nav aria-label="Filter topik" className="mt-4 flex flex-wrap items-center gap-2">
-        <TagBadge tag="Semua" hash={false} href="/blog" active={!activeKey} />
+      <nav aria-label="Filter by topic" className="mt-4 flex flex-wrap items-center gap-2">
+        <TagBadge tag="All" hash={false} href="/blog" active={!activeKey} />
         {tags.map((t) => (
           <TagBadge key={t.tag} tag={t.tag} count={t.count} href={`/blog?tag=${encodeURIComponent(t.tag)}`} active={tagKey(t.tag) === activeKey} />
         ))}
       </nav>
 
       <p className="mt-6 text-sm text-slate-500" aria-live="polite">
-        {total} artikel{tagParam && <> dengan topik <span className="font-medium text-slate-700">#{tagParam.replace(/^#+/, "")}</span></>}
-        {q && <> untuk “<span className="font-medium text-slate-700">{q}</span>”</>}
+        {total} {total === 1 ? "article" : "articles"}{tagParam && <> tagged <span className="font-medium text-slate-700">#{tagParam.replace(/^#+/, "")}</span></>}
+        {q && <> matching “<span className="font-medium text-slate-700">{q}</span>”</>}
       </p>
 
       <div className="mt-4">
         {posts.length === 0 ? (
-          <EmptyState title="Belum ada artikel yang cocok" hint="Coba kata kunci lain atau pilih topik berbeda.">
-            <Link href="/blog" className="text-sm font-medium text-brand-700 hover:underline">Lihat semua artikel</Link>
+          <EmptyState title="No matching articles" hint="Try other keywords or choose a different topic.">
+            <Link href="/blog" className="text-sm font-medium text-brand-700 hover:underline">View all articles</Link>
           </EmptyState>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

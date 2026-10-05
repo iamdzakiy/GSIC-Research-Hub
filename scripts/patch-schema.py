@@ -108,5 +108,11 @@ model GalleryItem {
 """
     assert "model GalleryItem" in s
 
+# ---- step 4: richer profile (sign-up pickers) -------------------------------------
+if "softSkills" not in s:
+    old = "  skills         String[]\n"
+    assert old in s, "step 4: User.skills not found"
+    s = s.replace(old, old + "  softSkills     String[]\n  interests      String[]\n  archetype      String?\n  bccRole        String?\n", 1)
+
 open(p, "w").write(s)
 print("patched", p)

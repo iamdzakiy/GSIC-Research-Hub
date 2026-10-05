@@ -24,17 +24,17 @@ export function withErrorHandler<T extends unknown[]>(
       const dev = process.env.NODE_ENV !== "production";
 
       if (err?.code === "P2025") return NextResponse.json({ error: "Not found" }, { status: 404 });
-      if (err?.code === "P2002") return NextResponse.json({ error: "Data sudah ada (duplikat)." }, { status: 409 });
+      if (err?.code === "P2002") return NextResponse.json({ error: "This record already exists." }, { status: 409 });
       if (err?.code === "P2021" || err?.code === "P2022") {
         console.error(`[API ${ref}] DB schema out of date`, err.code, err.meta);
         return NextResponse.json(
-          { error: "Skema database belum diperbarui. Jalankan `npx prisma db push` lalu muat ulang.", code: err.code, ref, ...(dev ? { detail: err.meta } : {}) },
+          { error: "The database schema is out of date. Run `npx prisma db push`, then reload.", code: err.code, ref, ...(dev ? { detail: err.meta } : {}) },
           { status: 503 }
         );
       }
       if (err?.name === "PrismaClientInitializationError" || err?.code === "ECONNREFUSED" || err?.code === "P1001" || err?.code === "P1002") {
         console.error(`[API ${ref}] DB unreachable`, err.message);
-        return NextResponse.json({ error: "Database tidak dapat dihubungi. Periksa DATABASE_URL.", ref }, { status: 503 });
+        return NextResponse.json({ error: "Cannot reach the database. Check DATABASE_URL.", ref }, { status: 503 });
       }
 
       console.error(`[API ${ref}] Unhandled`, e);

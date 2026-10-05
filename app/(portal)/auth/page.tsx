@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import AuthForm, { type AuthMode } from "@/components/portal/AuthForm";
 
-export const metadata: Metadata = { title: "Masuk / Daftar · GSIC Hub", robots: { index: false } };
+export const metadata: Metadata = { title: "Sign in / Sign up · GSIC Hub", robots: { index: false } };
 
 const MODES: AuthMode[] = ["signin", "signup", "magic", "forgot", "reset"];
 

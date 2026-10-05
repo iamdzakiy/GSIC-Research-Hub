@@ -9,8 +9,9 @@ export async function POST(req: Request) {
   const g = await guard(req, "register", registerSchema);
   if (!g.ok) return g.res;
   try {
-    await issueAndSendLink(req, { kind: "verify", email: g.data.email, name: g.data.name, password: g.data.password });
-    return NextResponse.json({ ok: true, message: "Jika email ini dapat didaftarkan, tautan verifikasi telah dikirim. Periksa kotak masuk dan folder spam." });
+    const { name, email, password, ...profile } = g.data;
+    await issueAndSendLink(req, { kind: "verify", email, name, password, profile });
+    return NextResponse.json({ ok: true, message: "If this address can be registered, a verification link is on its way. Check your inbox and spam folder." });
   } catch (e) {
     return mapServerError(e);
   }

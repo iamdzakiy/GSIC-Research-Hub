@@ -22,7 +22,18 @@ export function useAuth() {
   return context;
 }
 
-function createDefaultProfile(uid: string, email: string, name: string): UserProfile {
+function profileFromMeta(meta: Record<string, unknown> | undefined) {
+  const list = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
+  const str = (v: unknown) => (typeof v === "string" ? v : "");
+  return {
+    faculty: str(meta?.faculty), major: str(meta?.major), majorCode: str(meta?.majorCode) || undefined,
+    year: Number(meta?.year) || new Date().getFullYear(), whatsapp: str(meta?.whatsapp),
+    skills: list(meta?.skills), softSkills: list(meta?.softSkills), interests: list(meta?.interests),
+    archetype: str(meta?.archetype) || null, bccRole: str(meta?.bccRole) || null,
+  };
+}
+
+function createDefaultProfile(uid: string, email: string, name: string, meta?: Record<string, unknown>): UserProfile {
   return {
     uid,
     htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -42,6 +53,7 @@ function createDefaultProfile(uid: string, email: string, name: string): UserPro
     provider: "email",
     lastSignInAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
+    ...profileFromMeta(meta),
   };
 }
 
@@ -75,7 +87,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const newProfile = createDefaultProfile(
             currentUser.id,
             currentUser.email || "",
-            currentUser.user_metadata?.name || ""
+            currentUser.user_metadata?.name || "",
+            currentUser.user_metadata
           );
           newProfile.emailConfirmed = emailConfirmed;
           newProfile.lastSignInAt = lastSignInAt;
@@ -104,7 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const newProfile = createDefaultProfile(
             currentUser.id,
             currentUser.email || "",
-            currentUser.user_metadata?.name || ""
+            currentUser.user_metadata?.name || "",
+            currentUser.user_metadata
           );
           try {
             await createUserProfile(newProfile);
@@ -133,7 +147,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const newProfile = createDefaultProfile(
             currentUser.id,
             currentUser.email || "",
-            currentUser.user_metadata?.name || ""
+            currentUser.user_metadata?.name || "",
+            currentUser.user_metadata
           );
           try {
             await createUserProfile(newProfile);

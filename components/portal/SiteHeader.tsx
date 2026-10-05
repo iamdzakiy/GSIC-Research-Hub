@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandMark from "@/components/portal/BrandMark";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -9,17 +10,19 @@ import { useAuth } from "@/components/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 
 const TYPES = [
-  { href: "/opportunities", label: "Semua peluang" },
-  { href: "/opportunities?type=scholarship", label: "Beasiswa" },
-  { href: "/opportunities?type=competition", label: "Kompetisi" },
-  { href: "/opportunities?type=research", label: "Research Grant" },
-  { href: "/opportunities?type=career", label: "Karier & Magang" },
+  { href: "/opportunities", label: "All opportunities" },
+  { href: "/opportunities?type=scholarship", label: "Scholarships" },
+  { href: "/opportunities?type=competition", label: "Competitions" },
+  { href: "/opportunities?type=research", label: "Research grants" },
+  { href: "/opportunities?type=career", label: "Careers & Internships" },
 ];
 const LINKS = [
-  { href: "/links", label: "Pranala" },
-  { href: "/blog", label: "Blog" },
+  { href: "/pkm", label: "PKM" },
   { href: "/events", label: "Events" },
-  { href: "/documents", label: "Resources" },
+  { href: "/blog", label: "Blog" },
+  { href: "/links", label: "Links" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/about", label: "About" },
 ];
 
 export default function SiteHeader() {
@@ -35,16 +38,16 @@ export default function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="GSIC Hub — beranda">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white font-heading">G</span>
+        <Link href="/" className="flex items-center gap-2.5" aria-label="GSIC Hub home">
+          <BrandMark size={32} />
           <span className="text-base font-bold tracking-tight text-navy font-heading">GSIC <span className="font-medium text-slate-500">Hub</span></span>
         </Link>
 
-        <nav aria-label="Navigasi utama" className="hidden items-center gap-1 md:flex">
-          <Link href="/" aria-current={pathname === "/" ? "page" : undefined} className={linkCls("/")}>Beranda</Link>
+        <nav aria-label="Main" className="hidden items-center gap-1 md:flex">
+          <Link href="/" aria-current={pathname === "/" ? "page" : undefined} className={linkCls("/")}>Home</Link>
           <div className="group relative">
             <Link href="/opportunities" aria-haspopup="true" className={cn(linkCls("/opportunities"), "inline-flex items-center gap-1")}>
-              Peluang <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+              Opportunities <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
             </Link>
             <ul className="invisible absolute left-0 top-full z-50 w-52 rounded-lg border border-slate-200 bg-white p-1.5 opacity-0 shadow-sm transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
               {TYPES.map((t) => (
@@ -59,36 +62,36 @@ export default function SiteHeader() {
           {loading ? null : user ? (
             <>
               <Link href="/dashboard" className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Dashboard</Link>
-              <button type="button" onClick={() => supabase.auth.signOut()} className="h-9 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">Keluar</button>
+              <button type="button" onClick={() => supabase.auth.signOut()} className="h-9 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">Sign out</button>
             </>
           ) : (
             <>
-              <Link href="/auth?mode=signin" className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Masuk</Link>
-              <Link href="/auth?mode=signup" className="inline-flex h-9 items-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700">Daftar</Link>
+              <Link href="/auth?mode=signin" className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Sign in</Link>
+              <Link href="/auth?mode=signup" className="inline-flex h-9 items-center rounded-lg bg-brand-600 px-4 text-sm font-medium text-white hover:bg-brand-700">Create account</Link>
             </>
           )}
         </div>
 
-        <button type="button" className="rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden" aria-label={open ? "Tutup menu" : "Buka menu"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <button type="button" className="rounded-md p-2 text-slate-600 hover:bg-slate-100 md:hidden" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((o) => !o)}>
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <nav aria-label="Navigasi seluler" className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-3 md:hidden">
+        <nav aria-label="Mobile" className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-slate-200 bg-white px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
-            <Link href="/" className={linkCls("/")}>Beranda</Link>
-            <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Peluang</p>
+            <Link href="/" className={linkCls("/")}>Home</Link>
+            <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Opportunities</p>
             {TYPES.map((t) => <Link key={t.href} href={t.href} className="rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-100">{t.label}</Link>)}
-            <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Lainnya</p>
+            <p className="px-3 pt-2 text-xs font-semibold uppercase tracking-wide text-slate-400">More</p>
             {LINKS.map((l) => <Link key={l.href} href={l.href} className={linkCls(l.href)}>{l.label}</Link>)}
             <div className="mt-2 flex gap-2 border-t border-slate-200 pt-3">
               {user ? (
-                <button type="button" onClick={() => supabase.auth.signOut()} className="h-10 flex-1 rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Keluar</button>
+                <button type="button" onClick={() => supabase.auth.signOut()} className="h-10 flex-1 rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Sign out</button>
               ) : (
                 <>
-                  <Link href="/auth?mode=signin" className="flex h-10 flex-1 items-center justify-center rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Masuk</Link>
-                  <Link href="/auth?mode=signup" className="flex h-10 flex-1 items-center justify-center rounded-lg bg-brand-600 text-sm font-medium text-white">Daftar</Link>
+                  <Link href="/auth?mode=signin" className="flex h-10 flex-1 items-center justify-center rounded-lg border border-slate-300 text-sm font-medium text-slate-700">Sign in</Link>
+                  <Link href="/auth?mode=signup" className="flex h-10 flex-1 items-center justify-center rounded-lg bg-brand-600 text-sm font-medium text-white">Create account</Link>
                 </>
               )}
             </div>

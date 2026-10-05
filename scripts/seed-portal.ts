@@ -1,7 +1,7 @@
 /**
  * Seeds the portal's link collection (and optionally sample opportunities).
  *   npx tsx scripts/seed-portal.ts              -> links only (idempotent upsert by URL)
- *   SEED_SAMPLES=1 npx tsx scripts/seed-portal.ts -> + 4 clearly-labelled "[CONTOH]" opportunities
+ *   SEED_SAMPLES=1 npx tsx scripts/seed-portal.ts -> + 4 clearly labelled "[SAMPLE]" opportunities
  * Links are official homepages only. Verify them before launch; edit in Admin > Links.
  */
 import "dotenv/config";
@@ -42,16 +42,15 @@ async function main() {
     const d = (days: number) => new Date(Date.now() + days * 86400000);
     const base = { requiredSkills: [] as string[], isAnnual: false, status: "active" as const };
     const samples = [
-      { type: "scholarship" as const, slug: "contoh-beasiswa", title: "[CONTOH] Beasiswa Prestasi Nusantara", organizer: "Yayasan Contoh", deadline: d(40), scope: "external", levels: ["S1"], benefits: ["Biaya kuliah", "Uang saku bulanan"], fundingType: "fully_funded", city: "Bandung", country: "Indonesia", summary: "Data contoh untuk melihat tampilan halaman detail.", description: "Ini adalah **data contoh**. Hapus sebelum peluncuran.", eligibilityCriteria: [{ text: "Mahasiswa aktif S1", required: true }, { text: "IPK minimal 3,50", required: true }], applySteps: [{ title: "Siapkan berkas", description: "Transkrip, KTM, esai." }, { title: "Daftar di portal", description: "Kirim sebelum tenggat." }], requiredDocuments: ["Transkrip nilai", "Esai motivasi"], minGpa: 3.5 },
-      { type: "competition" as const, slug: "contoh-kompetisi", title: "[CONTOH] Kompetisi Inovasi Mahasiswa", organizer: "Panitia Contoh", deadline: d(5), scope: "external", levels: ["S1", "D3"], benefits: ["Hadiah uang", "Sertifikat"], fundingType: "prize_money", attendanceMode: "hybrid", city: "Jakarta", country: "Indonesia", summary: "Data contoh — tenggat dekat untuk memperlihatkan status 'segera berakhir'.", description: "Data **contoh**.", eligibilityCriteria: [{ text: "Tim 2–4 orang", required: true }], applySteps: [{ title: "Bentuk tim", description: "" }, { title: "Unggah proposal", description: "" }] },
-      { type: "research" as const, slug: "contoh-riset", title: "[CONTOH] Hibah Riset Dasar", organizer: "Lembaga Contoh", deadline: d(60), scope: "external", levels: ["S2", "S3"], benefits: ["Dana riset"], fundingType: "partially_funded", city: "Singapura", country: "Singapura", summary: "Data contoh.", description: "Data **contoh**.", eligibilityCriteria: [{ text: "Memiliki proposal riset", required: true }], applySteps: [{ title: "Kirim proposal", description: "" }] },
-      { type: "career" as const, slug: "contoh-karier", title: "[CONTOH] Magang Data Analyst", organizer: "PT Contoh", deadline: d(-3), scope: "external", levels: ["S1"], benefits: ["Uang saku"], fundingType: "paid", attendanceMode: "onsite", city: "Bandung", country: "Indonesia", summary: "Data contoh — sudah lewat tenggat, tampil sebagai 'Ditutup' di bagian bawah.", description: "Data **contoh**.", eligibilityCriteria: [{ text: "Menguasai SQL", required: true }], applySteps: [{ title: "Kirim CV", description: "" }] },
+      { type: "scholarship" as const, slug: "sample-scholarship", title: "[SAMPLE] Nusantara Merit Scholarship", organizer: "Sample Foundation", deadline: d(40), scope: "external", levels: ["S1"], benefits: ["Tuition", "Monthly stipend"], fundingType: "fully_funded", city: "Bandung", country: "Indonesia", summary: "Sample data for previewing the detail page layout.", description: "This is **sample data**. Delete it before launch.", eligibilityCriteria: [{ text: "Currently enrolled undergraduate student", required: true }, { text: "Minimum GPA of 3.50", required: true }], applySteps: [{ title: "Prepare documents", description: "Transcript, student ID, essay." }, { title: "Apply on the portal", description: "Submit before the deadline." }], requiredDocuments: ["Academic transcript", "Motivation essay"], minGpa: 3.5 },
+      { type: "competition" as const, slug: "sample-competition", title: "[SAMPLE] Student Innovation Competition", organizer: "Sample Organizing Committee", deadline: d(5), scope: "external", levels: ["S1", "D3"], benefits: ["Prize money", "Certificate"], fundingType: "prize_money", attendanceMode: "hybrid", city: "Jakarta", country: "Indonesia", summary: "Sample data with a near deadline, to show the \"closing soon\" status.", description: "**Sample** data.", eligibilityCriteria: [{ text: "Team of 2-4 people", required: true }], applySteps: [{ title: "Form a team", description: "" }, { title: "Upload the proposal", description: "" }] },
+      { type: "research" as const, slug: "sample-research", title: "[SAMPLE] Basic Research Grant", organizer: "Sample Institute", deadline: d(60), scope: "external", levels: ["S2", "S3"], benefits: ["Research funding"], fundingType: "partially_funded", city: "Singapore", country: "Singapore", summary: "Sample data.", description: "**Sample** data.", eligibilityCriteria: [{ text: "Has a research proposal", required: true }], applySteps: [{ title: "Submit the proposal", description: "" }] },
+      { type: "career" as const, slug: "sample-career", title: "[SAMPLE] Data Analyst Internship", organizer: "Sample Company Ltd.", deadline: d(-3), scope: "external", levels: ["S1"], benefits: ["Stipend"], fundingType: "paid", attendanceMode: "onsite", city: "Bandung", country: "Indonesia", summary: "Sample data with a past deadline, shown as \"Closed\" at the bottom of the list.", description: "**Sample** data.", eligibilityCriteria: [{ text: "Proficient in SQL", required: true }], applySteps: [{ title: "Submit your CV", description: "" }] },
     ];
     for (const s of samples) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: { ...base, ...s } as any });
+      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: { ...base, ...(s as never) } });
     }
-    console.log("sample opportunities ensured (labelled [CONTOH])");
+    console.log("sample opportunities ensured (labelled [SAMPLE])");
   }
 }
 

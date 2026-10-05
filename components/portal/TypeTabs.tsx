@@ -18,9 +18,9 @@ export default function TypeTabs({ active, query, counts, basePath = "/opportuni
     const qs = p.toString();
     return qs ? `${basePath}?${qs}` : basePath;
   };
-  const tabs = [{ key: "", label: "Semua", count: counts.all }, ...OPP_TYPE_ORDER.map((t) => ({ key: t, label: TYPE_CONFIG[t].plural, count: counts.byType[t] ?? 0 }))];
+  const tabs = [{ key: "", label: "All", count: counts.all }, ...OPP_TYPE_ORDER.map((t) => ({ key: t, label: TYPE_CONFIG[t].plural, count: counts.byType[t] ?? 0 }))];
   return (
-    <nav aria-label="Kategori peluang" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+    <nav aria-label="Opportunity categories" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <ul className="flex min-w-max gap-1 border-b border-slate-200">
         {tabs.map((t) => {
           const on = t.key === active;

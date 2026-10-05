@@ -106,6 +106,10 @@ model User {
   avatarUrl      String?
   classcardTheme Theme    @default(blue)
   skills         String[]
+  softSkills     String[]
+  interests      String[]
+  archetype      String?
+  bccRole        String?
   bio            String?
   isVerified     Boolean  @default(false)
   role           UserRole @default(user)

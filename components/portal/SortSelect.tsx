@@ -4,9 +4,9 @@ import { ArrowDownUp } from "lucide-react";
 import { useUrlParams } from "@/components/portal/useUrlParams";
 
 const OPTIONS = [
-  { value: "deadline", label: "Deadline terdekat" },
-  { value: "newest", label: "Terbaru" },
-  { value: "quota", label: "Kuota terbanyak" },
+  { value: "deadline", label: "Nearest deadline" },
+  { value: "newest", label: "Newest" },
+  { value: "quota", label: "Most places" },
 ];
 
 export default function SortSelect({ value }: { value: string }) {
@@ -14,7 +14,7 @@ export default function SortSelect({ value }: { value: string }) {
   return (
     <div className="relative sm:w-64">
       <label htmlFor="sort" className="sr-only">
-        Urutkan berdasarkan
+        Sort by
       </label>
       <ArrowDownUp className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
       <select

@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   if (!g.ok) return g.res;
   try {
     await issueAndSendLink(req, { kind: "verify", email: g.data.email, resend: true });
-    return NextResponse.json({ ok: true, message: "Jika akun menunggu verifikasi, tautan baru telah dikirim." });
+    return NextResponse.json({ ok: true, message: "If this account is waiting for verification, a new link has been sent." });
   } catch (e) {
     return mapServerError(e);
   }

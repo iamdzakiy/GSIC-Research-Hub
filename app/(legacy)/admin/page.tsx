@@ -207,7 +207,7 @@ export default function AdminDashboard() {
     try {
       await createEvent(newEvent as Partial<GSICEvent>);
       setEvents([...events, newEvent]);
-      showToast(`✅ Event "${newEvent.title}" created!`);
+      showToast(`Event "${newEvent.title}" created!`);
     } catch (e) {
       console.error(e);
       showToast("Failed to create event", "error");
@@ -219,7 +219,7 @@ export default function AdminDashboard() {
     try {
       await apiDeleteEvent(id);
       setEvents(events.filter((e) => e.id !== id));
-      showToast("🗑️ Event deleted.");
+      showToast("Event deleted.");
     } catch (e) {
       showToast("Failed to delete event", "error");
     }
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
       a.download = `gsic-admin-backup-${new Date().toISOString().split("T")[0]}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      showToast("📦 Data exported!");
+      showToast("Data exported!");
     } catch (e) {
       showToast("Export failed", "error");
     }
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
           await createOpportunity(opp as Partial<Opportunity>);
           imported++;
         }
-        showToast(`📥 Imported ${imported} opportunities`);
+        showToast(`Imported ${imported} opportunities`);
         await loadData();
       } catch (err) {
         console.error(err);
@@ -371,16 +371,16 @@ export default function AdminDashboard() {
 
         <div className="flex flex-wrap gap-1 mb-6 border-b border-white/5 pb-4 text-sm">
           {[
-            { id: "tabEvents", label: "📅 Events" },
-            { id: "tabOpps", label: "🎯 Opportunities" },
-            { id: "tabSpeakers", label: "👥 Speakers" },
-            { id: "tabUsers", label: "👤 Users" },
-            { id: "tabTests", label: "📝 Tests" },
-            { id: "tabDocs", label: "📄 Documents" },
-            { id: "tabLinks", label: "🔗 Links" },
-            { id: "tabGallery", label: "🖼️ Gallery" },
-            { id: "tabBlog", label: "✍️ Blog" },
-            { id: "tabSync", label: "🔄 Data Sync" },
+            { id: "tabEvents", label: "Events" },
+            { id: "tabOpps", label: "Opportunities" },
+            { id: "tabSpeakers", label: "Speakers" },
+            { id: "tabUsers", label: "Users" },
+            { id: "tabTests", label: "Tests" },
+            { id: "tabDocs", label: "Documents" },
+            { id: "tabLinks", label: "Links" },
+            { id: "tabGallery", label: "Gallery" },
+            { id: "tabBlog", label: "Blog" },
+            { id: "tabSync", label: "Data Sync" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -532,7 +532,7 @@ export default function AdminDashboard() {
                     // Check if PKM Bootcamp already exists
                     const existing = events.find((e) => e.id === "event-pkm-bootcamp");
                     if (existing) {
-                      showToast("⚠️ PKM Bootcamp already exists!", "error");
+                      showToast("PKM Bootcamp already exists!", "error");
                       return;
                     }
                     // Create the event
@@ -545,7 +545,7 @@ export default function AdminDashboard() {
                     for (const test of SEED_TESTS) {
                       await createTest(test as Partial<Test>);
                     }
-                    showToast("✅ PKM Bootcamp created with pre/post tests!");
+                    showToast("PKM Bootcamp created with pre/post tests!");
                     await loadData();
                   } catch (e) {
                     console.error(e);
@@ -682,10 +682,10 @@ export default function AdminDashboard() {
                     <div>
                       <label className="text-xs text-white/40">Type</label>
                       <select value={quickOpp.type} onChange={(e) => setQuickOpp({ ...quickOpp, type: e.target.value as Opportunity["type"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#F2F8C9]">
-                        <option value="research">🔬 Research</option>
-                        <option value="scholarship">🎓 Scholarship</option>
-                        <option value="career">💼 Career</option>
-                        <option value="competition">🏆 Competition</option>
+                        <option value="research">Research</option>
+                        <option value="scholarship">Scholarship</option>
+                        <option value="career">Career</option>
+                        <option value="competition">Competition</option>
                       </select>
                     </div>
                     <div>
@@ -719,7 +719,7 @@ export default function AdminDashboard() {
                             cpContact: "",
                           };
                           await createOpportunity(newOpp as Partial<Opportunity>);
-                          showToast(`✅ Opportunity "${quickOpp.title}" added!`);
+                          showToast(`Opportunity "${quickOpp.title}" added!`);
                           setQuickOpp({ title: "", type: "research", organizer: "" });
                           setQuickOppOpen(false);
                           await loadData();
@@ -813,7 +813,7 @@ export default function AdminDashboard() {
                           order: speakers.length,
                           isActive: true,
                         });
-                        showToast(`✅ Speaker "${speakerForm.name}" added!`);
+                        showToast(`Speaker "${speakerForm.name}" added!`);
                         setSpeakerForm({ name: "", roleTitle: "", institution: "", avatarUrl: "", bio: "", linkedinUrl: "", order: 0 });
                         await loadData();
                       } catch (e) {
@@ -899,7 +899,7 @@ export default function AdminDashboard() {
                     a.download = `gsic-users-${new Date().toISOString().split("T")[0]}.csv`;
                     a.click();
                     URL.revokeObjectURL(url);
-                    showToast("📥 Users exported to CSV!");
+                    showToast("Users exported to CSV!");
                   }}
                   className="bg-white/10 px-3 py-2 rounded-xl border border-white/10 flex items-center gap-2"
                 >
@@ -1064,7 +1064,7 @@ export default function AdminDashboard() {
         onClose={() => setOppEditorOpen(false)}
         onSaved={async (title, created) => {
           setOppEditorOpen(false);
-          showToast(`✅ Opportunity "${title}" ${created ? "created" : "updated"}!`);
+          showToast(`Opportunity "${title}" ${created ? "created" : "updated"}!`);
           await loadData();
         }}
       />
@@ -1076,7 +1076,7 @@ export default function AdminDashboard() {
           onClose={() => setTestBuilderOpen(false)}
           onSaved={async () => {
             setTestBuilderOpen(false);
-            setToast({ msg: "✅ Test saved!", type: "success" });
+            setToast({ msg: "Test saved!", type: "success" });
             await loadData();
           }}
         />
@@ -1084,7 +1084,7 @@ export default function AdminDashboard() {
 
       {toast && (
         <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>
-          <span>{toast.type === "success" ? "✅" : "❌"}</span>
+          <span>{toast.type === "success" ? "" : ""}</span>
           {toast.msg}
         </div>
       )}

@@ -59,9 +59,9 @@ function toData(input: Record<string, unknown>): Record<string, unknown> {
 export const POST = withErrorHandler(async (request: Request) => {
   await requireAdmin(request);
   const parsed = opportunityInput.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "Data tidak valid", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid data", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
 
-  const baseSlug = parsed.data.slug || slugify(parsed.data.title) || "peluang";
+  const baseSlug = parsed.data.slug || slugify(parsed.data.title) || "opportunity";
   let slug = baseSlug;
   for (let i = 1; await prisma.opportunity.findUnique({ where: { slug } }); i++) slug = `${baseSlug}-${i}`;
 
@@ -75,7 +75,7 @@ export const PUT = withErrorHandler(async (request: Request) => {
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
   const parsed = opportunityInput.partial().safeParse(rest);
-  if (!parsed.success) return NextResponse.json({ error: "Data tidak valid", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid data", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
 
   const data = toData(parsed.data) as Prisma.OpportunityUpdateInput;
   if (parsed.data.slug) data.slug = slugify(parsed.data.slug);

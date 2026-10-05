@@ -24,7 +24,7 @@ type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const o = await getOpportunityByKey(decodeURIComponent(params.slug));
-  if (!o) return { title: "Peluang tidak ditemukan · GSIC Hub" };
+  if (!o) return { title: "Opportunity not found · GSIC Hub" };
   const desc = (o.summary || stripToText(o.description)).slice(0, 160);
   return { title: `${o.title} · ${typeLabel(o.type)} · GSIC Hub`, description: desc, openGraph: { title: o.title, description: desc, images: o.posterUrl ? [o.posterUrl] : undefined } };
 }
@@ -60,33 +60,33 @@ export default async function OpportunityDetailPage({ params }: Props) {
   const hasContact = !!(o.cpName || o.cpContact || o.contactEmail || socials.length || o.link);
 
   const nav = [
-    { id: "ringkasan", label: "Ringkasan Cepat" },
+    { id: "ringkasan", label: "Quick overview" },
     { id: "tentang", label: cfg.headings.about },
     hasEligibility && { id: "kriteria", label: cfg.headings.eligibility },
     hasBenefits && { id: "benefit", label: cfg.headings.benefits },
     hasApply && { id: "cara-mendaftar", label: cfg.headings.apply },
-    o.requiredDocuments.length > 0 && { id: "dokumen", label: "Dokumen Dibutuhkan" },
-    hasSchedule && { id: "jadwal", label: "Jadwal & Seleksi" },
+    o.requiredDocuments.length > 0 && { id: "dokumen", label: "Required documents" },
+    hasSchedule && { id: "jadwal", label: "Schedule and selection" },
     o.tips && { id: "tips", label: "Tips" },
     faqs.length > 0 && { id: "faq", label: "FAQ" },
-    hasContact && { id: "kontak", label: "Kontak & Tautan" },
+    hasContact && { id: "kontak", label: "Contact and links" },
   ].filter(Boolean) as { id: string; label: string }[];
 
-  const ctaLabel = closed ? "Pendaftaran ditutup" : status === "upcoming" ? "Segera dibuka" : cfg.applyCta;
+  const ctaLabel = closed ? "Applications closed" : status === "upcoming" ? "Opens soon" : cfg.applyCta;
   const Cta = ({ className = "" }: { className?: string }) =>
     o.link && !closed && status !== "upcoming" ? (
       <a href={o.link} target="_blank" rel="noopener noreferrer" className={`inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 text-sm font-medium text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 ${className}`}>
         {ctaLabel} <ExternalLink className="h-4 w-4" aria-hidden="true" />
       </a>
     ) : (
-      <span className={`inline-flex h-11 items-center justify-center rounded-lg bg-slate-100 px-5 text-sm font-medium text-slate-500 ${className}`}>{o.link ? ctaLabel : "Tautan belum tersedia"}</span>
+      <span className={`inline-flex h-11 items-center justify-center rounded-lg bg-slate-100 px-5 text-sm font-medium text-slate-500 ${className}`}>{o.link ? ctaLabel : "Link not available yet"}</span>
     );
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-24 pt-6 sm:px-6 md:pb-12 lg:px-8">
       {/* breadcrumb */}
       <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
-        <Link href="/opportunities" className="inline-flex items-center gap-1 hover:text-slate-900"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Peluang</Link>
+        <Link href="/opportunities" className="inline-flex items-center gap-1 hover:text-slate-900"><ArrowLeft className="h-4 w-4" aria-hidden="true" />Opportunities</Link>
         <span aria-hidden="true">/</span>
         <Link href={`/opportunities?type=${o.type}`} className="hover:text-slate-900">{cfg.plural}</Link>
       </nav>
@@ -97,17 +97,17 @@ export default async function OpportunityDetailPage({ params }: Props) {
           <StatusBadge status={status} />
           <span className="rounded-md bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">{typeLabel(o.type)}</span>
           <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">{SCOPE_LABEL[o.scope] ?? o.scope}</span>
-          {o.isAnnual && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">Program tahunan</span>}
+          {o.isAnnual && <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">Annual program</span>}
         </div>
         <h1 className="mt-3 max-w-4xl text-2xl font-bold leading-tight tracking-tight text-slate-900 font-heading sm:text-3xl">{o.title}</h1>
         <p className="mt-2 text-base font-medium text-brand-700">{o.organizer}</p>
         {o.summary && <p className="mt-3 max-w-3xl text-base leading-7 text-slate-600">{o.summary}</p>}
 
         <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-slate-200 pt-5 sm:grid-cols-4">
-          <div><dt className="text-xs text-slate-500">Batas pendaftaran</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{formatDateTimeId(o.deadline)}</dd></div>
-          {place && <div><dt className="text-xs text-slate-500">Lokasi</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{place}</dd></div>}
-          {o.fundingType && <div><dt className="text-xs text-slate-500">Pendanaan</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{FUNDING_LABEL[o.fundingType]}</dd></div>}
-          {o.levels.length > 0 && <div><dt className="text-xs text-slate-500">Jenjang</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{o.levels.join(", ")}</dd></div>}
+          <div><dt className="text-xs text-slate-500">Application deadline</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{formatDateTimeId(o.deadline)}</dd></div>
+          {place && <div><dt className="text-xs text-slate-500">Location</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{place}</dd></div>}
+          {o.fundingType && <div><dt className="text-xs text-slate-500">Funding</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{FUNDING_LABEL[o.fundingType]}</dd></div>}
+          {o.levels.length > 0 && <div><dt className="text-xs text-slate-500">Level</dt><dd className="mt-0.5 text-sm font-semibold text-slate-900">{o.levels.join(", ")}</dd></div>}
         </dl>
       </header>
 
@@ -117,12 +117,12 @@ export default async function OpportunityDetailPage({ params }: Props) {
 
         {/* content */}
         <div className="min-w-0 space-y-12 lg:col-start-2 lg:row-start-1">
-          <Section id="ringkasan" title="Ringkasan Cepat">
+          <Section id="ringkasan" title="Quick overview">
             <QuickOverview groups={overview} />
           </Section>
 
           <Section id="tentang" title={cfg.headings.about}>
-            {o.description ? <Prose content={o.description} /> : <p className="text-sm text-slate-500">Deskripsi belum tersedia.</p>}
+            {o.description ? <Prose content={o.description} /> : <p className="text-sm text-slate-500">No description yet.</p>}
             {(o.tags.length > 0 || o.requiredSkills.length > 0) && (
               <div className="mt-5 flex flex-wrap items-center gap-1.5">
                 {o.requiredSkills.map((t) => <span key={t} className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600">{t}</span>)}
@@ -134,9 +134,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
           {hasEligibility && (
             <Section id="kriteria" title={cfg.headings.eligibility}>
               <div className="space-y-6">
-                <CriteriaList title="Persyaratan dasar" items={basic} tone="basic" />
-                <CriteriaList title="Wajib dipenuhi" items={required} tone="required" />
-                <CriteriaList title="Nilai tambah" items={bonus} tone="bonus" />
+                <CriteriaList title="Basic requirements" items={basic} tone="basic" />
+                <CriteriaList title="Required" items={required} tone="required" />
+                <CriteriaList title="Nice to have" items={bonus} tone="bonus" />
                 {o.eligibility && <Prose content={o.eligibility} />}
               </div>
             </Section>
@@ -165,30 +165,30 @@ export default async function OpportunityDetailPage({ params }: Props) {
           )}
 
           {o.requiredDocuments.length > 0 && (
-            <Section id="dokumen" title="Dokumen yang Dibutuhkan">
+            <Section id="dokumen" title="Required documents">
               <DocChecklist items={o.requiredDocuments} />
-              <p className="mt-3 text-xs text-slate-500">Daftar ini bersifat ringkasan — selalu cek panduan resmi penyelenggara untuk ketentuan format dan ukuran berkas.</p>
+              <p className="mt-3 text-xs text-slate-500">This list is a summary. Check the organizer's official guide for file format and size rules.</p>
             </Section>
           )}
 
           {hasSchedule && (
-            <Section id="jadwal" title="Jadwal & Proses Seleksi">
+            <Section id="jadwal" title="Schedule and selection process">
               <div className="grid gap-8 md:grid-cols-2">
-                {timeline.length > 0 && (<div><h3 className="mb-3 text-sm font-semibold text-slate-900">Jadwal penting</h3><Timeline rows={timeline} /></div>)}
-                {stages.length > 0 && (<div><h3 className="mb-3 text-sm font-semibold text-slate-900">Tahapan seleksi</h3><Timeline rows={stages.map((s) => ({ phase: s.stage, date: s.date, description: s.description }))} /></div>)}
+                {timeline.length > 0 && (<div><h3 className="mb-3 text-sm font-semibold text-slate-900">Key dates</h3><Timeline rows={timeline} /></div>)}
+                {stages.length > 0 && (<div><h3 className="mb-3 text-sm font-semibold text-slate-900">Selection stages</h3><Timeline rows={stages.map((s) => ({ phase: s.stage, date: s.date, description: s.description }))} /></div>)}
               </div>
             </Section>
           )}
 
-          {o.tips && (<Section id="tips" title="Tips Lolos"><Prose content={o.tips} /></Section>)}
-          {faqs.length > 0 && (<Section id="faq" title="Pertanyaan Umum"><FaqList items={faqs} /></Section>)}
+          {o.tips && (<Section id="tips" title="Tips for applying"><Prose content={o.tips} /></Section>)}
+          {faqs.length > 0 && (<Section id="faq" title="Frequently asked questions"><FaqList items={faqs} /></Section>)}
 
           {hasContact && (
-            <Section id="kontak" title="Kontak & Tautan Resmi">
+            <Section id="kontak" title="Contact and official links">
               <ul className="grid gap-3 sm:grid-cols-2">
                 {(o.cpName || o.cpContact) && (
                   <li className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
-                    <p className="text-xs text-slate-500">Narahubung</p>
+                    <p className="text-xs text-slate-500">Contact person</p>
                     {o.cpName && <p className="mt-0.5 font-medium text-slate-900">{o.cpName}</p>}
                     {o.cpContact && <p className="mt-1 inline-flex items-center gap-1.5 text-slate-600"><Phone className="h-3.5 w-3.5" aria-hidden="true" />{o.cpContact}</p>}
                   </li>
@@ -201,7 +201,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
                 )}
                 {o.link && (
                   <li className="rounded-lg border border-slate-200 bg-white p-4 text-sm">
-                    <p className="text-xs text-slate-500">Situs / pendaftaran resmi</p>
+                    <p className="text-xs text-slate-500">Official website / application page</p>
                     <a href={o.link} target="_blank" rel="noopener noreferrer" className="mt-0.5 inline-flex max-w-full items-center gap-1.5 break-all font-medium text-brand-700 hover:underline"><ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />{o.link.replace(/^https?:\/\//, "")}</a>
                   </li>
                 )}
@@ -220,29 +220,29 @@ export default async function OpportunityDetailPage({ params }: Props) {
         <aside className="space-y-4 self-start lg:sticky lg:top-24 lg:col-start-3 lg:row-start-1">
           <div className="rounded-xl border border-slate-200 bg-white p-5">
             <StatusBadge status={status} />
-            <p className="mt-4 text-xs text-slate-500">Batas pendaftaran</p>
+            <p className="mt-4 text-xs text-slate-500">Application deadline</p>
             <p className="mt-0.5 text-base font-semibold text-slate-900">{formatDateTimeId(o.deadline)}</p>
             {!closed && status !== "upcoming" && (
-              <p className={`mt-1 text-sm ${status === "closing" ? "font-medium text-rose-600" : "text-slate-600"}`}>{left <= 0 ? "Berakhir hari ini" : `${left} hari lagi`}</p>
+              <p className={`mt-1 text-sm ${status === "closing" ? "font-medium text-rose-600" : "text-slate-600"}`}>{left <= 0 ? "Ends today" : `${left} ${left === 1 ? "day" : "days"} left`}</p>
             )}
             <div className="mt-3"><DeadlineMeter openDate={o.openDate} deadline={o.deadline} now={now} /></div>
             <dl className="mt-4 space-y-2 border-t border-slate-200 pt-4 text-sm">
-              {o.quota != null && <div className="flex justify-between gap-3"><dt className="text-slate-500">Kuota</dt><dd className="font-medium text-slate-900">{o.quota.toLocaleString("id-ID")} orang</dd></div>}
-              {o.fundingType && <div className="flex justify-between gap-3"><dt className="text-slate-500">Pendanaan</dt><dd className="text-right font-medium text-slate-900">{FUNDING_LABEL[o.fundingType]}</dd></div>}
-              {place && <div className="flex justify-between gap-3"><dt className="text-slate-500">Lokasi</dt><dd className="text-right font-medium text-slate-900">{place}</dd></div>}
+              {o.quota != null && <div className="flex justify-between gap-3"><dt className="text-slate-500">Places</dt><dd className="font-medium text-slate-900">{o.quota.toLocaleString("en-GB")}</dd></div>}
+              {o.fundingType && <div className="flex justify-between gap-3"><dt className="text-slate-500">Funding</dt><dd className="text-right font-medium text-slate-900">{FUNDING_LABEL[o.fundingType]}</dd></div>}
+              {place && <div className="flex justify-between gap-3"><dt className="text-slate-500">Location</dt><dd className="text-right font-medium text-slate-900">{place}</dd></div>}
             </dl>
             <div className="mt-5 space-y-3">
               <Cta className="w-full" />
               <ShareActions title={o.title} icsHref={`/api/opportunities/${o.slug}/ics`} />
             </div>
           </div>
-          <p className="px-1 text-xs leading-5 text-slate-500">Informasi dikurasi GSIC dari sumber resmi dan dapat berubah. Selalu verifikasi detail terbaru di situs penyelenggara sebelum mendaftar.</p>
+          <p className="px-1 text-xs leading-5 text-slate-500">GSIC compiles this information from official sources. It may change. Check the organizer's website for the latest details before you apply.</p>
         </aside>
       </div>
 
       {related.length > 0 && (
         <section aria-labelledby="related-h" className="mt-16 border-t border-slate-200 pt-10">
-          <h2 id="related-h" className="mb-6 text-xl font-bold tracking-tight text-slate-900 font-heading">Peluang Serupa</h2>
+          <h2 id="related-h" className="mb-6 text-xl font-bold tracking-tight text-slate-900 font-heading">Similar opportunities</h2>
           <div className="space-y-4">{related.map((r) => <ListingCard key={r.id} item={r} compact />)}</div>
         </section>
       )}

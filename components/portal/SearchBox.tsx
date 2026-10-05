@@ -56,11 +56,11 @@ export default function SearchBox({ placeholder, label, param = "q", value }: Pr
       />
       <span className="absolute right-3 top-1/2 -translate-y-1/2">
         {pending ? (
-          <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-label="Memuat" />
+          <Loader2 className="h-4 w-4 animate-spin text-slate-400" aria-label="Loading" />
         ) : text ? (
           <button
             type="button"
-            aria-label="Hapus pencarian"
+            aria-label="Clear search"
             onClick={() => {
               setText("");
               commit("");

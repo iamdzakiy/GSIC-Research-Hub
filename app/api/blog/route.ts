@@ -20,7 +20,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   // Public requests only ever see published posts unless an admin explicitly
   // asks for drafts via the dashboard.
-  const canSeeDrafts = statusParam === "draft" || statusParam === "published";
+  const wantsDrafts = statusParam === "draft";
+  if (wantsDrafts) await requireAdmin(request); // drafts are never public
+  const canSeeDrafts = wantsDrafts || statusParam === "published";
   const where: any = {
     ...(canSeeDrafts
       ? { status: statusParam as "draft" | "published" }
@@ -56,7 +58,7 @@ export const POST = withErrorHandler(async (request: Request) => {
   const body = await request.json();
 
   if (!body.title || !body.content) {
-    return NextResponse.json({ error: "Missing title or content" }, { status: 400 });
+    return NextResponse.json({ error: "Title and content are required" }, { status: 400 });
   }
 
   const status: "draft" | "published" = body.status === "published" ? "published" : "draft";

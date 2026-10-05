@@ -6,7 +6,7 @@ import type { BlogListItem } from "@/lib/blog";
 
 export default function BlogCard({ post }: { post: BlogListItem }) {
   const rt = readingTimeMinutes(post.content);
-  const author = post.author?.name || "Tim GSIC";
+  const author = post.author?.name || "GSIC Team";
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition-colors hover:border-slate-300">
       {post.coverImage ? (
@@ -37,7 +37,7 @@ export default function BlogCard({ post }: { post: BlogListItem }) {
           <span aria-hidden="true">·</span>
           <time dateTime={(post.publishedAt ?? post.createdAt).toISOString()}>{formatDateLong(post.publishedAt ?? post.createdAt)}</time>
           <span aria-hidden="true">·</span>
-          <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" aria-hidden="true" />{rt} mnt baca</span>
+          <span className="inline-flex items-center gap-1"><Clock className="h-3 w-3" aria-hidden="true" />{rt} min read</span>
         </div>
       </div>
     </article>

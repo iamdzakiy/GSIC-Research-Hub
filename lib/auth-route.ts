@@ -18,24 +18,24 @@ export async function guard<S extends ZodTypeAny>(
   schema: S
 ): Promise<{ ok: true; data: z.infer<S> } | { ok: false; res: NextResponse }> {
   const ip = rateLimit(`${scope}:ip:${clientIp(req)}`, 15, WINDOW);
-  if (!ip.ok) return { ok: false, res: fail(429, "Terlalu banyak percobaan. Coba lagi beberapa saat lagi.", { retryAfterSec: ip.retryAfterSec }) };
+  if (!ip.ok) return { ok: false, res: fail(429, "Too many attempts. Try again in a few minutes.", { retryAfterSec: ip.retryAfterSec }) };
 
   let body: unknown;
   try {
     body = await req.json();
   } catch {
-    return { ok: false, res: fail(400, "Permintaan tidak valid.") };
+    return { ok: false, res: fail(400, "Invalid request.") };
   }
   const parsed = schema.safeParse(body);
-  if (!parsed.success) return { ok: false, res: fail(422, "Periksa kembali isian Anda.", { fieldErrors: fieldErrors(parsed.error) }) };
+  if (!parsed.success) return { ok: false, res: fail(422, "Check the highlighted fields.", { fieldErrors: fieldErrors(parsed.error) }) };
 
   const email = (parsed.data as { email: string }).email;
   if (!isAllowedEmailDomain(email)) {
-    return { ok: false, res: fail(422, "Domain email ini tidak diizinkan.", { fieldErrors: { email: "Gunakan email dari domain yang diizinkan (mis. ITB)." } }) };
+    return { ok: false, res: fail(422, "This email domain is not allowed.", { fieldErrors: { email: "Use an email address from an allowed domain (for example ITB)." } }) };
   }
   const perEmail = rateLimit(`${scope}:email:${email}`, 3, WINDOW);
   if (!perEmail.ok) {
-    return { ok: false, res: fail(429, `Email sudah dikirim beberapa kali. Coba lagi dalam ${Math.ceil(perEmail.retryAfterSec / 60)} menit.`, { retryAfterSec: perEmail.retryAfterSec }) };
+    return { ok: false, res: fail(429, `We already sent several emails to this address. Try again in ${Math.ceil(perEmail.retryAfterSec / 60)} minutes.`, { retryAfterSec: perEmail.retryAfterSec }) };
   }
   return { ok: true, data: parsed.data };
 }
@@ -43,17 +43,17 @@ export async function guard<S extends ZodTypeAny>(
 export function mapServerError(e: unknown): NextResponse {
   if (e instanceof MailConfigError) {
     console.error("[auth] SMTP not configured:", (e as Error).message);
-    return fail(503, "Layanan email belum dikonfigurasi. Hubungi admin GSIC.");
+    return fail(503, "Email delivery is not configured yet. Contact a GSIC admin.");
   }
   const msg = (e as Error)?.message ?? "";
   if (/SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_SUPABASE_URL/.test(msg)) {
     console.error("[auth] Supabase env missing:", msg);
-    return fail(503, "Konfigurasi autentikasi server belum lengkap (SUPABASE_SERVICE_ROLE_KEY). Hubungi admin GSIC.");
+    return fail(503, "Server authentication is not fully configured (SUPABASE_SERVICE_ROLE_KEY). Contact a GSIC admin.");
   }
   if ((e as { code?: string })?.code === "P2010" || /auth\.users/.test(msg)) {
     console.error("[auth] cannot read auth.users:", msg);
-    return fail(503, "Layanan autentikasi belum siap (akses database). Hubungi admin GSIC.");
+    return fail(503, "Authentication is not ready (database access). Contact a GSIC admin.");
   }
   console.error("[auth] failure:", e);
-  return fail(502, "Gagal mengirim email. Coba lagi sebentar lagi.");
+  return fail(502, "We could not send the email. Try again shortly.");
 }

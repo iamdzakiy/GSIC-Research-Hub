@@ -5,7 +5,7 @@ import { cn } from "@/lib/cn";
 
 export interface NavItem { id: string; label: string }
 
-/** Sticky "Di halaman ini" list with scroll-spy. Degrades to plain anchor links without JS. */
+/** Sticky "On this page" list with scroll-spy. Degrades to plain anchor links without JS. */
 export default function SectionNav({ items, className }: { items: NavItem[]; className?: string }) {
   const [active, setActive] = useState(items[0]?.id ?? "");
 
@@ -24,8 +24,8 @@ export default function SectionNav({ items, className }: { items: NavItem[]; cla
   }, [items]);
 
   return (
-    <nav aria-label="Di halaman ini" className={className}>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Di halaman ini</p>
+    <nav aria-label="On this page" className={className}>
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">On this page</p>
       <ul className="space-y-0.5 border-l border-slate-200">
         {items.map((i) => (
           <li key={i.id}>

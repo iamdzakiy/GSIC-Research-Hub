@@ -2,12 +2,12 @@
 // Opportunity status + labels (pure, shared by server & client)
 // ------------------------------------------------------------
 // The displayed status is ALWAYS derived from the deadline, so an item flips
-// to "Ditutup" the moment `deadline < now` with no admin action and no cron.
+// to "Closed" the moment `deadline < now` with no admin action and no cron.
 // ============================================================
 
 export type DisplayStatus = "open" | "closing" | "closed" | "upcoming";
 
-/** Items whose deadline is within this many days show "Segera Berakhir". */
+/** Items whose deadline is within this many days show "Closing soon". */
 export const CLOSING_SOON_DAYS = 7;
 
 const DAY_MS = 86_400_000;
@@ -29,10 +29,10 @@ export function getDisplayStatus(o: StatusInput, now: Date = new Date()): Displa
 }
 
 export const STATUS_LABEL: Record<DisplayStatus, string> = {
-  open: "Pendaftaran Dibuka",
-  closing: "Segera Berakhir",
-  closed: "Ditutup",
-  upcoming: "Segera Dibuka",
+  open: "Open",
+  closing: "Closing soon",
+  closed: "Closed",
+  upcoming: "Upcoming",
 };
 
 /** Whole days left until the deadline (0 = today, negative = passed). */
@@ -41,10 +41,10 @@ export function daysLeft(deadline: Date | string, now: Date = new Date()): numbe
 }
 
 export const TYPE_LABEL: Record<string, string> = {
-  scholarship: "Beasiswa",
-  competition: "Kompetisi",
+  scholarship: "Scholarship",
+  competition: "Competition",
   research: "Research Grant",
-  career: "Karier",
+  career: "Career",
 };
 
 export const LEVELS = ["D3", "D4", "S1", "S2", "S3", "PR"] as const;
@@ -52,33 +52,38 @@ export type Level = (typeof LEVELS)[number];
 
 export const SCOPE_LABEL: Record<string, string> = {
   internal: "Internal",
-  external: "Eksternal",
+  external: "External",
 };
 
 export const BENEFIT_CATEGORIES = [
-  "Biaya Pendidikan",
-  "Biaya Hidup",
-  "Dana Riset",
-  "Hadiah Uang",
-  "Pengembangan Diri",
-  "Magang",
-  "Sertifikat",
+  "Tuition",
+  "Living costs",
+  "Research funding",
+  "Cash prize",
+  "Personal development",
+  "Internship",
+  "Certificate",
 ] as const;
 
 const ID_DATE: Intl.DateTimeFormatOptions = { day: "2-digit", month: "short", timeZone: "Asia/Jakarta" };
 const ID_DATE_Y: Intl.DateTimeFormatOptions = { ...ID_DATE, year: "numeric" };
 
-/** "23 Sep - 09 Okt 2026" (open date optional). */
+/** "23 Sep - 09 Oct 2026" (open date optional). */
 export function formatPeriod(openDate: Date | string | null | undefined, deadline: Date | string): string {
   const end = new Date(deadline);
-  const endStr = end.toLocaleDateString("id-ID", ID_DATE_Y);
-  if (!openDate) return `s.d. ${endStr}`;
+  const endStr = end.toLocaleDateString("en-GB", ID_DATE_Y);
+  if (!openDate) return `Until ${endStr}`;
   const start = new Date(openDate);
   const sameYear = start.getFullYear() === end.getFullYear();
-  const startStr = start.toLocaleDateString("id-ID", sameYear ? ID_DATE : ID_DATE_Y);
+  const startStr = start.toLocaleDateString("en-GB", sameYear ? ID_DATE : ID_DATE_Y);
   return `${startStr} - ${endStr}`;
 }
 
+export function formatDate(d: Date | string): string {
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Jakarta" });
+}
+
+/** @deprecated Use formatDate. */
 export function formatDateId(d: Date | string): string {
-  return new Date(d).toLocaleDateString("id-ID", { ...ID_DATE_Y, month: "long" });
+  return formatDate(d);
 }

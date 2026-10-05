@@ -20,17 +20,20 @@ export const metadata: Metadata = {
   metadataBase: siteBase(),
   title: "GSIC Hub · Ganesha Students Innovation Center",
   description:
-    "Pusat peluang, riset, dan inovasi KM ITB: beasiswa, kompetisi, research grant, dan PKM Bootcamp.",
+    "Scholarships, competitions, research grants and careers for ITB students, plus the GSIC PKM Bootcamp and Sandbox.",
   authors: [{ name: "GSIC Hub" }],
   openGraph: {
     title: "GSIC Hub · Ganesha Students Innovation Center",
-    description: "Pusat peluang, riset, dan inovasi KM ITB.",
+    description: "Scholarships, competitions, research grants and careers for ITB students.",
     type: "website",
-    locale: "id_ID",
+    locale: "en_US",
   },
+  // PNG only. A leftover favicon.svg in the list wins in Chrome and keeps showing the old icon.
+  // "?v=" busts the browser's very sticky favicon cache; bump it when the file changes.
   icons: {
-    icon: [{ url: "/favicon.png", type: "image/png" }, { url: "/favicon.pvg", type: "image/svg+xml" }],
-    apple: [{ url: "/apple-touch-icon.png" }],
+    icon: [{ url: "/favicon.png?v=2", type: "image/png" }],
+    shortcut: [{ url: "/favicon.png?v=2" }],
+    apple: [{ url: "/favicon.png?v=2" }],
   },
 };
 
@@ -39,7 +42,7 @@ export const metadata: Metadata = {
 //   (legacy) -> existing dark pages (home, events, dashboard, admin, documents)
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

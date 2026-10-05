@@ -1,7 +1,7 @@
 // ============================================================
 // Per-type configuration + "Quick Overview" builder (pure; no DB).
 // ============================================================
-import { formatDateId, TYPE_LABEL } from "@/lib/opportunity-status";
+import { formatDate, TYPE_LABEL } from "@/lib/opportunity-status";
 import { readList, quickFact, type QuickFact } from "@/lib/validation/opportunity";
 
 export type OppType = "scholarship" | "competition" | "research" | "career";
@@ -14,7 +14,7 @@ export interface TypeConfig {
   /** Headings used on the detail page (vary by type so copy reads naturally). */
   headings: { about: string; eligibility: string; benefits: string; apply: string };
   applyCta: string;
-  /** Suggested "Informasi Tambahan" rows & checklists the admin editor can pre-fill. */
+  /** Suggested "Additional information" rows & checklists the admin editor can pre-fill. */
   presetFacts: string[];
   presetDocs: string[];
   presetSteps: { title: string; description: string }[];
@@ -22,58 +22,58 @@ export interface TypeConfig {
 
 export const TYPE_CONFIG: Record<OppType, TypeConfig> = {
   scholarship: {
-    label: "Beasiswa", plural: "Beasiswa", blurb: "Dukungan biaya pendidikan dan hidup, dalam & luar negeri.",
-    headings: { about: "Tentang Beasiswa", eligibility: "Kriteria Penerima", benefits: "Cakupan Beasiswa", apply: "Cara Mendaftar" },
-    applyCta: "Daftar Beasiswa",
-    presetFacts: ["IPK minimal", "Cakupan biaya hidup", "Ikatan dinas / kewajiban", "Institusi tujuan"],
-    presetDocs: ["KTP / KTM", "Transkrip nilai", "Surat rekomendasi", "Esai motivasi", "CV"],
+    label: "Scholarship", plural: "Scholarships", blurb: "Funding for tuition and living costs, in Indonesia and abroad.",
+    headings: { about: "About the scholarship", eligibility: "Who can apply", benefits: "What it covers", apply: "How to apply" },
+    applyCta: "Apply for scholarship",
+    presetFacts: ["Minimum GPA", "Living cost coverage", "Service obligation", "Destination institution"],
+    presetDocs: ["ID card / student card", "Transcript", "Recommendation letter", "Motivation essay", "CV"],
     presetSteps: [
-      { title: "Siapkan dokumen", description: "Pindai dokumen persyaratan dalam format PDF sesuai ketentuan." },
-      { title: "Buat akun di portal penyelenggara", description: "Gunakan email aktif yang rutin Anda cek." },
-      { title: "Lengkapi formulir & unggah berkas", description: "Periksa kembali isian sebelum mengirim." },
-      { title: "Kirim sebelum batas waktu", description: "Simpan bukti pengiriman / nomor pendaftaran." },
-      { title: "Ikuti tahapan seleksi", description: "Pantau pengumuman lewat email dan kanal resmi." },
+      { title: "Prepare documents", description: "Scan the required documents as PDF files." },
+      { title: "Create an account on the organizer's portal", description: "Use an email address you check regularly." },
+      { title: "Complete the form and upload files", description: "Check your entries before you submit." },
+      { title: "Submit before the deadline", description: "Keep the confirmation or registration number." },
+      { title: "Go through the selection stages", description: "Watch for announcements by email and on official channels." },
     ],
   },
   competition: {
-    label: "Kompetisi", plural: "Kompetisi", blurb: "Lomba karya tulis, inovasi, bisnis, dan teknologi tingkat nasional & internasional.",
-    headings: { about: "Tentang Kompetisi", eligibility: "Syarat Peserta", benefits: "Hadiah & Penghargaan", apply: "Cara Mengikuti" },
-    applyCta: "Daftar Kompetisi",
-    presetFacts: ["Ukuran tim", "Total hadiah", "Kategori lomba", "Biaya pendaftaran", "Format babak"],
-    presetDocs: ["Proposal / abstrak", "Identitas tim", "Surat keterangan mahasiswa aktif", "Bukti pembayaran"],
+    label: "Competition", plural: "Competitions", blurb: "Writing, innovation, business and technology competitions, national and international.",
+    headings: { about: "About the competition", eligibility: "Who can enter", benefits: "Prizes and awards", apply: "How to enter" },
+    applyCta: "Register for competition",
+    presetFacts: ["Team size", "Total prize", "Competition category", "Registration fee", "Round format"],
+    presetDocs: ["Proposal / abstract", "Team details", "Active student certificate", "Proof of payment"],
     presetSteps: [
-      { title: "Bentuk tim", description: "Pastikan komposisi tim memenuhi ketentuan." },
-      { title: "Registrasi tim", description: "Daftarkan tim melalui tautan resmi." },
-      { title: "Kirim karya / proposal", description: "Ikuti panduan format dan batas waktu pengumpulan." },
-      { title: "Ikuti babak seleksi & final", description: "Siapkan presentasi dan demonstrasi." },
+      { title: "Form a team", description: "Make sure the team meets the rules." },
+      { title: "Register the team", description: "Use the official link." },
+      { title: "Submit your work or proposal", description: "Follow the format guide and submission deadline." },
+      { title: "Take part in selection rounds and the final", description: "Prepare a presentation and demo." },
     ],
   },
   research: {
-    label: "Research Grant", plural: "Research Grant", blurb: "Hibah riset, program peneliti muda, dan kolaborasi laboratorium.",
-    headings: { about: "Tentang Program Riset", eligibility: "Kriteria Pengusul", benefits: "Dukungan & Pendanaan", apply: "Cara Mengajukan" },
-    applyCta: "Ajukan Proposal",
-    presetFacts: ["Bidang riset", "Skema pendanaan", "Maks. dana per proyek", "Luaran wajib", "Institusi pelaksana"],
-    presetDocs: ["Proposal riset", "CV peneliti", "Rencana anggaran biaya", "Surat dukungan pembimbing"],
+    label: "Research Grant", plural: "Research Grant", blurb: "Research grants, early-career researcher programs and lab collaborations.",
+    headings: { about: "About the research program", eligibility: "Who can apply", benefits: "Support and funding", apply: "How to apply" },
+    applyCta: "Submit proposal",
+    presetFacts: ["Research field", "Funding scheme", "Max. funding per project", "Required outputs", "Host institution"],
+    presetDocs: ["Research proposal", "Researcher CV", "Budget plan", "Supervisor support letter"],
     presetSteps: [
-      { title: "Tentukan skema & topik", description: "Pastikan topik sesuai prioritas riset penyelenggara." },
-      { title: "Susun proposal & RAB", description: "Ikuti template resmi, perhatikan batas halaman." },
-      { title: "Lengkapi persetujuan pembimbing / institusi", description: "" },
-      { title: "Unggah proposal", description: "Kirim melalui sistem resmi sebelum batas waktu." },
-      { title: "Review & wawancara", description: "Bersiap mempresentasikan proposal." },
+      { title: "Choose a scheme and topic", description: "Check that the topic fits the organizer's research priorities." },
+      { title: "Write the proposal and budget", description: "Use the official template and respect the page limit." },
+      { title: "Get supervisor or institution approval", description: "" },
+      { title: "Upload the proposal", description: "Submit through the official system before the deadline." },
+      { title: "Review and interview", description: "Prepare to present your proposal." },
     ],
   },
   career: {
-    label: "Karier", plural: "Karier & Magang", blurb: "Magang, program trainee, fellowship, dan lowongan untuk mahasiswa & fresh graduate.",
-    headings: { about: "Tentang Posisi", eligibility: "Kualifikasi", benefits: "Kompensasi & Fasilitas", apply: "Cara Melamar" },
-    applyCta: "Lamar Sekarang",
-    presetFacts: ["Tipe pekerjaan", "Rentang gaji / stipend", "Skema kerja", "Durasi kontrak", "Level pengalaman"],
-    presetDocs: ["CV", "Portofolio", "Transkrip nilai", "Cover letter"],
+    label: "Career", plural: "Careers and internships", blurb: "Internships, trainee programs, fellowships and jobs for students and fresh graduates.",
+    headings: { about: "About the role", eligibility: "Qualifications", benefits: "Compensation and benefits", apply: "How to apply" },
+    applyCta: "Apply now",
+    presetFacts: ["Job type", "Salary / stipend range", "Work arrangement", "Contract length", "Experience level"],
+    presetDocs: ["CV", "Portfolio", "Transcript", "Cover letter"],
     presetSteps: [
-      { title: "Perbarui CV & portofolio", description: "Sesuaikan dengan deskripsi posisi." },
-      { title: "Kirim lamaran", description: "Gunakan tautan resmi perusahaan." },
-      { title: "Tes & asesmen", description: "Biasanya berupa tes online / studi kasus." },
-      { title: "Wawancara", description: "HR dan user interview." },
-      { title: "Penawaran (offering)", description: "" },
+      { title: "Update your CV and portfolio", description: "Tailor them to the job description." },
+      { title: "Send your application", description: "Use the company's official link." },
+      { title: "Tests and assessment", description: "Usually an online test or a case study." },
+      { title: "Interview", description: "HR and hiring manager interviews." },
+      { title: "Offer", description: "" },
     ],
   },
 };
@@ -82,20 +82,20 @@ export const isOppType = (t: string): t is OppType => t in TYPE_CONFIG;
 export const typeLabel = (t: string) => (isOppType(t) ? TYPE_CONFIG[t].label : TYPE_LABEL[t] ?? t);
 
 export const FUNDING_LABEL: Record<string, string> = {
-  fully_funded: "Pendanaan penuh (fully funded)",
-  partially_funded: "Pendanaan sebagian",
-  tuition_only: "Biaya pendidikan saja",
-  stipend: "Stipend / uang saku",
-  prize_money: "Hadiah uang",
-  paid: "Berbayar (digaji)",
-  unpaid: "Tanpa gaji",
-  self_funded: "Biaya mandiri",
+  fully_funded: "Fully funded",
+  partially_funded: "Partially funded",
+  tuition_only: "Tuition only",
+  stipend: "Stipend / allowance",
+  prize_money: "Prize money",
+  paid: "Paid",
+  unpaid: "Unpaid",
+  self_funded: "Self-funded",
 };
 export const FUNDING_SHORT: Record<string, string> = {
-  fully_funded: "Fully funded", partially_funded: "Sebagian", tuition_only: "Biaya kuliah", stipend: "Stipend",
-  prize_money: "Hadiah uang", paid: "Digaji", unpaid: "Tanpa gaji", self_funded: "Mandiri",
+  fully_funded: "Fully funded", partially_funded: "Partial", tuition_only: "Tuition", stipend: "Stipend",
+  prize_money: "Prize money", paid: "Paid", unpaid: "Unpaid", self_funded: "Self-funded",
 };
-export const MODE_LABEL: Record<string, string> = { onsite: "Tatap muka (onsite)", online: "Daring (online)", hybrid: "Hybrid" };
+export const MODE_LABEL: Record<string, string> = { onsite: "In person (onsite)", online: "Online", hybrid: "Hybrid" };
 export const MODE_SHORT: Record<string, string> = { onsite: "Onsite", online: "Online", hybrid: "Hybrid" };
 
 // ---------------------------------------------------------------- quick overview
@@ -132,18 +132,18 @@ export interface FactGroup { title: string; facts: Fact[] }
 
 const TZ = "Asia/Jakarta";
 
-/** "9 Oktober 2026" or "9 Oktober 2026, 23.59 WIB" when a time of day was set. */
+/** "9 Oct 2026" or "9 Oct 2026, 23:59 WIB" when a time of day was set. */
 export function formatDateTimeId(d: Date | string): string {
   const date = new Date(d);
-  const day = formatDateId(date);
-  const hm = new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TZ }).format(date);
-  return /^00[.:]00$/.test(hm) ? day : `${day}, ${hm.replace(":", ".")} WIB`;
+  const day = formatDate(date);
+  const hm = new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: TZ }).format(date);
+  return /^00:00$/.test(hm) ? day : `${day}, ${hm} WIB`;
 }
 
 export function formatAge(min: number | null, max: number | null): string | null {
-  if (min != null && max != null) return `${min}–${max} tahun`;
-  if (min != null) return `Minimal ${min} tahun`;
-  if (max != null) return `Maksimal ${max} tahun`;
+  if (min != null && max != null) return `${min}–${max} years`;
+  if (min != null) return `Minimum ${min} years`;
+  if (max != null) return `Maximum ${max} years`;
   return null;
 }
 
@@ -153,73 +153,73 @@ export function formatPlace(city: string | null, country: string | null, fallbac
 }
 
 export function buildQuickOverview(o: DetailSource): FactGroup[] {
-  const range = o.programStart ? `${formatDateId(o.programStart)}${o.programEnd ? ` – ${formatDateId(o.programEnd)}` : ""}` : null;
+  const range = o.programStart ? `${formatDate(o.programStart)}${o.programEnd ? ` – ${formatDate(o.programEnd)}` : ""}` : null;
   const funding = [o.fundingType ? FUNDING_LABEL[o.fundingType] : null, o.fundingAmount].filter(Boolean).join(" · ");
 
   const groups: FactGroup[] = [
     {
-      title: "Informasi Program",
+      title: "Program information",
       facts: [
-        { label: "Nama program", value: o.title },
-        { label: "Penyelenggara", value: o.organizer },
-        { label: "Tipe", value: typeLabel(o.type) },
-        { label: "Kategori", value: o.scope === "internal" ? "Internal (ITB)" : "Eksternal" },
-        { label: "Bahasa", value: o.language ?? "" },
-        { label: "Durasi", value: o.duration ?? "" },
-        { label: "Pelaksanaan", value: range ?? "" },
+        { label: "Program name", value: o.title },
+        { label: "Organizer", value: o.organizer },
+        { label: "Type", value: typeLabel(o.type) },
+        { label: "Category", value: o.scope === "internal" ? "Internal (ITB)" : "External" },
+        { label: "Language", value: o.language ?? "" },
+        { label: "Duration", value: o.duration ?? "" },
+        { label: "Program dates", value: range ?? "" },
       ],
     },
     {
-      title: "Lokasi & Format",
+      title: "Location and format",
       facts: [
         { label: "Format", value: o.attendanceMode ? MODE_LABEL[o.attendanceMode] ?? "" : "" },
-        { label: "Kota", value: o.city ?? "" },
-        { label: "Negara", value: o.country ?? "" },
-        { label: "Lokasi", value: !o.city && !o.country ? o.location ?? "" : "" },
+        { label: "City", value: o.city ?? "" },
+        { label: "Country", value: o.country ?? "" },
+        { label: "Location", value: !o.city && !o.country ? o.location ?? "" : "" },
       ],
     },
     {
-      title: "Pendanaan & Kuota",
+      title: "Funding and quota",
       facts: [
-        { label: "Jenis pendanaan", value: funding },
-        { label: "Kuota penerima", value: o.quota != null ? `${o.quota.toLocaleString("id-ID")} orang` : "" },
+        { label: "Funding type", value: funding },
+        { label: "Places available", value: o.quota != null ? `${o.quota.toLocaleString("en-GB")}` : "" },
       ],
     },
     {
-      title: "Persyaratan Dasar",
+      title: "Basic requirements",
       facts: [
-        { label: "Jenjang", value: o.levels.join(", ") },
-        { label: "Bidang studi", value: o.fieldsOfStudy.join(", ") },
-        { label: "Usia", value: formatAge(o.ageMin, o.ageMax) ?? "" },
-        { label: "Kewarganegaraan", value: o.nationality ?? "" },
-        { label: "IPK minimal", value: o.minGpa != null ? o.minGpa.toFixed(2).replace(".", ",") : "" },
+        { label: "Level", value: o.levels.join(", ") },
+        { label: "Field of study", value: o.fieldsOfStudy.join(", ") },
+        { label: "Age", value: formatAge(o.ageMin, o.ageMax) ?? "" },
+        { label: "Nationality", value: o.nationality ?? "" },
+        { label: "Minimum GPA", value: o.minGpa != null ? o.minGpa.toFixed(2) : "" },
       ],
     },
     {
-      title: "Tanggal Penting",
+      title: "Key dates",
       facts: [
-        { label: "Pendaftaran dibuka", value: o.openDate ? formatDateTimeId(o.openDate) : "" },
-        { label: "Batas pendaftaran", value: formatDateTimeId(o.deadline) },
+        { label: "Applications open", value: o.openDate ? formatDateTimeId(o.openDate) : "" },
+        { label: "Application deadline", value: formatDateTimeId(o.deadline) },
       ],
     },
   ];
 
   const extras: QuickFact[] = readList(quickFact, o.quickFacts);
-  if (extras.length) groups.push({ title: "Informasi Tambahan", facts: extras.map((f) => ({ label: f.label, value: f.value })) });
+  if (extras.length) groups.push({ title: "Additional information", facts: extras.map((f) => ({ label: f.label, value: f.value })) });
 
   return groups
     .map((g) => ({ ...g, facts: g.facts.filter((f) => f.value && f.value.trim()) }))
     .filter((g) => g.facts.length > 0);
 }
 
-/** Human-readable basic criteria derived from structured fields (shown first under "Kriteria"). */
+/** Human-readable basic criteria derived from structured fields (shown first under "Criteria"). */
 export function deriveBasicCriteria(o: Pick<DetailSource, "levels" | "fieldsOfStudy" | "ageMin" | "ageMax" | "nationality" | "minGpa">): string[] {
   const out: string[] = [];
-  if (o.levels.length) out.push(`Mahasiswa / lulusan jenjang ${o.levels.join(", ")}`);
-  if (o.fieldsOfStudy.length) out.push(`Bidang studi: ${o.fieldsOfStudy.join(", ")}`);
+  if (o.levels.length) out.push(`Students or graduates at level: ${o.levels.join(", ")}`);
+  if (o.fieldsOfStudy.length) out.push(`Field of study: ${o.fieldsOfStudy.join(", ")}`);
   const age = formatAge(o.ageMin, o.ageMax);
-  if (age) out.push(`Usia ${age.charAt(0).toLowerCase()}${age.slice(1)}`);
-  if (o.nationality) out.push(`Kewarganegaraan: ${o.nationality}`);
-  if (o.minGpa != null) out.push(`IPK minimal ${o.minGpa.toFixed(2).replace(".", ",")}`);
+  if (age) out.push(`Age: ${age.charAt(0).toLowerCase()}${age.slice(1)}`);
+  if (o.nationality) out.push(`Nationality: ${o.nationality}`);
+  if (o.minGpa != null) out.push(`Minimum GPA ${o.minGpa.toFixed(2)}`);
   return out;
 }

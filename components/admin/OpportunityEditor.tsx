@@ -52,7 +52,7 @@ function RowsEditor({ value, onChange, cols, addLabel }: { value: Row[]; onChang
               </div>
             ))}
           </div>
-          <button type="button" aria-label="Hapus baris" onClick={() => onChange(value.filter((_, j) => j !== i))} className="mt-1 rounded-md p-2 text-slate-400 hover:bg-white hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
+          <button type="button" aria-label="Remove row" onClick={() => onChange(value.filter((_, j) => j !== i))} className="mt-1 rounded-md p-2 text-slate-400 hover:bg-white hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
         </div>
       ))}
       <button type="button" onClick={() => onChange([...value, Object.fromEntries(cols.map((c) => [c.key, ""]))])} className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-600 hover:text-brand-700"><Plus className="h-3.5 w-3.5" />{addLabel}</button>
@@ -73,7 +73,7 @@ function Chips({ options, value, onChange, labels }: { options: readonly string[
 
 /* -------------------------------------------------------------------- form */
 const TABS = [
-  ["dasar", "Dasar"], ["ringkas", "Ringkasan Cepat"], ["kriteria", "Kriteria"], ["daftar", "Cara Daftar & Dokumen"], ["seleksi", "Seleksi, Jadwal & FAQ"], ["kontak", "Kontak & Tautan"],
+  ["dasar", "Basics"], ["ringkas", "Quick Facts"], ["kriteria", "Eligibility"], ["daftar", "How to Apply & Documents"], ["seleksi", "Selection, Timeline & FAQ"], ["kontak", "Contact & Links"],
 ] as const;
 
 type O = Opportunity & Record<string, any>;
@@ -134,22 +134,22 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
 
   const save = async () => {
     setErr(null); setFe({});
-    if (!f.title || !f.organizer || !f.deadline) { setErr("Judul, penyelenggara, dan deadline wajib diisi."); setTab("dasar"); return; }
+    if (!f.title || !f.organizer || !f.deadline) { setErr("Title, organizer and deadline are required."); setTab("dasar"); return; }
     setBusy(true);
     try {
       const res = await apiFetch("/api/opportunities", { method: init ? "PUT" : "POST", body: JSON.stringify(init ? { id: init.id, ...toPayload(f) } : toPayload(f)) });
       const body = await res.json().catch(() => ({}));
-      if (!res.ok) { setErr(body.error ?? `Gagal menyimpan (${res.status})`); setFe(body.fieldErrors ?? {}); return; }
+      if (!res.ok) { setErr(body.error ?? `Could not save (${res.status}). Try again.`); setFe(body.fieldErrors ?? {}); return; }
       onSaved(f.title, !init);
     } finally { setBusy(false); }
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 sm:p-8" role="dialog" aria-modal="true" aria-label="Editor peluang">
+    <div className="fixed inset-0 z-[1000] flex items-start justify-center overflow-y-auto bg-slate-900/50 p-4 sm:p-8" role="dialog" aria-modal="true" aria-label="Opportunity editor">
       <div className="w-full max-w-4xl rounded-xl bg-white text-slate-900 shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h3 className="text-lg font-semibold font-heading">{init ? "Edit Peluang" : "Peluang Baru"}</h3>
-          <button type="button" onClick={onClose} aria-label="Tutup" className="rounded-md p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+          <h3 className="text-lg font-semibold font-heading">{init ? "Edit Opportunity" : "New Opportunity"}</h3>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-md p-2 text-slate-500 hover:bg-slate-100"><X className="h-5 w-5" /></button>
         </div>
         <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-slate-200 px-3">
           {TABS.map(([k, l]) => <button key={k} role="tab" type="button" aria-selected={tab === k} onClick={() => setTab(k)} className={cn("-mb-px whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium", tab === k ? "border-brand-600 text-brand-700" : "border-transparent text-slate-500 hover:text-slate-800")}>{l}</button>)}
@@ -160,52 +160,52 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
 
           {tab === "dasar" && (
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="Tipe *"><select className={input} value={f.type} onChange={(e) => set("type", e.target.value as OppType)}>{OPP_TYPE_ORDER.map((t) => <option key={t} value={t}>{TYPE_CONFIG[t].label}</option>)}</select></Field>
-              <Field label="Kategori"><select className={input} value={f.scope} onChange={(e) => set("scope", e.target.value as Form["scope"])}><option value="external">Eksternal</option><option value="internal">Internal (ITB)</option></select></Field>
-              <Field label="Judul *" className="md:col-span-2"><input className={input} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="mis. Beasiswa XYZ Batch 2 Tahun 2026" /></Field>
-              <Field label="Penyelenggara *"><input className={input} value={f.organizer} onChange={(e) => set("organizer", e.target.value)} /></Field>
-              <Field label="Status"><select className={input} value={f.status} onChange={(e) => set("status", e.target.value as Form["status"])}><option value="active">Aktif</option><option value="upcoming">Akan datang</option><option value="archived">Diarsipkan (paksa tutup)</option></select></Field>
-              <Field label="Pendaftaran dibuka"><input type="datetime-local" className={input} value={f.openDate} onChange={(e) => set("openDate", e.target.value)} /></Field>
-              <Field label="Batas pendaftaran *" hint="Setelah lewat, status otomatis “Ditutup”." error={fe.deadline}><input type="datetime-local" className={input} value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></Field>
-              <Field label="Ringkasan singkat (tampil di kartu)" className="md:col-span-2" hint="1–2 kalimat." ><textarea rows={2} className={area} value={f.summary} onChange={(e) => set("summary", e.target.value)} /></Field>
-              <Field label="Deskripsi lengkap" hint="Markdown atau HTML didukung." className="md:col-span-2"><textarea rows={8} className={area} value={f.description} onChange={(e) => set("description", e.target.value)} /></Field>
-              <Field label="Jenjang" className="md:col-span-2"><Chips options={LEVELS} value={f.levels} onChange={(v) => set("levels", v)} /></Field>
-              <Field label="Kategori benefit (untuk filter)" className="md:col-span-2"><Chips options={BENEFIT_CATEGORIES} value={f.benefitCategories} onChange={(v) => set("benefitCategories", v)} /></Field>
-              <Field label="Benefit (satu per baris)"><textarea rows={4} className={area} value={f.benefits} onChange={(e) => set("benefits", e.target.value)} /></Field>
-              <Field label="Skill / keahlian (satu per baris)"><textarea rows={4} className={area} value={f.requiredSkills} onChange={(e) => set("requiredSkills", e.target.value)} /></Field>
-              <Field label="Tag (satu per baris)"><textarea rows={3} className={area} value={f.tags} onChange={(e) => set("tags", e.target.value)} /></Field>
-              <Field label="URL poster"><input className={input} value={f.posterUrl} onChange={(e) => set("posterUrl", e.target.value)} /></Field>
-              <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={f.isAnnual} onChange={(e) => set("isAnnual", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-600" /> Program tahunan / berulang</label>
+              <Field label="Type *"><select className={input} value={f.type} onChange={(e) => set("type", e.target.value as OppType)}>{OPP_TYPE_ORDER.map((t) => <option key={t} value={t}>{TYPE_CONFIG[t].label}</option>)}</select></Field>
+              <Field label="Scope"><select className={input} value={f.scope} onChange={(e) => set("scope", e.target.value)}><option value="external">External</option><option value="internal">Internal (ITB)</option></select></Field>
+              <Field label="Title *" className="md:col-span-2"><input className={input} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="e.g. XYZ Scholarship Batch 2, 2026" /></Field>
+              <Field label="Organizer *"><input className={input} value={f.organizer} onChange={(e) => set("organizer", e.target.value)} /></Field>
+              <Field label="Status"><select className={input} value={f.status} onChange={(e) => set("status", e.target.value)}><option value="active">Active</option><option value="upcoming">Upcoming</option><option value="archived">Archived (force close)</option></select></Field>
+              <Field label="Applications open"><input type="datetime-local" className={input} value={f.openDate} onChange={(e) => set("openDate", e.target.value)} /></Field>
+              <Field label="Application deadline *" hint="After this date the status changes to Closed automatically." error={fe.deadline}><input type="datetime-local" className={input} value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></Field>
+              <Field label="Short summary (shown on cards)" className="md:col-span-2" hint="One or two sentences." ><textarea rows={2} className={area} value={f.summary} onChange={(e) => set("summary", e.target.value)} /></Field>
+              <Field label="Full description" hint="Markdown or HTML." className="md:col-span-2"><textarea rows={8} className={area} value={f.description} onChange={(e) => set("description", e.target.value)} /></Field>
+              <Field label="Level" className="md:col-span-2"><Chips options={LEVELS} value={f.levels} onChange={(v) => set("levels", v)} /></Field>
+              <Field label="Benefit categories (used for filters)" className="md:col-span-2"><Chips options={BENEFIT_CATEGORIES} value={f.benefitCategories} onChange={(v) => set("benefitCategories", v)} /></Field>
+              <Field label="Benefits (one per line)"><textarea rows={4} className={area} value={f.benefits} onChange={(e) => set("benefits", e.target.value)} /></Field>
+              <Field label="Required skills (one per line)"><textarea rows={4} className={area} value={f.requiredSkills} onChange={(e) => set("requiredSkills", e.target.value)} /></Field>
+              <Field label="Tags (one per line)"><textarea rows={3} className={area} value={f.tags} onChange={(e) => set("tags", e.target.value)} /></Field>
+              <Field label="Poster URL"><input className={input} value={f.posterUrl} onChange={(e) => set("posterUrl", e.target.value)} /></Field>
+              <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={f.isAnnual} onChange={(e) => set("isAnnual", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-600" /> Annual or recurring program</label>
             </div>
           )}
 
           {tab === "ringkas" && (
             <div className="space-y-5">
               <div className="flex items-center justify-between rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-800">
-                <span>Isi sebanyak mungkin — kolom kosong otomatis disembunyikan di halaman detail.</span>
-                <button type="button" onClick={applyPresets} className="ml-3 shrink-0 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700">Isi template {cfg.label}</button>
+                <span>Fill in as much as you can. Empty fields are hidden on the detail page.</span>
+                <button type="button" onClick={applyPresets} className="ml-3 shrink-0 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700">Use {cfg.label} template</button>
               </div>
               <div className="grid gap-4 md:grid-cols-3">
-                <Field label="Jenis pendanaan"><select className={input} value={f.fundingType} onChange={(e) => set("fundingType", e.target.value)}><option value="">—</option>{Object.entries(FUNDING_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
-                <Field label="Nilai / jumlah"><input className={input} value={f.fundingAmount} onChange={(e) => set("fundingAmount", e.target.value)} placeholder="Rp 3.000.000 / bulan" /></Field>
-                <Field label="Kuota penerima"><input type="number" min={0} className={input} value={f.quota} onChange={(e) => set("quota", e.target.value)} /></Field>
+                <Field label="Funding type"><select className={input} value={f.fundingType} onChange={(e) => set("fundingType", e.target.value)}><option value="">—</option>{Object.entries(FUNDING_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
+                <Field label="Amount"><input className={input} value={f.fundingAmount} onChange={(e) => set("fundingAmount", e.target.value)} placeholder="IDR 3,000,000 / month" /></Field>
+                <Field label="Places available"><input type="number" min={0} className={input} value={f.quota} onChange={(e) => set("quota", e.target.value)} /></Field>
                 <Field label="Format"><select className={input} value={f.attendanceMode} onChange={(e) => set("attendanceMode", e.target.value)}><option value="">—</option>{Object.entries(MODE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></Field>
-                <Field label="Kota"><input className={input} value={f.city} onChange={(e) => set("city", e.target.value)} /></Field>
-                <Field label="Negara"><input className={input} value={f.country} onChange={(e) => set("country", e.target.value)} /></Field>
-                <Field label="Usia minimal"><input type="number" min={0} className={input} value={f.ageMin} onChange={(e) => set("ageMin", e.target.value)} /></Field>
-                <Field label="Usia maksimal"><input type="number" min={0} className={input} value={f.ageMax} onChange={(e) => set("ageMax", e.target.value)} /></Field>
-                <Field label="IPK minimal"><input type="number" step="0.01" min={0} max={4} className={input} value={f.minGpa} onChange={(e) => set("minGpa", e.target.value)} /></Field>
-                <Field label="Kewarganegaraan"><input className={input} value={f.nationality} onChange={(e) => set("nationality", e.target.value)} placeholder="WNI / terbuka untuk semua" /></Field>
-                <Field label="Durasi"><input className={input} value={f.duration} onChange={(e) => set("duration", e.target.value)} placeholder="12 bulan" /></Field>
-                <Field label="Bahasa"><input className={input} value={f.language} onChange={(e) => set("language", e.target.value)} /></Field>
-                <Field label="Program mulai"><input type="datetime-local" className={input} value={f.programStart} onChange={(e) => set("programStart", e.target.value)} /></Field>
-                <Field label="Program selesai"><input type="datetime-local" className={input} value={f.programEnd} onChange={(e) => set("programEnd", e.target.value)} /></Field>
-                <Field label="Lokasi (teks bebas)"><input className={input} value={f.location} onChange={(e) => set("location", e.target.value)} /></Field>
-                <Field label="Bidang studi (satu per baris)" className="md:col-span-3"><textarea rows={2} className={area} value={f.fieldsOfStudy} onChange={(e) => set("fieldsOfStudy", e.target.value)} /></Field>
+                <Field label="City"><input className={input} value={f.city} onChange={(e) => set("city", e.target.value)} /></Field>
+                <Field label="Country"><input className={input} value={f.country} onChange={(e) => set("country", e.target.value)} /></Field>
+                <Field label="Minimum age"><input type="number" min={0} className={input} value={f.ageMin} onChange={(e) => set("ageMin", e.target.value)} /></Field>
+                <Field label="Maximum age"><input type="number" min={0} className={input} value={f.ageMax} onChange={(e) => set("ageMax", e.target.value)} /></Field>
+                <Field label="Minimum GPA"><input type="number" step="0.01" min={0} max={4} className={input} value={f.minGpa} onChange={(e) => set("minGpa", e.target.value)} /></Field>
+                <Field label="Nationality"><input className={input} value={f.nationality} onChange={(e) => set("nationality", e.target.value)} placeholder="Indonesian citizens / open to all" /></Field>
+                <Field label="Duration"><input className={input} value={f.duration} onChange={(e) => set("duration", e.target.value)} placeholder="12 months" /></Field>
+                <Field label="Language"><input className={input} value={f.language} onChange={(e) => set("language", e.target.value)} /></Field>
+                <Field label="Program starts"><input type="datetime-local" className={input} value={f.programStart} onChange={(e) => set("programStart", e.target.value)} /></Field>
+                <Field label="Program ends"><input type="datetime-local" className={input} value={f.programEnd} onChange={(e) => set("programEnd", e.target.value)} /></Field>
+                <Field label="Location (free text)"><input className={input} value={f.location} onChange={(e) => set("location", e.target.value)} /></Field>
+                <Field label="Fields of study (one per line)" className="md:col-span-3"><textarea rows={2} className={area} value={f.fieldsOfStudy} onChange={(e) => set("fieldsOfStudy", e.target.value)} /></Field>
               </div>
               <div>
-                <p className="mb-2 text-xs font-medium text-slate-700">Informasi tambahan khusus {cfg.label.toLowerCase()}</p>
-                <RowsEditor value={f.quickFacts} onChange={(v) => set("quickFacts", v)} addLabel="Tambah baris" cols={[{ key: "label", label: "Label", flex: "w-48" }, { key: "value", label: "Nilai" }]} />
+                <p className="mb-2 text-xs font-medium text-slate-700">Extra details for {cfg.label.toLowerCase()}</p>
+                <RowsEditor value={f.quickFacts} onChange={(v) => set("quickFacts", v)} addLabel="Add row" cols={[{ key: "label", label: "Label", flex: "w-48" }, { key: "value", label: "Value" }]} />
               </div>
             </div>
           )}
@@ -213,57 +213,57 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
           {tab === "kriteria" && (
             <div className="space-y-5">
               <div>
-                <p className="mb-2 text-xs font-medium text-slate-700">Daftar kriteria</p>
+                <p className="mb-2 text-xs font-medium text-slate-700">Eligibility criteria</p>
                 <div className="space-y-2">
                   {f.eligibilityCriteria.map((r, i) => (
                     <div key={i} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-2">
-                      <input aria-label="Kriteria" className={input} value={String(r.text)} onChange={(e) => set("eligibilityCriteria", f.eligibilityCriteria.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} placeholder="mis. Mahasiswa aktif minimal semester 3" />
-                      <label className="flex shrink-0 items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={r.required !== false} onChange={(e) => set("eligibilityCriteria", f.eligibilityCriteria.map((x, j) => (j === i ? { ...x, required: e.target.checked } : x)))} className="h-4 w-4 rounded border-slate-300 text-brand-600" />Wajib</label>
-                      <button type="button" aria-label="Hapus" onClick={() => set("eligibilityCriteria", f.eligibilityCriteria.filter((_, j) => j !== i))} className="rounded-md p-2 text-slate-400 hover:bg-white hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
+                      <input aria-label="Criterion" className={input} value={String(r.text)} onChange={(e) => set("eligibilityCriteria", f.eligibilityCriteria.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))} placeholder="e.g. Enrolled student, semester 3 or above" />
+                      <label className="flex shrink-0 items-center gap-1.5 text-xs text-slate-600"><input type="checkbox" checked={r.required !== false} onChange={(e) => set("eligibilityCriteria", f.eligibilityCriteria.map((x, j) => (j === i ? { ...x, required: e.target.checked } : x)))} className="h-4 w-4 rounded border-slate-300 text-brand-600" />Required</label>
+                      <button type="button" aria-label="Remove" onClick={() => set("eligibilityCriteria", f.eligibilityCriteria.filter((_, j) => j !== i))} className="rounded-md p-2 text-slate-400 hover:bg-white hover:text-rose-600"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   ))}
-                  <button type="button" onClick={() => set("eligibilityCriteria", [...f.eligibilityCriteria, { text: "", required: true }])} className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-600 hover:text-brand-700"><Plus className="h-3.5 w-3.5" />Tambah kriteria</button>
+                  <button type="button" onClick={() => set("eligibilityCriteria", [...f.eligibilityCriteria, { text: "", required: true }])} className="inline-flex items-center gap-1.5 rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-600 hover:border-brand-600 hover:text-brand-700"><Plus className="h-3.5 w-3.5" />Add criterion</button>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-500">Tidak dicentang “Wajib” = tampil sebagai nilai tambah.</p>
+                <p className="mt-1.5 text-xs text-slate-500">Criteria that are not marked Required are shown as a plus.</p>
               </div>
-              <Field label="Catatan kriteria tambahan" hint="Markdown / HTML."><textarea rows={5} className={area} value={f.eligibility} onChange={(e) => set("eligibility", e.target.value)} /></Field>
-              <Field label={`${cfg.headings.benefits} (uraian)`} hint="Markdown / HTML."><textarea rows={5} className={area} value={f.programBenefits} onChange={(e) => set("programBenefits", e.target.value)} /></Field>
+              <Field label="Additional eligibility notes" hint="Markdown or HTML."><textarea rows={5} className={area} value={f.eligibility} onChange={(e) => set("eligibility", e.target.value)} /></Field>
+              <Field label={`${cfg.headings.benefits} (details)`} hint="Markdown or HTML."><textarea rows={5} className={area} value={f.programBenefits} onChange={(e) => set("programBenefits", e.target.value)} /></Field>
             </div>
           )}
 
           {tab === "daftar" && (
             <div className="space-y-5">
-              <div><p className="mb-2 text-xs font-medium text-slate-700">Langkah pendaftaran</p><RowsEditor value={f.applySteps} onChange={(v) => set("applySteps", v)} addLabel="Tambah langkah" cols={[{ key: "title", label: "Judul langkah", flex: "w-64" }, { key: "description", label: "Penjelasan", area: true }]} /></div>
-              <Field label="Catatan cara mendaftar (opsional)" hint="Markdown / HTML."><textarea rows={4} className={area} value={f.howToApply} onChange={(e) => set("howToApply", e.target.value)} /></Field>
-              <Field label="Dokumen yang dibutuhkan (satu per baris)"><textarea rows={6} className={area} value={f.requiredDocuments} onChange={(e) => set("requiredDocuments", e.target.value)} /></Field>
-              <Field label="Tautan pendaftaran resmi" error={fe.link}><input type="url" className={input} value={f.link} onChange={(e) => set("link", e.target.value)} placeholder="https://" /></Field>
+              <div><p className="mb-2 text-xs font-medium text-slate-700">Application steps</p><RowsEditor value={f.applySteps} onChange={(v) => set("applySteps", v)} addLabel="Add step" cols={[{ key: "title", label: "Step title", flex: "w-64" }, { key: "description", label: "Description", area: true }]} /></div>
+              <Field label="How to apply notes (optional)" hint="Markdown or HTML."><textarea rows={4} className={area} value={f.howToApply} onChange={(e) => set("howToApply", e.target.value)} /></Field>
+              <Field label="Required documents (one per line)"><textarea rows={6} className={area} value={f.requiredDocuments} onChange={(e) => set("requiredDocuments", e.target.value)} /></Field>
+              <Field label="Official application link" error={fe.link}><input type="url" className={input} value={f.link} onChange={(e) => set("link", e.target.value)} placeholder="https://" /></Field>
             </div>
           )}
 
           {tab === "seleksi" && (
             <div className="space-y-5">
-              <div><p className="mb-2 text-xs font-medium text-slate-700">Jadwal penting</p><RowsEditor value={f.timeline} onChange={(v) => set("timeline", v)} addLabel="Tambah jadwal" cols={[{ key: "phase", label: "Tahap", flex: "w-56" }, { key: "date", label: "Tanggal", flex: "w-40" }, { key: "description", label: "Keterangan" }]} /></div>
-              <div><p className="mb-2 text-xs font-medium text-slate-700">Tahapan seleksi</p><RowsEditor value={f.selectionStages} onChange={(v) => set("selectionStages", v)} addLabel="Tambah tahap" cols={[{ key: "stage", label: "Tahap", flex: "w-56" }, { key: "date", label: "Waktu", flex: "w-40" }, { key: "description", label: "Keterangan" }]} /></div>
-              <div><p className="mb-2 text-xs font-medium text-slate-700">FAQ</p><RowsEditor value={f.faqs} onChange={(v) => set("faqs", v)} addLabel="Tambah FAQ" cols={[{ key: "q", label: "Pertanyaan" }, { key: "a", label: "Jawaban", area: true }]} /></div>
-              <Field label="Tips lolos" hint="Markdown / HTML."><textarea rows={5} className={area} value={f.tips} onChange={(e) => set("tips", e.target.value)} /></Field>
+              <div><p className="mb-2 text-xs font-medium text-slate-700">Key dates</p><RowsEditor value={f.timeline} onChange={(v) => set("timeline", v)} addLabel="Add date" cols={[{ key: "phase", label: "Phase", flex: "w-56" }, { key: "date", label: "Date", flex: "w-40" }, { key: "description", label: "Notes" }]} /></div>
+              <div><p className="mb-2 text-xs font-medium text-slate-700">Selection stages</p><RowsEditor value={f.selectionStages} onChange={(v) => set("selectionStages", v)} addLabel="Add stage" cols={[{ key: "stage", label: "Stage", flex: "w-56" }, { key: "date", label: "Time", flex: "w-40" }, { key: "description", label: "Notes" }]} /></div>
+              <div><p className="mb-2 text-xs font-medium text-slate-700">FAQ</p><RowsEditor value={f.faqs} onChange={(v) => set("faqs", v)} addLabel="Add FAQ" cols={[{ key: "q", label: "Question" }, { key: "a", label: "Answer", area: true }]} /></div>
+              <Field label="Tips for applicants" hint="Markdown or HTML."><textarea rows={5} className={area} value={f.tips} onChange={(e) => set("tips", e.target.value)} /></Field>
             </div>
           )}
 
           {tab === "kontak" && (
             <div className="space-y-5">
               <div className="grid gap-4 md:grid-cols-3">
-                <Field label="Nama narahubung"><input className={input} value={f.cpName} onChange={(e) => set("cpName", e.target.value)} /></Field>
-                <Field label="Kontak (WA / telp)"><input className={input} value={f.cpContact} onChange={(e) => set("cpContact", e.target.value)} /></Field>
+                <Field label="Contact person"><input className={input} value={f.cpName} onChange={(e) => set("cpName", e.target.value)} /></Field>
+                <Field label="Contact (WhatsApp / phone)"><input className={input} value={f.cpContact} onChange={(e) => set("cpContact", e.target.value)} /></Field>
                 <Field label="Email" error={fe.contactEmail}><input type="email" className={input} value={f.contactEmail} onChange={(e) => set("contactEmail", e.target.value)} /></Field>
               </div>
-              <div><p className="mb-2 text-xs font-medium text-slate-700">Tautan lain (Instagram, panduan PDF, dll.)</p><RowsEditor value={f.socialLinks} onChange={(v) => set("socialLinks", v)} addLabel="Tambah tautan" cols={[{ key: "label", label: "Label", flex: "w-48" }, { key: "url", label: "https://…" }]} /></div>
+              <div><p className="mb-2 text-xs font-medium text-slate-700">Other links (Instagram, PDF guide, etc.)</p><RowsEditor value={f.socialLinks} onChange={(v) => set("socialLinks", v)} addLabel="Add link" cols={[{ key: "label", label: "Label", flex: "w-48" }, { key: "url", label: "https://…" }]} /></div>
             </div>
           )}
         </div>
 
         <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
-          <button type="button" onClick={onClose} className="h-10 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">Batal</button>
-          <button type="button" onClick={save} disabled={busy} className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-600 px-5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60">{busy && <Loader2 className="h-4 w-4 animate-spin" />}{init ? "Simpan perubahan" : "Terbitkan"}</button>
+          <button type="button" onClick={onClose} className="h-10 rounded-lg border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</button>
+          <button type="button" onClick={save} disabled={busy} className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand-600 px-5 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60">{busy && <Loader2 className="h-4 w-4 animate-spin" />}{init ? "Save changes" : "Publish"}</button>
         </div>
       </div>
     </div>

@@ -37,7 +37,7 @@ const optInt = z.number().int().min(0).max(1_000_000).optional().nullable();
 const optDate = z.string().trim().optional().nullable().transform((v, ctx) => {
   if (!v) return null;
   const d = new Date(v);
-  if (Number.isNaN(d.getTime())) { ctx.addIssue({ code: "custom", message: "Tanggal tidak valid" }); return z.NEVER; }
+  if (Number.isNaN(d.getTime())) { ctx.addIssue({ code: "custom", message: "Invalid date" }); return z.NEVER; }
   return d;
 });
 const strList = (maxItems: number, maxLen = 120) => z.array(z.string().trim().min(1).max(maxLen)).max(maxItems).optional();
@@ -50,7 +50,7 @@ export const opportunityInput = z.object({
   organizer: z.string().trim().min(2).max(160),
   summary: optStr(600),
   description: z.string().max(40_000).default(""),
-  deadline: z.string().refine((v) => !Number.isNaN(new Date(v).getTime()), "Deadline tidak valid"),
+  deadline: z.string().refine((v) => !Number.isNaN(new Date(v).getTime()), "Invalid deadline"),
   openDate: optDate,
   status: z.enum(["active", "archived", "upcoming", "ongoing", "completed"]).optional(),
   isAnnual: z.boolean().optional(),
@@ -97,12 +97,12 @@ export const opportunityInput = z.object({
 export type OpportunityInput = z.infer<typeof opportunityInput>;
 
 export const LINK_CATEGORIES = [
-  "Beasiswa", "Kompetisi", "Riset & Jurnal", "Karier & Magang", "Tools & Template", "Kampus ITB", "Belajar & Kursus", "Komunitas", "Lainnya",
+  "Scholarships", "Competitions", "Research & Journals", "Careers & Internships", "Tools & Templates", "ITB Campus", "Learning & Courses", "Communities", "Other",
 ] as const;
 
 export const linkInput = z.object({
   title: z.string().trim().min(2).max(160),
-  url: z.string().trim().url().max(600).refine((u) => /^https?:\/\//i.test(u), "Hanya http/https"),
+  url: z.string().trim().url().max(600).refine((u) => /^https?:\/\//i.test(u), "Only http or https URLs are allowed"),
   description: optStr(500),
   category: z.string().trim().min(2).max(60),
   tags: strList(8, 30),

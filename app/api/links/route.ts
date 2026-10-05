@@ -24,9 +24,9 @@ export const GET = withErrorHandler(async (request: Request) => {
 export const POST = withErrorHandler(async (request: Request) => {
   await requireAdmin(request);
   const parsed = linkInput.safeParse(await request.json());
-  if (!parsed.success) return NextResponse.json({ error: "Data tidak valid", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid data", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
   const exists = await prisma.resourceLink.findUnique({ where: { url: parsed.data.url } });
-  if (exists) return NextResponse.json({ error: "URL ini sudah ada di kumpulan pranala." }, { status: 409 });
+  if (exists) return NextResponse.json({ error: "This URL is already in the link collection." }, { status: 409 });
   const link = await prisma.resourceLink.create({ data: { ...parsed.data, description: parsed.data.description ?? null, tags: parsed.data.tags ?? [] } });
   return NextResponse.json(link, { status: 201 });
 });
@@ -36,7 +36,7 @@ export const PUT = withErrorHandler(async (request: Request) => {
   const { id, ...rest } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   const parsed = linkInput.partial().safeParse(rest);
-  if (!parsed.success) return NextResponse.json({ error: "Data tidak valid", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid data", fieldErrors: fieldErrors(parsed.error) }, { status: 400 });
   const link = await prisma.resourceLink.update({ where: { id }, data: parsed.data });
   return NextResponse.json(link);
 });

@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Edit3, Trash2, Pencil, Globe, FileWarning, Save, Clock } from "lucide-react";
+import { Plus, Edit3, Trash2, Pencil, Globe, FileWarning, Save, Clock, ImagePlus, X, Loader2 } from "lucide-react";
 import { BlogPost, PostStatus } from "@/lib/types";
-import { getBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, CreateBlogInput } from "@/services/blog";
-import TipTapEditor from "@/components/ui/TipTapEditor";
+import { createBlogPost, updateBlogPost, deleteBlogPost, CreateBlogInput } from "@/services/blog";
+import TipTapEditor, { uploadImage } from "@/components/ui/TipTapEditor";
+import { getAuthHeaders } from "@/lib/apiFetch";
 import { cn } from "@/lib/cn";
 
 interface Draft {
@@ -41,16 +42,23 @@ export default function BlogManager() {
   const [draft, setDraft] = useState<Draft>(emptyDraft());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coverBusy, setCoverBusy] = useState(false);
   const [activeFilter, setActiveFilter] = useState<"all" | PostStatus>("all");
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [drafts, published] = await Promise.all([
-        getBlogPosts({ pageSize: 100, status: "draft" }),
-        getBlogPosts({ pageSize: 100, status: "published" }),
-      ]);
-      setPosts([...published.posts, ...drafts.posts]);
+      const headers = await getAuthHeaders();
+      const get = async (status: string): Promise<BlogPost[]> => {
+        const r = await fetch(`/api/blog?status=${status}&pageSize=100`, { headers });
+        if (!r.ok) throw new Error(`Could not load ${status} posts (${r.status})`);
+        return (await r.json()).posts ?? [];
+      };
+      const [drafts, published] = await Promise.all([get("draft"), get("published")]);
+      setPosts([...published, ...drafts]);
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not load posts.");
     } finally {
       setLoading(false);
     }
@@ -96,7 +104,7 @@ export default function BlogManager() {
 
   const save = async () => {
     if (!draft.title.trim() || !draft.content || draft.content === "<p></p>") {
-      setError("Title and content are required.");
+      setError("A title and some content are required.");
       return;
     }
     setSaving(true);
@@ -119,7 +127,7 @@ export default function BlogManager() {
       setEditorOpen(false);
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to save post.");
+      setError(e instanceof Error ? e.message : "Could not save the post.");
     } finally {
       setSaving(false);
     }
@@ -137,7 +145,7 @@ export default function BlogManager() {
           </h3>
           <button
             onClick={openCreate}
-            className="flex items-center gap-1 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-4 py-2 rounded-full font-medium transition"
+            className="flex items-center gap-1 text-sm bg-[#3352CD] hover:bg-[#2a44ad] text-white px-4 py-2 rounded-full font-medium transition"
           >
             <Plus className="w-4 h-4" /> New Post
           </button>
@@ -153,10 +161,11 @@ export default function BlogManager() {
           ))}
         </div>
 
+        {!editorOpen && error && <div role="alert" className="mb-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-300">{error}</div>}
         {loading ? (
           <div className="text-center py-10 text-white/30">Loading posts…</div>
         ) : ordered.length === 0 ? (
-          <div className="text-center py-10 text-white/30">No blog posts yet. Create your first post.</div>
+          <div className="text-center py-10 text-white/30">No posts yet. Create the first one.</div>
         ) : (
           <div className="space-y-2">
             {ordered.map((post) => (
@@ -191,7 +200,7 @@ export default function BlogManager() {
 
       {editorOpen && (
         <div className="fixed inset-0 z-[105] flex items-start justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-3xl glass-strong rounded-2xl border border-white/10 shadow-2xl my-6">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-4xl glass-strong rounded-2xl border border-white/10 shadow-2xl my-6">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               <h3 className="font-bold text-white font-heading">{editingId ? "Edit Post" : "New Post"}</h3>
               <button onClick={() => setEditorOpen(false)} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition">✕</button>
@@ -203,10 +212,32 @@ export default function BlogManager() {
                 placeholder="Post title"
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-lg font-heading font-semibold text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60"
               />
-              <TipTapEditor value={draft.content} onChange={(html) => setDraft({ ...draft, content: html })} placeholder="Write your article…" />
+              <TipTapEditor value={draft.content} onChange={(html) => setDraft({ ...draft, content: html })} placeholder="Start writing…" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <input value={draft.excerpt} onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })} placeholder="Short excerpt (optional)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
-                <input value={draft.coverImage} onChange={(e) => setDraft({ ...draft, coverImage: e.target.value })} placeholder="Cover image URL (optional)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
+                  {draft.coverImage ? (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={draft.coverImage} alt="" className="h-9 w-14 rounded object-cover" />
+                      <span className="min-w-0 flex-1 truncate text-xs text-white/60">Cover image set</span>
+                      <button type="button" onClick={() => setDraft({ ...draft, coverImage: "" })} aria-label="Remove cover image" className="rounded p-1 text-white/50 hover:text-white"><X className="h-4 w-4" /></button>
+                    </>
+                  ) : (
+                    <label className="flex w-full cursor-pointer items-center gap-2 text-white/60 hover:text-white">
+                      {coverBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                      <span>{coverBusy ? "Uploading…" : "Upload cover image"}</span>
+                      <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={async (e) => {
+                        const f = e.target.files?.[0]; e.target.value = "";
+                        if (!f) return;
+                        setCoverBusy(true); setError(null);
+                        try { const url = await uploadImage(f); setDraft((d) => ({ ...d, coverImage: url })); }
+                        catch (er) { setError(er instanceof Error ? er.message : "Upload failed"); }
+                        finally { setCoverBusy(false); }
+                      }} />
+                    </label>
+                  )}
+                </div>
                 <input value={draft.slug} onChange={(e) => setDraft({ ...draft, slug: e.target.value })} placeholder="URL slug (auto)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
                 <input value={draft.tags} onChange={(e) => setDraft({ ...draft, tags: e.target.value })} placeholder="Tags (comma separated)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
               </div>
@@ -222,7 +253,7 @@ export default function BlogManager() {
                   </button>
                 </label>
                 <button onClick={save} disabled={saving}
-                  className="flex items-center gap-2 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] text-white px-5 py-2 rounded-full font-medium shadow-lg disabled:opacity-50 transition">
+                  className="flex items-center gap-2 text-sm bg-[#3352CD] hover:bg-[#2a44ad] text-white px-5 py-2 rounded-full font-medium shadow-lg disabled:opacity-50 transition">
                   <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save Post"}
                 </button>
               </div>

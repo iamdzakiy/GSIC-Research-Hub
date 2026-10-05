@@ -1,5 +1,6 @@
 "use client";
 
+// Word-style editor for blog posts. Shows a white "page" so what the admin sees is close to what readers get.
 import { useEffect, useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -8,82 +9,48 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import {
-  Heading1,
-  Heading2,
-  Heading3,
-  Bold,
-  Italic,
-  Underline as UnderlineIcon,
-  List,
-  ListOrdered,
-  Quote,
-  Code2,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Unlink,
-  Undo2,
-  Redo2,
-  UploadCloud,
+  Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, ListOrdered, Quote, Code2, Link as LinkIcon, Unlink,
+  Image as ImageIcon, Undo2, Redo2, Minus, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
-import { uploadFile } from "@/lib/supabaseStorage";
+import { getAuthHeaders } from "@/lib/apiFetch";
 
-interface TipTapEditorProps {
-  value: string;
-  onChange: (html: string) => void;
-  placeholder?: string;
-  className?: string;
+interface Props { value: string; onChange: (html: string) => void; placeholder?: string; className?: string }
+
+/** Uploads through the admin-only /api/upload route (service role, public bucket). */
+export async function uploadImage(file: File): Promise<string> {
+  const headers = await getAuthHeaders();
+  delete headers["Content-Type"]; // the browser sets the multipart boundary
+  const body = new FormData();
+  body.append("file", file);
+  const res = await fetch("/api/upload", { method: "POST", headers, body });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || "Upload failed");
+  return json.url as string;
 }
 
-interface ToolbarButtonProps {
-  onClick: () => void;
-  active?: boolean;
-  disabled?: boolean;
-  title: string;
-  children: React.ReactNode;
-}
-
-function ToolbarButton({ onClick, active, disabled, title, children }: ToolbarButtonProps) {
+function Btn({ onClick, active, disabled, title, children }: { onClick: () => void; active?: boolean; disabled?: boolean; title: string; children: React.ReactNode }) {
   return (
-    <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={onClick}
-      disabled={disabled}
-      title={title}
-      className={cn(
-        "p-1.5 rounded-lg transition text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30",
-        active && "bg-[#3352CD]/40 text-white"
-      )}
-    >
+    <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onClick} disabled={disabled} title={title} aria-label={title} aria-pressed={active}
+      className={cn("rounded-md p-1.5 text-slate-600 transition-colors hover:bg-slate-200 disabled:opacity-30", active && "bg-brand-600 text-white hover:bg-brand-700")}>
       {children}
     </button>
   );
 }
+const Sep = () => <span className="mx-1 h-5 w-px bg-slate-300" aria-hidden="true" />;
 
-function ToolbarDivider() {
-  return <div className="w-px h-5 bg-white/10 mx-1" />;
-}
-
-/**
- * Full-featured rich-text editor powered by TipTap.
- * Exposes the produced HTML via `onChange`, matching `RichTextRenderer`.
- */
-export default function TipTapEditor({ value, onChange, placeholder, className }: TipTapEditorProps) {
+export default function TipTapEditor({ value, onChange, placeholder, className }: Props) {
   const [mounted, setMounted] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ codeBlock: {} }),
+      StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
       Underline,
-      Link.configure({
-        openOnClick: false,
-        autolink: true,
-        HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
-      }),
-      Image.configure({ allowBase64: true }),
+      Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" } }),
+      Image.configure({ HTMLAttributes: { loading: "lazy" } }),
       Placeholder.configure({ placeholder: placeholder || "Start writing…" }),
     ],
     content: value,
@@ -91,143 +58,99 @@ export default function TipTapEditor({ value, onChange, placeholder, className }
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert max-w-none min-h-[220px] px-4 py-3 focus:outline-none " +
-          "prose-headings:font-heading prose-a:text-[#60A5FA] prose-blockquote:border-[#5CE3B6]",
+          "prose prose-slate max-w-none min-h-[340px] px-8 py-7 focus:outline-none prose-headings:font-heading prose-headings:tracking-tight " +
+          "prose-a:text-brand-700 prose-img:mx-auto prose-img:rounded-lg prose-blockquote:border-l-brand-600 prose-blockquote:not-italic",
+      },
+      handlePaste: (_v, ev) => {
+        const f = Array.from(ev.clipboardData?.files ?? []).find((x) => x.type.startsWith("image/"));
+        if (!f) return false;
+        void insert(f);
+        return true;
+      },
+      handleDrop: (_v, ev) => {
+        const f = Array.from((ev as DragEvent).dataTransfer?.files ?? []).find((x) => x.type.startsWith("image/"));
+        if (!f) return false;
+        ev.preventDefault();
+        void insert(f);
+        return true;
       },
     },
   });
 
-  // Only render after mount to avoid SSR hydration mismatches from the editor.
   useEffect(() => setMounted(true), []);
-
   useEffect(() => {
-    if (!editor) return;
-    if (value !== editor.getHTML()) {
-      editor.commands.setContent(value, false);
-    }
+    if (editor && value !== editor.getHTML()) editor.commands.setContent(value, false);
   }, [value, editor]);
 
-  if (!mounted || !editor) {
-    return (
-      <div className={cn("glass rounded-xl p-4 min-h-[260px] animate-pulse", className)}>
-        <div className="h-40 rounded-md bg-white/5" />
-      </div>
-    );
+  async function insert(file: File) {
+    if (!editor) return;
+    setErr(null);
+    setBusy(true);
+    try {
+      const url = await uploadImage(file);
+      editor.chain().focus().setImage({ src: url, alt: file.name.replace(/\.[^.]+$/, "") }).run();
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
+  if (!mounted || !editor) return <div className={cn("h-[420px] animate-pulse rounded-xl bg-slate-100", className)} />;
+
   const setLink = () => {
-    const previous = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("Enter link URL", previous || "https://");
+    const prev = editor.getAttributes("link").href as string | undefined;
+    const url = window.prompt("Link address", prev || "https://");
     if (url === null) return;
-    if (!url) {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
+    if (!url) return void editor.chain().focus().extendMarkRange("link").unsetLink().run();
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const insertImage = async (file: File) => {
-    try {
-      setUploading(true);
-      const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, "");
-      const url = await uploadFile(file, `blog/${Date.now()}-${safe}`);
-      editor.chain().focus().setImage({ src: url }).run();
-    } catch {
-      const url = window.prompt("Image upload failed. Enter image URL", "https://");
-      if (url) editor.chain().focus().setImage({ src: url }).run();
-    } finally {
-      setUploading(false);
-    }
-  };
-return (
-    <div className={cn("glass rounded-xl overflow-hidden", className)}>
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-0.5 px-2 py-2 border-b border-white/10 bg-white/[0.03]">
-        <ToolbarButton
-          title="Heading 1"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-          active={editor.isActive("heading", { level: 1 })}
-        >
-          <Heading1 className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          title="Heading 2"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          active={editor.isActive("heading", { level: 2 })}
-        >
-          <Heading2 className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton
-          title="Heading 3"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          active={editor.isActive("heading", { level: 3 })}
-        >
-          <Heading3 className="w-4 h-4" />
-        </ToolbarButton>
+  const block = editor.isActive("heading", { level: 1 }) ? "h1" : editor.isActive("heading", { level: 2 }) ? "h2" : editor.isActive("heading", { level: 3 }) ? "h3" : "p";
+  const words = editor.getText().trim().split(/\s+/).filter(Boolean).length;
 
-        <ToolbarDivider />
-
-        <ToolbarButton title="Bold" onClick={() => editor.chain().focus().toggleBold().run()} active={editor.isActive("bold")}>
-          <Bold className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Italic" onClick={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive("italic")}>
-          <Italic className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Underline" onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")}>
-          <UnderlineIcon className="w-4 h-4" />
-        </ToolbarButton>
-
-        <ToolbarDivider />
-
-        <ToolbarButton title="Bullet list" onClick={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive("bulletList")}>
-          <List className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Ordered list" onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")}>
-          <ListOrdered className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Blockquote" onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive("blockquote")}>
-          <Quote className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Code block" onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive("codeBlock")}>
-          <Code2 className="w-4 h-4" />
-        </ToolbarButton>
-
-        <ToolbarDivider />
-
-        <ToolbarButton title="Add link" onClick={setLink} active={editor.isActive("link")}>
-          <LinkIcon className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title="Remove link" onClick={() => editor.chain().focus().unsetLink().run()} disabled={!editor.isActive("link")}>
-          <Unlink className="w-4 h-4" />
-        </ToolbarButton>
-        <ToolbarButton title={uploading ? "Uploading…" : "Insert image"} onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-          {uploading ? <UploadCloud className="w-4 h-4 animate-pulse" /> : <ImageIcon className="w-4 h-4" />}
-        </ToolbarButton>
-
-        <div className="ml-auto flex items-center gap-0.5">
-          <ToolbarButton title="Undo" onClick={() => editor.chain().focus().undo().run()}>
-            <Undo2 className="w-4 h-4" />
-          </ToolbarButton>
-          <ToolbarButton title="Redo" onClick={() => editor.chain().focus().redo().run()}>
-            <Redo2 className="w-4 h-4" />
-          </ToolbarButton>
-        </div>
+  return (
+    <div className={cn("overflow-hidden rounded-xl border border-slate-300 bg-slate-100 text-slate-900", className)}>
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 border-b border-slate-300 bg-slate-50 px-2 py-1.5">
+        <select aria-label="Text style" value={block}
+          onChange={(e) => {
+            const v = e.target.value;
+            const c = editor.chain().focus();
+            (v === "p" ? c.setParagraph() : c.toggleHeading({ level: Number(v[1]) as 1 | 2 | 3 })).run();
+          }}
+          className="h-8 rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-800">
+          <option value="p">Paragraph</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option>
+        </select>
+        <Sep />
+        <Btn title="Bold" active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}><Bold className="h-4 w-4" /></Btn>
+        <Btn title="Italic" active={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()}><Italic className="h-4 w-4" /></Btn>
+        <Btn title="Underline" active={editor.isActive("underline")} onClick={() => editor.chain().focus().toggleUnderline().run()}><UnderlineIcon className="h-4 w-4" /></Btn>
+        <Btn title="Strikethrough" active={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()}><Strikethrough className="h-4 w-4" /></Btn>
+        <Sep />
+        <Btn title="Bulleted list" active={editor.isActive("bulletList")} onClick={() => editor.chain().focus().toggleBulletList().run()}><List className="h-4 w-4" /></Btn>
+        <Btn title="Numbered list" active={editor.isActive("orderedList")} onClick={() => editor.chain().focus().toggleOrderedList().run()}><ListOrdered className="h-4 w-4" /></Btn>
+        <Btn title="Quote" active={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()}><Quote className="h-4 w-4" /></Btn>
+        <Btn title="Code block" active={editor.isActive("codeBlock")} onClick={() => editor.chain().focus().toggleCodeBlock().run()}><Code2 className="h-4 w-4" /></Btn>
+        <Btn title="Divider" onClick={() => editor.chain().focus().setHorizontalRule().run()}><Minus className="h-4 w-4" /></Btn>
+        <Sep />
+        <Btn title="Add link" active={editor.isActive("link")} onClick={setLink}><LinkIcon className="h-4 w-4" /></Btn>
+        <Btn title="Remove link" disabled={!editor.isActive("link")} onClick={() => editor.chain().focus().extendMarkRange("link").unsetLink().run()}><Unlink className="h-4 w-4" /></Btn>
+        <Btn title="Insert image" disabled={busy} onClick={() => fileRef.current?.click()}>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+        </Btn>
+        <Sep />
+        <Btn title="Undo" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}><Undo2 className="h-4 w-4" /></Btn>
+        <Btn title="Redo" disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()}><Redo2 className="h-4 w-4" /></Btn>
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden"
+          onChange={(e) => { const f = e.target.files?.[0]; if (f) void insert(f); e.target.value = ""; }} />
       </div>
-
-      {/* Hidden file input for image uploads */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) insertImage(file);
-          e.target.value = "";
-        }}
-      />
-
-      <EditorContent editor={editor} />
+      <div className="max-h-[62vh] overflow-y-auto p-3 sm:p-5">
+        <div className="mx-auto max-w-3xl rounded-md bg-white shadow-sm ring-1 ring-slate-200"><EditorContent editor={editor} /></div>
+      </div>
+      <div className="flex items-center justify-between border-t border-slate-300 bg-slate-50 px-3 py-1.5 text-xs text-slate-500">
+        <span>{words} {words === 1 ? "word" : "words"} · paste or drop images straight into the page</span>
+        {err && <span role="alert" className="text-rose-600">{err}</span>}
+      </div>
     </div>
   );
 }

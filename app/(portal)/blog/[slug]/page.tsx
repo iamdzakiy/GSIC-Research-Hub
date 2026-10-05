@@ -8,13 +8,13 @@ import BlogCard from "@/components/portal/BlogCard";
 import { getPostBySlug, getRelatedPosts } from "@/lib/blog";
 import { excerptOf, formatDateLong, readingTimeMinutes } from "@/lib/content";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getPostBySlug(params.slug);
-  if (!post) return { title: "Artikel tidak ditemukan · GSIC Hub" };
+  if (!post) return { title: "Article not found · GSIC Hub" };
   return {
     title: `${post.title} · GSIC Hub`,
     description: excerptOf(post),
@@ -27,14 +27,14 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
   const related = await getRelatedPosts(post, 3);
   const when = post.publishedAt ?? post.createdAt;
-  const author = post.author?.name || "Tim GSIC";
+  const author = post.author?.name || "GSIC Team";
   const tagHref = (t: string) => `/blog?tag=${encodeURIComponent(t.replace(/^#+/, ""))}`;
 
   return (
     <main className="px-4 py-8 sm:px-6 lg:px-8">
       <article className="mx-auto max-w-3xl">
         <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900">
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Semua artikel
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> All articles
         </Link>
 
         <header className="mt-6">
@@ -49,7 +49,7 @@ export default async function BlogPostPage({ params }: Props) {
             <span aria-hidden="true">·</span>
             <time dateTime={when.toISOString()}>{formatDateLong(when)}</time>
             <span aria-hidden="true">·</span>
-            <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" aria-hidden="true" />{readingTimeMinutes(post.content)} menit baca</span>
+            <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" aria-hidden="true" />{readingTimeMinutes(post.content)} min read</span>
           </div>
         </header>
 
@@ -62,7 +62,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         {post.tags.length > 0 && (
           <footer className="mt-10 border-t border-slate-200 pt-6">
-            <p className="mb-3 text-sm font-medium text-slate-700">Jelajahi topik terkait</p>
+            <p className="mb-3 text-sm font-medium text-slate-700">Related topics</p>
             <div className="flex flex-wrap gap-1.5">
               {post.tags.map((t) => <TagBadge key={t} tag={t} href={tagHref(t)} />)}
             </div>
@@ -72,7 +72,7 @@ export default async function BlogPostPage({ params }: Props) {
 
       {related.length > 0 && (
         <section aria-labelledby="related" className="mx-auto mt-16 max-w-7xl border-t border-slate-200 pt-10">
-          <h2 id="related" className="mb-6 text-xl font-bold tracking-tight text-slate-900 font-heading">Artikel Terkait</h2>
+          <h2 id="related" className="mb-6 text-xl font-bold tracking-tight text-slate-900 font-heading">Related articles</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((p) => <BlogCard key={p.id} post={p} />)}
           </div>

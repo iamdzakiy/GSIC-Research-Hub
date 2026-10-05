@@ -24,10 +24,10 @@ export default function ShareActions({ title, icsHref }: { title: string; icsHre
     <div className="grid grid-cols-3 gap-2">
       <button type="button" onClick={copy} className={btn} aria-live="polite">
         {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" aria-hidden="true" /> : <Link2 className="h-3.5 w-3.5" aria-hidden="true" />}
-        {copied ? "Tersalin" : "Salin"}
+        {copied ? "Copied" : "Copy"}
       </button>
-      <button type="button" onClick={share} className={btn}><Share2 className="h-3.5 w-3.5" aria-hidden="true" />Bagikan</button>
-      <a href={icsHref} className={btn} download><CalendarPlus className="h-3.5 w-3.5" aria-hidden="true" />Kalender</a>
+      <button type="button" onClick={share} className={btn}><Share2 className="h-3.5 w-3.5" aria-hidden="true" />Share</button>
+      <a href={icsHref} className={btn} download><CalendarPlus className="h-3.5 w-3.5" aria-hidden="true" />Calendar</a>
     </div>
   );
 }

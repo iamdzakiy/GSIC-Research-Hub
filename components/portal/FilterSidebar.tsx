@@ -18,10 +18,10 @@ interface Group {
 }
 
 const GROUPS: Group[] = [
-  { key: "level", title: "Jenjang", options: LEVELS.map((l) => ({ value: l, label: l })) },
+  { key: "level", title: "Level", options: LEVELS.map((l) => ({ value: l, label: l })) },
   {
     key: "scope",
-    title: "Kategori",
+    title: "Category",
     options: ["internal", "external"].map((s) => ({ value: s, label: SCOPE_LABEL[s]! })),
   },
   {
@@ -29,7 +29,7 @@ const GROUPS: Group[] = [
     title: "Status",
     options: (["open", "closing", "closed"] as const).map((s) => ({ value: s, label: STATUS_LABEL[s] })),
   },
-  { key: "funding", title: "Jenis Pendanaan", options: Object.entries(FUNDING_SHORT).map(([value, label]) => ({ value, label })) },
+  { key: "funding", title: "Funding type", options: Object.entries(FUNDING_SHORT).map(([value, label]) => ({ value, label })) },
   { key: "mode", title: "Format", options: Object.entries(MODE_SHORT).map(([value, label]) => ({ value, label })) },
   { key: "benefit", title: "Benefit", options: BENEFIT_CATEGORIES.map((b) => ({ value: b, label: b })) },
 ];
@@ -123,7 +123,7 @@ function Panel({ filters, facets }: { filters: OpportunityFilters; facets: Facet
   return (
     <>
       <div className="mb-4 flex items-center justify-between border-b border-slate-300 pb-3">
-        <h2 className="text-xl font-bold tracking-tight text-slate-900 font-heading">Filter Peluang</h2>
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 font-heading">Filter opportunities</h2>
         {active > 0 && (
           <button type="button" onClick={reset} className="text-xs font-medium text-brand-700 hover:underline">
             Reset ({active})
@@ -164,7 +164,7 @@ export default function FilterSidebar({ filters, facets, total }: { filters: Opp
   return (
     <>
       {/* Desktop */}
-      <aside aria-label="Filter peluang" className="sticky top-24 hidden self-start lg:block">
+      <aside aria-label="Filter opportunities" className="sticky top-24 hidden self-start lg:block">
         <Panel filters={filters} facets={facets} />
       </aside>
 
@@ -180,11 +180,11 @@ export default function FilterSidebar({ filters, facets, total }: { filters: Opp
       </button>
 
       {drawer && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Filter peluang">
-          <button type="button" aria-label="Tutup filter" className="absolute inset-0 bg-slate-900/40" onClick={() => setDrawer(false)} />
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Filter opportunities">
+          <button type="button" aria-label="Close filters" className="absolute inset-0 bg-slate-900/40" onClick={() => setDrawer(false)} />
           <div className="absolute inset-y-0 left-0 flex w-[88%] max-w-sm flex-col bg-white">
             <div className="flex items-center justify-end border-b border-slate-200 px-4 py-3">
-              <button type="button" onClick={() => setDrawer(false)} aria-label="Tutup" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
+              <button type="button" onClick={() => setDrawer(false)} aria-label="Close" className="rounded-md p-2 text-slate-500 hover:bg-slate-100">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -197,7 +197,7 @@ export default function FilterSidebar({ filters, facets, total }: { filters: Opp
                 onClick={() => setDrawer(false)}
                 className="h-11 w-full rounded-lg bg-brand-600 text-sm font-medium text-white hover:bg-brand-700"
               >
-                Tampilkan {total} hasil
+                Show {total} results
               </button>
             </div>
           </div>

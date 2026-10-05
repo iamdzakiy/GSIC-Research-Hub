@@ -33,7 +33,7 @@ import { GSICEvent, Registration } from "@/lib/types";
 // ============================================================
 export default function SandboxPage() {
   const { user, userProfile, loading } = useAuth();
-  // Muat dari database; nilai awal = fallback agar render pertama tidak crash.
+  // Load from the database; the initial value is a fallback so the first render does not crash.
   const [event, setEvent] = useState<GSICEvent>(SANDBOX_EVENT);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
@@ -94,7 +94,7 @@ export default function SandboxPage() {
     try {
       await createRegistration(newReg as any);
       setRegistrations([...registrations, newReg]);
-      showToast(`🎉 Registered for ${event.title}!`);
+      showToast(`Registered for ${event.title}.`);
     } catch (e) {
       console.error(e);
       showToast("Failed to register.", "error");
@@ -225,8 +225,8 @@ export default function SandboxPage() {
                     </div>
                     <p className="text-xs text-white/70 font-body leading-relaxed">
                       This event does not include pre-test or post-test assessments.
-                      Just bring your curiosity and creativity! Focus on hands-on
-                      collaboration, ideation, and rapid prototyping.
+                      The focus is hands-on collaboration, ideation, and rapid
+                      prototyping.
                     </p>
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export default function SandboxPage() {
                 <div className="bg-white/5 rounded-xl p-4">
                   <div className="text-xs text-white/40 mb-1">Status</div>
                   <div className="font-medium text-[#5CE3B6]">
-                    ✅ Confirmed
+                    Confirmed
                   </div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4">
@@ -344,7 +344,7 @@ export default function SandboxPage() {
                 Unlike the PKM Bootcamp, The Sandbox does not include pre-test or
                 post-test assessments. This is an exploratory, hands-on co-creation
                 space where you'll work with interdisciplinary teams to build
-                innovative solutions. Your learning is measured through project
+                solutions. Your learning is measured through project
                 outcomes and peer collaboration, not standardized tests.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -397,9 +397,9 @@ export default function SandboxPage() {
                       {mod.description}
                     </p>
                     <div className="flex justify-between text-xs text-white/40">
-                      <span>⏱️ {mod.durationHours}h</span>
+                      <span>{mod.durationHours}h</span>
                       <span>
-                        🏷️ {mod.cluster.charAt(0).toUpperCase() + mod.cluster.slice(1)}
+                        {mod.cluster.charAt(0).toUpperCase() + mod.cluster.slice(1)}
                       </span>
                     </div>
                   </div>
@@ -416,7 +416,6 @@ export default function SandboxPage() {
             toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"
           } text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}
         >
-          <span>{toast.type === "success" ? "✅" : "❌"}</span>
           {toast.msg}
         </div>
       )}

@@ -26,7 +26,7 @@ const submitSchema = z.object({
 export const POST = withErrorHandler(async (request: Request) => {
   const me = await requireUser(request);
   const parsed = submitSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: "Data tidak valid." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: "Invalid data." }, { status: 400 });
   try {
     return NextResponse.json(await submitTestForUser(me.id, parsed.data.testId, parsed.data.answers), { status: 201 });
   } catch (e) {

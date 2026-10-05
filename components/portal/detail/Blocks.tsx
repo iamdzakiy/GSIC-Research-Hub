@@ -116,7 +116,7 @@ export function DeadlineMeter({ openDate, deadline, now = new Date() }: { openDa
   const total = deadline.getTime() - openDate.getTime();
   const pct = total <= 0 ? 100 : Math.min(100, Math.max(0, ((now.getTime() - openDate.getTime()) / total) * 100));
   return (
-    <div role="img" aria-label={`${Math.round(pct)}% dari periode pendaftaran telah berlalu`} className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+    <div role="img" aria-label={`${Math.round(pct)}% of the application period has passed`} className="h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
       <div className={cn("h-full rounded-full", pct > 85 ? "bg-rose-500" : "bg-brand-600")} style={{ width: `${pct}%` }} />
     </div>
   );

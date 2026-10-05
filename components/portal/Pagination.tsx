@@ -32,9 +32,9 @@ export default function Pagination({ page, pageCount, basePath, query }: Props) 
   if (pageCount <= 1) return null;
   const item = "inline-flex h-9 min-w-9 items-center justify-center rounded-md border px-2 text-sm";
   return (
-    <nav aria-label="Halaman" className="mt-8 flex items-center justify-center gap-1.5">
+    <nav aria-label="Pagination" className="mt-8 flex items-center justify-center gap-1.5">
       {page > 1 && (
-        <Link href={href(basePath, query, page - 1)} aria-label="Halaman sebelumnya" className={cn(item, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
+        <Link href={href(basePath, query, page - 1)} aria-label="Previous page" className={cn(item, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
           <ChevronLeft className="h-4 w-4" />
         </Link>
       )}
@@ -53,7 +53,7 @@ export default function Pagination({ page, pageCount, basePath, query }: Props) 
         )
       )}
       {page < pageCount && (
-        <Link href={href(basePath, query, page + 1)} aria-label="Halaman berikutnya" className={cn(item, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
+        <Link href={href(basePath, query, page + 1)} aria-label="Next page" className={cn(item, "border-slate-200 bg-white text-slate-600 hover:bg-slate-50")}>
           <ChevronRight className="h-4 w-4" />
         </Link>
       )}

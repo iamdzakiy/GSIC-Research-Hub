@@ -11,7 +11,7 @@ import { sendMail } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
 
 export type LinkRequest =
-  | { kind: "verify"; email: string; name: string; password: string; next?: string }   // new account
+  | { kind: "verify"; email: string; name: string; password: string; profile?: Record<string, unknown>; next?: string }   // new account
   | { kind: "verify"; email: string; resend: true; next?: string }                      // resend for existing
   | { kind: "magic"; email: string; next?: string }
   | { kind: "reset"; email: string };
@@ -49,7 +49,7 @@ export async function issueAndSendLink(req: Request, input: LinkRequest): Promis
       type: "signup",
       email: input.email,
       password: input.password,
-      options: { data: { name: input.name }, redirectTo: callback(safeNext(input.next)) },
+      options: { data: { name: input.name, ...(input.profile ?? {}) }, redirectTo: callback(safeNext(input.next)) },
     });
     if (error) {
       if (/already|exists|registered/i.test(error.message)) return "skipped";

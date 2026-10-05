@@ -4,197 +4,197 @@ export interface SeedPost { slug: string; title: string; excerpt: string; tags: 
 export const SEED_POSTS: SeedPost[] = [
   {
     slug: "cara-menulis-esai-motivasi-beasiswa",
-    title: "Cara Menulis Esai Motivasi Beasiswa yang Jelas dan Meyakinkan",
-    excerpt: "Struktur sederhana, kesalahan umum, dan cara membuat cerita Anda terasa spesifik, bukan klise.",
+    title: "How to Write a Clear, Convincing Scholarship Motivation Essay",
+    excerpt: "A simple structure, common mistakes, and how to make your story specific instead of generic.",
     tags: ["ScholarshipGuide", "WritingTips"],
-    content: `Esai motivasi dibaca puluhan sampai ratusan kali oleh panitia. Yang menang bukan yang paling dramatis, melainkan yang paling **jelas**.
+    content: `Selection committees read dozens or even hundreds of motivation essays. The ones that stand out are not the most dramatic. They are the **clearest**.
 
-## Kerangka yang bisa dipakai
-1. **Pembuka (1 paragraf):** satu momen atau masalah konkret yang membuat Anda tertarik pada bidang ini.
-2. **Bukti (2–3 paragraf):** apa yang sudah Anda lakukan: proyek, riset, organisasi, dengan angka atau hasil bila ada.
-3. **Rencana (1–2 paragraf):** apa yang akan Anda pelajari, kenapa di program/institusi ini, dan bagaimana Anda memakainya setelah lulus.
-4. **Penutup (3–4 kalimat):** hubungkan kembali ke pembuka dan nyatakan kontribusi Anda.
+## A structure you can use
+1. **Opening (1 paragraph):** one concrete moment or problem that drew you to this field.
+2. **Evidence (2-3 paragraphs):** what you have already done, such as projects, research, or organizations, with numbers or results where you have them.
+3. **Plan (1-2 paragraphs):** what you will study, why at this program or institution, and how you will use it after you graduate.
+4. **Closing (3-4 sentences):** return to the opening and state what you will contribute.
 
-## Kesalahan yang sering terjadi
-- Mengulang CV dalam bentuk paragraf.
-- Kalimat umum seperti "saya ingin membangun bangsa" tanpa langkah nyata.
-- Tidak menyebut alasan memilih program tertentu, sehingga esai bisa dikirim ke mana saja.
-- Mengabaikan batas kata dan format yang diminta.
+## Common mistakes
+- Repeating your CV as paragraphs.
+- Generic statements such as "I want to build my nation" with no concrete step behind them.
+- Not saying why you chose this particular program, so the essay could be sent anywhere.
+- Ignoring the word limit and the format the committee asked for.
 
-## Cara membuatnya spesifik
-Ganti klaim dengan kejadian: bukan "saya pemimpin yang baik", tetapi "saya mengoordinasi 12 anggota untuk menyelesaikan prototipe dalam 6 minggu". Minta dua orang membaca: satu yang mengenal Anda, satu yang tidak. Jika orang kedua tidak bisa menjelaskan ulang tujuan Anda dalam satu kalimat, perbaiki bagian pembuka dan rencana.
+## Making it specific
+Replace claims with events. Instead of "I am a good leader", write "I coordinated 12 members to finish a prototype in 6 weeks". Ask two people to read the draft: one who knows you and one who does not. If the second reader cannot restate your goal in one sentence, rework the opening and the plan.
 
-Terakhir, sisakan waktu minimal tiga hari antara draf terakhir dan pengiriman untuk membaca ulang dengan kepala dingin.`,
+Leave at least three days between your last draft and the submission, so you can reread it with a fresh head.`,
   },
   {
     slug: "checklist-dokumen-beasiswa",
-    title: "Checklist Dokumen Beasiswa: Siapkan Sejak Dini, Bukan H-3",
-    excerpt: "Daftar dokumen yang hampir selalu diminta dan kebiasaan kecil agar tidak panik di hari terakhir.",
+    title: "Scholarship Document Checklist: Start Early, Not Three Days Before",
+    excerpt: "The documents almost every application asks for, and small habits that prevent last-day panic.",
     tags: ["ScholarshipGuide", "Checklist"],
-    content: `Banyak pendaftar gagal bukan karena kurang layak, melainkan karena berkas terlambat atau tidak sesuai format.
+    content: `Many applicants are rejected not because they are unqualified, but because their documents arrived late or in the wrong format.
 
-## Dokumen yang hampir selalu diminta
-- Kartu identitas dan kartu mahasiswa (pindai jelas, tidak terpotong)
-- Transkrip nilai dan, bila perlu, surat keterangan aktif kuliah
-- Curriculum vitae (satu sampai dua halaman)
-- Esai motivasi / rencana studi
-- Surat rekomendasi (minta **minimal 2 minggu** sebelumnya)
-- Sertifikat bahasa (IELTS/TOEFL/ITP) jika relevan
-- Bukti prestasi atau pengalaman organisasi
+## Documents almost always required
+- National ID and student ID (clear scans, nothing cropped)
+- Academic transcript and, if needed, a letter confirming you are an active student
+- Curriculum vitae (one to two pages)
+- Motivation essay or study plan
+- Recommendation letters (ask **at least 2 weeks** ahead)
+- Language certificate (IELTS, TOEFL, ITP) if relevant
+- Proof of achievements or organizational experience
 
-## Kebiasaan yang menyelamatkan
-1. **Satu folder master**: simpan semua berkas dengan penamaan konsisten, misalnya \`NamaLengkap_Transkrip.pdf\`.
-2. **Baca panduan resmi dua kali**: ukuran file, format, dan urutan unggah sering berbeda antar program.
-3. **Jadwalkan pengiriman H-3**: server portal sering lambat di hari terakhir.
-4. **Simpan bukti pengiriman**: tangkapan layar dan email konfirmasi.
+## Habits that save you
+1. **One master folder.** Keep every file there with consistent names, for example \`FullName_Transcript.pdf\`.
+2. **Read the official guide twice.** File size, format, and upload order often differ between programs.
+3. **Schedule submission for three days before the deadline.** Portals tend to be slow on the last day.
+4. **Keep proof of submission.** Save a screenshot and the confirmation email.
 
-Gunakan halaman detail setiap peluang di GSIC Hub; bagian "Dokumen" menyajikan daftar yang bisa Anda centang satu per satu.`,
+On each opportunity page in GSIC Hub, the "Documents" section lists what is required so you can tick items off one by one.`,
   },
   {
     slug: "memulai-riset-dari-nol",
-    title: "Memulai Riset dari Nol: Dari Pertanyaan ke Proposal Satu Halaman",
-    excerpt: "Langkah praktis untuk mahasiswa yang belum punya topik: menemukan celah, menyusun pertanyaan, dan menulis proposal singkat.",
+    title: "Starting Research from Zero: From a Question to a One-Page Proposal",
+    excerpt: "Practical steps for students without a topic yet: find a gap, write a question, and draft a short proposal.",
     tags: ["ResearchTips", "Proposal"],
-    content: `Riset dimulai dari pertanyaan kecil yang bisa dijawab, bukan dari topik besar yang terdengar keren.
+    content: `Research starts with a small question you can actually answer, not with a big topic that sounds impressive.
 
-## 1. Temukan celah
-Baca 5–10 artikel review terbaru di bidang yang Anda minati. Catat bagian "future work" atau "limitations" , di sanalah celahnya.
+## 1. Find a gap
+Read 5-10 recent review articles in a field you like. Note the "future work" or "limitations" sections. The gaps are there.
 
-## 2. Rumuskan pertanyaan
-Pertanyaan yang baik **spesifik, terukur, dan layak** dikerjakan dengan waktu dan alat yang Anda punya. Contoh buruk: "Bagaimana AI membantu kesehatan?" Contoh baik: "Seberapa akurat model X mendeteksi Y pada dataset Z yang tersedia publik?"
+## 2. Write the question
+A good question is **specific, measurable, and feasible** with the time and tools you have. A weak example: "How does AI help healthcare?" A better one: "How accurately does model X detect Y on the publicly available dataset Z?"
 
-## 3. Proposal satu halaman
-- **Latar belakang** (3–4 kalimat)
-- **Pertanyaan dan tujuan**
-- **Metode ringkas** (data, alat, analisis)
-- **Luaran** (laporan, prototipe, artikel)
-- **Jadwal** (per bulan)
+## 3. Write a one-page proposal
+- **Background** (3-4 sentences)
+- **Question and objective**
+- **Short method** (data, tools, analysis)
+- **Output** (report, prototype, article)
+- **Schedule** (by month)
 
-## 4. Cari pembimbing
-Kirim email singkat: siapa Anda, apa pertanyaan Anda, mengapa cocok dengan bidang beliau, dan lampirkan proposal satu halaman. Sopan, spesifik, dan ringkas.
+## 4. Find a supervisor
+Send a short email: who you are, what your question is, why it fits their field, and attach the one-page proposal. Keep it polite, specific, and brief.
 
-Gunakan **Zotero** atau Mendeley sejak hari pertama agar daftar pustaka tidak menjadi mimpi buruk di akhir.`,
+Use **Zotero** or Mendeley from day one so your reference list does not become a problem at the end.`,
   },
   {
     slug: "strategi-persiapan-kompetisi-8-minggu",
-    title: "Strategi Persiapan Kompetisi dalam 8 Minggu",
-    excerpt: "Jadwal mingguan, pembagian peran tim, dan checklist pengiriman untuk lomba karya ilmiah maupun inovasi.",
+    title: "An 8-Week Plan for Preparing a Competition Entry",
+    excerpt: "A weekly schedule, team roles, and a submission checklist for research paper and innovation competitions.",
     tags: ["CompPrep", "Teamwork"],
-    content: `Kompetisi dimenangkan oleh tim yang **terorganisir**, bukan hanya yang paling pintar.
+    content: `Competitions are usually won by teams that are **organized**, not only by the smartest ones.
 
-## Garis waktu 8 minggu
-| Minggu | Fokus |
+## 8-week timeline
+| Week | Focus |
 |---|---|
-| 1 | Baca panduan, pilih topik, bagi peran |
-| 2–3 | Riset awal, validasi masalah, kerangka solusi |
-| 4–5 | Pengembangan inti (prototipe / eksperimen / draf) |
-| 6 | Uji coba, umpan balik mentor |
-| 7 | Poles dokumen, presentasi, video bila diminta |
-| 8 | Latihan presentasi dan pengiriman H-2 |
+| 1 | Read the guidelines, choose a topic, assign roles |
+| 2-3 | Initial research, validate the problem, outline the solution |
+| 4-5 | Core development (prototype, experiment, or draft) |
+| 6 | Testing and mentor feedback |
+| 7 | Polish documents and slides; record a video if required |
+| 8 | Practice the presentation and submit two days early |
 
-## Peran tim
-Tetapkan satu **koordinator** (jadwal dan tenggat), satu **penanggung jawab teknis**, dan satu **penanggung jawab dokumen/presentasi**. Peran boleh bergantian, tetapi harus jelas siapa pemilik setiap tugas.
+## Team roles
+Name one **coordinator** (schedule and deadlines), one **technical lead**, and one **documents and presentation lead**. Roles can rotate, but everyone should know who owns each task.
 
-## Checklist pengiriman
-- Format file dan ukuran sesuai panduan
-- Nama tim, institusi, dan anggota konsisten di semua dokumen
-- Semua sumber disitasi
-- Satu orang di luar tim membaca dan menguji tautan
+## Submission checklist
+- File format and size match the guidelines
+- Team name, institution, and members are consistent across all documents
+- Every source is cited
+- One person outside the team reads the entry and tests the links
 
-Rapat singkat 15 menit dua kali seminggu lebih efektif daripada satu rapat panjang.`,
+Two 15-minute meetings a week work better than one long meeting.`,
   },
   {
     slug: "cv-akademik-vs-cv-industri",
-    title: "CV Akademik vs CV Industri: Kapan Memakai yang Mana",
-    excerpt: "Perbedaan isi, panjang, dan penekanan, supaya CV Anda sesuai dengan tujuan: beasiswa, riset, atau karier.",
+    title: "Academic CV vs Industry CV: Which One to Use",
+    excerpt: "Differences in content, length, and emphasis, so your CV fits its purpose: scholarship, research, or career.",
     tags: ["CareerPrep", "WritingTips"],
-    content: `Satu CV untuk semua keperluan hampir selalu kurang efektif.
+    content: `One CV for every purpose is almost always less effective.
 
-## CV industri (1 halaman)
-Fokus pada **dampak**. Gunakan format: *kata kerja + tindakan + hasil terukur*. Prioritaskan magang, proyek, dan keterampilan teknis yang relevan dengan lowongan.
+## Industry CV (1 page)
+Focus on **impact**. Use the pattern: *action verb + what you did + measurable result*. Put internships, projects, and technical skills that match the job posting first.
 
-## CV akademik (2+ halaman)
-Fokus pada **rekam jejak ilmiah**: pendidikan, publikasi, presentasi, hibah, penghargaan, pengalaman riset, dan kemampuan metodologis. Lebih panjang tidak masalah selama terstruktur.
+## Academic CV (2+ pages)
+Focus on your **research record**: education, publications, presentations, grants, awards, research experience, and methods you know. Length is fine as long as it is well structured.
 
-## CV untuk beasiswa
-Gabungan keduanya: prestasi akademik, kepemimpinan, dan kontribusi sosial. Selaraskan dengan nilai yang ditekankan penyelenggara.
+## Scholarship CV
+A mix of both: academic achievement, leadership, and community contribution. Match it to the values the funder emphasizes.
 
-## Tips umum
-- Satu font bersih, margin cukup, tanpa foto kecuali diminta.
-- Urutkan dari yang terbaru.
-- Simpan sebagai PDF dengan nama file profesional.
-- Perbarui setiap kali menyelesaikan sesuatu, bukan saat ada lowongan.
+## General tips
+- Use one clean font, adequate margins, and no photo unless requested.
+- List items from newest to oldest.
+- Save as PDF with a professional file name.
+- Update it whenever you finish something, not when a vacancy appears.
 
-Untuk LaTeX, Overleaf menyediakan template CV yang rapi dan mudah diubah.`,
+If you use LaTeX, Overleaf provides clean CV templates that are easy to modify.`,
   },
   {
     slug: "mencari-pembimbing-dan-mentor-riset",
-    title: "Mencari Pembimbing dan Mentor: Cara Menulis Email yang Dibalas",
-    excerpt: "Email singkat yang spesifik jauh lebih mungkin dibalas. Ini formatnya, lengkap dengan kesalahan yang perlu dihindari.",
+    title: "Finding a Supervisor or Mentor: How to Write an Email That Gets a Reply",
+    excerpt: "A short, specific email is far more likely to be answered. Here is the format, plus mistakes to avoid.",
     tags: ["ResearchTips", "Networking"],
-    content: `Dosen dan peneliti menerima banyak email. Buat milik Anda mudah dijawab.
+    content: `Lecturers and researchers receive many emails. Make yours easy to answer.
 
-## Struktur email
-1. **Subjek jelas**: "Mahasiswa [Jurusan] – Ketertarikan riset tentang [topik]"
-2. **Perkenalan** (1–2 kalimat): nama, jurusan, angkatan.
-3. **Mengapa beliau**: sebut satu publikasi atau proyek beliau yang Anda baca, dan satu hal spesifik yang menarik.
-4. **Permintaan konkret**: misalnya 20 menit diskusi atau peluang bergabung sebagai asisten riset.
-5. **Lampiran**: CV dan proposal satu halaman.
-6. **Penutup sopan** dan terima kasih.
+## Email structure
+1. **Clear subject:** "[Major] student - research interest in [topic]"
+2. **Introduction** (1-2 sentences): your name, major, and year.
+3. **Why them:** name one publication or project of theirs that you read, and one specific thing that interested you.
+4. **A concrete request:** for example, a 20-minute conversation or a chance to join as a research assistant.
+5. **Attachments:** your CV and a one-page proposal.
+6. **A polite closing** and thanks.
 
-## Hindari
-- Email massal dengan nama yang salah.
-- Pertanyaan yang jawabannya ada di situs laboratorium.
-- Meminta "topik apa saja".
-- Menunggu terlalu lama sebelum menindaklanjuti: satu pengingat sopan setelah 7–10 hari cukup.
+## Avoid
+- Mass emails with the wrong name.
+- Questions already answered on the lab website.
+- Asking for "any topic".
+- Following up too soon or too late: one polite reminder after 7-10 days is enough.
 
-Jika tidak dibalas, itu bukan penolakan pribadi. Coba peneliti lain dan perbaiki proposal Anda.`,
+If you get no reply, it is not a personal rejection. Try another researcher and improve your proposal.`,
   },
   {
     slug: "menyiapkan-wawancara-beasiswa-dan-magang",
-    title: "Menyiapkan Wawancara Beasiswa dan Magang",
-    excerpt: "Pertanyaan yang hampir pasti muncul, cara menjawab dengan struktur STAR, dan latihan yang efektif.",
+    title: "Preparing for Scholarship and Internship Interviews",
+    excerpt: "Questions that almost always come up, how to answer using the STAR structure, and practice that works.",
     tags: ["ScholarshipGuide", "CareerPrep", "Interview"],
-    content: `Wawancara menguji dua hal: **kejelasan berpikir** dan **kecocokan**.
+    content: `An interview tests two things: **how clearly you think** and **whether you fit**.
 
-## Pertanyaan yang hampir pasti muncul
-- Ceritakan tentang diri Anda.
-- Mengapa program/perusahaan ini?
-- Ceritakan pengalaman kegagalan dan pelajarannya.
-- Apa rencana Anda lima tahun ke depan?
-- Apa pertanyaan Anda untuk kami?
+## Questions that almost always come up
+- Tell us about yourself.
+- Why this program or company?
+- Describe a failure and what you learned from it.
+- Where do you see yourself in five years?
+- What questions do you have for us?
 
-## Metode STAR
-Jawab pertanyaan perilaku dengan **S**ituasi, **T**ugas, **A**ksi, **R**esult. Pastikan bagian Aksi menjelaskan apa yang *Anda* lakukan, bukan hanya tim.
+## The STAR method
+Answer behavioral questions with **S**ituation, **T**ask, **A**ction, **R**esult. Make sure the Action part explains what *you* did, not only what the team did.
 
-## Latihan
-1. Rekam diri menjawab 5 pertanyaan di atas, lalu tonton ulang.
-2. Latihan dengan teman selama 20 menit, minta umpan balik tentang kejelasan, bukan hanya isi.
-3. Siapkan 2–3 pertanyaan cerdas untuk pewawancara.
+## Practice
+1. Record yourself answering the five questions above, then watch it back.
+2. Practice with a friend for 20 minutes and ask for feedback on clarity, not only content.
+3. Prepare 2-3 thoughtful questions for the interviewers.
 
-Datang lebih awal, uji koneksi dan mikrofon jika daring, dan jujur: lebih baik mengakui belum tahu lalu menjelaskan cara Anda mencari tahu.`,
+Arrive early, test your connection and microphone if the interview is online, and be honest. It is better to admit you do not know and then explain how you would find out.`,
   },
   {
     slug: "mengelola-waktu-kuliah-riset-dan-organisasi",
-    title: "Mengelola Waktu: Kuliah, Riset, dan Organisasi Tanpa Kehabisan Tenaga",
-    excerpt: "Sistem sederhana berbasis prioritas mingguan agar tenggat tidak menumpuk.",
+    title: "Managing Time Across Classes, Research, and Organizations Without Burning Out",
+    excerpt: "A simple system built on weekly priorities so deadlines do not pile up.",
     tags: ["ResearchTips", "Productivity"],
-    content: `Masalahnya jarang kurang waktu; biasanya kurang **kejelasan prioritas**.
+    content: `The problem is rarely a lack of time. It is usually unclear priorities.
 
-## Tinjauan mingguan (30 menit, hari Minggu)
-1. Tulis semua tenggat dua minggu ke depan.
-2. Pilih **tiga hasil terpenting** minggu ini.
-3. Blok waktu kerja fokus di kalender untuk ketiganya sebelum menerima komitmen lain.
+## Weekly review (30 minutes, Sunday)
+1. Write down every deadline in the next two weeks.
+2. Pick the **three most important outcomes** for this week.
+3. Block focused work time in your calendar for those three before accepting other commitments.
 
-## Aturan praktis
-- **Kerjakan yang sulit dulu** saat energi terbaik Anda.
-- **Pecah tugas** menjadi langkah 30–90 menit.
-- **Batasi komitmen**: satu peran baru berarti satu peran lama dilepas.
-- **Jeda terjadwal**: tidur cukup lebih berpengaruh daripada tambahan satu jam begadang.
+## Practical rules
+- **Do the hard task first**, when your energy is best.
+- **Break tasks down** into steps of 30-90 minutes.
+- **Limit commitments:** taking on one new role means dropping one old role.
+- **Schedule breaks:** enough sleep does more for you than one extra late-night hour.
 
-## Alat
-Kalender (ekspor .ics dari halaman peluang GSIC), daftar tugas sederhana, dan pengelola referensi. Tiga alat cukup; lebih banyak biasanya menjadi pengalih perhatian.
+## Tools
+A calendar (export .ics files from GSIC opportunity pages), a simple task list, and a reference manager. Three tools are enough; more usually become a distraction.
 
-Evaluasi tiap bulan: apa yang bisa dihentikan, didelegasikan, atau dijadwalkan ulang?`,
+Review monthly: what can you stop, delegate, or reschedule?`,
   },
 ];

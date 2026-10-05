@@ -26,5 +26,5 @@ export function excerptOf(post: { excerpt?: string | null; content: string }, ma
 
 export function formatDateLong(d?: Date | string | null): string {
   if (!d) return "";
-  return new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Jakarta" });
+  return new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Jakarta" });
 }

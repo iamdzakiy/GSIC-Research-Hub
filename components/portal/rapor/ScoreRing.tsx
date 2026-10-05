@@ -9,7 +9,7 @@ export default function ScoreRing({ percent, label, tone = "brand", size = 104 }
   const p = percent === null ? 0 : Math.max(0, Math.min(100, percent));
   const stroke = tone === "mint" ? "#5CE3B6" : "#3352CD";
   return (
-    <figure className="flex flex-col items-center" aria-label={`${label}: ${percent === null ? "belum dikerjakan" : percent + " persen"}`}>
+    <figure className="flex flex-col items-center" aria-label={`${label}: ${percent === null ? "not taken" : percent + " percent"}`}>
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#E2E8F0" strokeWidth={8} />

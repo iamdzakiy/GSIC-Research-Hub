@@ -53,3 +53,6 @@ coverage/
 # Local development certificates
 *.pem
 *.key
+# local secrets
+*.local.txt
+*.local.json

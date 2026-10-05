@@ -21,5 +21,5 @@ export async function GET() {
   await probe("table_GalleryItem", () => prisma.galleryItem.count());
   await probe("auth_users_readable", () => prisma.$queryRaw`SELECT 1 FROM auth.users LIMIT 1`);
   const ok = checks.db_connect === true && Object.values(checks).every((v) => v === true);
-  return NextResponse.json({ ok, checks, env, hint: ok ? undefined : "Nilai bukan true = bermasalah. P2021/P2022 = jalankan `npx prisma db push`." }, { status: ok ? 200 : 503 });
+  return NextResponse.json({ ok, checks, env, hint: ok ? undefined : "Any value other than true is a problem. P2021 or P2022: run `npx prisma db push`." }, { status: ok ? 200 : 503 });
 }

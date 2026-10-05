@@ -69,18 +69,18 @@ export default function ListingCard({ item, compact = false }: { item: ListingIt
       <div className="flex flex-col gap-4 border-t border-slate-200 pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
         <StatusBadge status={item.status} className="hidden self-start md:inline-flex" />
         <div>
-          <div className="flex items-center gap-1.5 text-xs text-slate-500"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" /> Periode Pendaftaran</div>
+          <div className="flex items-center gap-1.5 text-xs text-slate-500"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" /> Application period</div>
           <div className="mt-1 text-sm font-semibold text-slate-900">{formatPeriod(item.openDate, item.deadline)}</div>
           {!closed && item.status !== "upcoming" && (
             <div className={cn("mt-0.5 text-xs", item.status === "closing" ? "font-medium text-rose-600" : "text-slate-500")}>
-              {remaining <= 0 ? "Berakhir hari ini" : `${remaining} hari lagi`}
+              {remaining <= 0 ? "Ends today" : `${remaining} ${remaining === 1 ? "day" : "days"} left`}
             </div>
           )}
         </div>
         {item.quota != null && (
           <div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-500"><Users className="h-3.5 w-3.5" aria-hidden="true" /> Kuota Diterima</div>
-            <div className="mt-1 text-sm font-semibold text-slate-900">{item.quota.toLocaleString("id-ID")} Orang</div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500"><Users className="h-3.5 w-3.5" aria-hidden="true" /> Places available</div>
+            <div className="mt-1 text-sm font-semibold text-slate-900">{item.quota.toLocaleString("en-GB")}</div>
           </div>
         )}
         <Link
@@ -91,7 +91,7 @@ export default function ListingCard({ item, compact = false }: { item: ListingIt
             closed ? "border border-slate-300 bg-white text-slate-600 hover:bg-slate-100" : "bg-brand-600 text-white hover:bg-brand-700"
           )}
         >
-          Lihat Detail
+          View details
         </Link>
       </div>
     </article>

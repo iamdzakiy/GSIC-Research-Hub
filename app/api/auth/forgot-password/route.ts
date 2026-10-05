@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   if (!g.ok) return g.res;
   try {
     await issueAndSendLink(req, { kind: "reset", email: g.data.email });
-    return NextResponse.json({ ok: true, message: "Jika email terdaftar, tautan atur ulang kata sandi telah dikirim." });
+    return NextResponse.json({ ok: true, message: "If this email is registered, a password reset link has been sent." });
   } catch (e) {
     return mapServerError(e);
   }

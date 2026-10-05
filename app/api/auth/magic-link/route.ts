@@ -10,7 +10,7 @@ export async function POST(req: Request) {
   if (!g.ok) return g.res;
   try {
     await issueAndSendLink(req, { kind: "magic", email: g.data.email });
-    return NextResponse.json({ ok: true, message: "Jika email terdaftar, tautan masuk telah dikirim. Periksa kotak masuk dan folder spam." });
+    return NextResponse.json({ ok: true, message: "If this email is registered, a sign-in link has been sent. Check your inbox and spam folder." });
   } catch (e) {
     return mapServerError(e);
   }

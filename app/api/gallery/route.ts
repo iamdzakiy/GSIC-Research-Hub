@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth-helper";
 import { withErrorHandler } from "@/lib/api-utils";
 
-const httpUrl = z.string().trim().url().max(2000).refine((u) => /^https?:\/\//i.test(u), "Harus http(s)");
+const httpUrl = z.string().trim().url().max(2000).refine((u) => /^https?:\/\//i.test(u), "Must be an http or https URL");
 const input = z.object({
   title: z.string().trim().min(2).max(120),
   caption: z.string().trim().max(400).nullish(),
@@ -25,7 +25,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 export const POST = withErrorHandler(async (request: Request) => {
   await requireAdmin(request);
   const p = input.safeParse(await request.json().catch(() => null));
-  if (!p.success) return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
+  if (!p.success) return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   const { takenAt, ...rest } = p.data;
   return NextResponse.json(await prisma.galleryItem.create({ data: { ...rest, takenAt: takenAt ? new Date(takenAt) : null } }), { status: 201 });
 });
@@ -35,7 +35,7 @@ export const PUT = withErrorHandler(async (request: Request) => {
   const { id, ...rest } = await request.json();
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
   const p = input.partial().safeParse(rest);
-  if (!p.success) return NextResponse.json({ error: "Data tidak valid" }, { status: 400 });
+  if (!p.success) return NextResponse.json({ error: "Invalid data" }, { status: 400 });
   const { takenAt, ...d } = p.data;
   return NextResponse.json(await prisma.galleryItem.update({ where: { id }, data: { ...d, ...(takenAt !== undefined ? { takenAt: takenAt ? new Date(takenAt) : null } : {}) } }));
 });

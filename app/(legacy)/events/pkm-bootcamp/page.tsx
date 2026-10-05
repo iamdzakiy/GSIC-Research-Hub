@@ -38,8 +38,8 @@ import { GSICEvent, Test, TestResult, Registration } from "@/lib/types";
 // ============================================================
 export default function PkmBootcampPage() {
   const { user, userProfile, loading, isAdmin } = useAuth();
-  // Muat dari database; nilai awal = fallback agar render pertama tidak crash,
-  // langsung ditimpa data DB di loadData().
+  // Load from the database; the initial value is a fallback so the first render does not crash,
+  // and it is overwritten with DB data in loadData().
   const [event, setEvent] = useState<GSICEvent>(PKM_BOOTCAMP);
   const [tests, setTests] = useState<Test[]>(SEED_TESTS);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
@@ -67,7 +67,7 @@ const loadData = async () => {
       getRegistrations(),
       getTestResults(),
     ]);
-    // Halaman ini = event bootcamp; cocokkan by type agar ikut update dari admin.
+    // This page is the bootcamp event; match by type so it follows admin updates.
     const bootcamp = (evts as GSICEvent[]).find((e) => (e.type as string) === "bootcamp") ?? (evts as GSICEvent[])[0] ?? null;
     if (bootcamp) setEvent(bootcamp as unknown as GSICEvent);
     setRegistrations(regs);
@@ -132,7 +132,7 @@ const loadData = async () => {
   try {
     await createRegistration(newReg as any);
     setRegistrations([...registrations, newReg]);
-    showToast(`🎉 Registered for ${event.title}!`);
+    showToast(`Registered for ${event.title}.`);
   } catch (e) {
     console.error(e);
     showToast("Failed to register.", "error");
@@ -217,7 +217,7 @@ const loadData = async () => {
 
     setTestResult({ score: saved.score, maxScore: saved.maxScore });
     setActiveTest(null);
-    showToast(`✅ Test submitted! Score: ${saved.score}/${saved.maxScore}`);
+    showToast(`Test submitted. Score: ${saved.score}/${saved.maxScore}`);
   } catch (e) {
     console.error(e);
     showToast("Failed to submit test.", "error");
@@ -398,7 +398,7 @@ const loadData = async () => {
                       </div>
                       <p className="text-xs text-white/70 font-body leading-relaxed">
                         This event does not include pre-test or post-test assessments.
-                        Just bring your curiosity and creativity!
+                        Just bring your curiosity and creativity.
                       </p>
                     </div>
                   </div>
@@ -431,14 +431,14 @@ const loadData = async () => {
                 <div className="bg-white/5 rounded-xl p-4">
                   <div className="text-xs text-white/40 mb-1">Status</div>
                   <div className="font-medium text-[#5CE3B6]">
-                    {userRegistration?.status === "confirmed" ? "✅ Confirmed" : userRegistration?.status}
+                    {userRegistration?.status === "confirmed" ? "Confirmed" : userRegistration?.status}
                   </div>
                 </div>
                 <div className="bg-white/5 rounded-xl p-4">
                   <div className="text-xs text-white/40 mb-1">Pre-Test</div>
                   <div className="font-medium flex items-center gap-2">
                     {userRegistration?.preTestCompleted ? (
-                      <span className="text-[#5CE3B6]">✅ Completed</span>
+                      <span className="text-[#5CE3B6]">Completed</span>
                     ) : (
                       <span className="text-white/40">Not yet taken</span>
                     )}
@@ -448,7 +448,7 @@ const loadData = async () => {
                   <div className="text-xs text-white/40 mb-1">Post-Test</div>
                   <div className="font-medium flex items-center gap-2">
                     {userRegistration?.postTestCompleted ? (
-                      <span className="text-[#5CE3B6]">✅ Completed</span>
+                      <span className="text-[#5CE3B6]">Completed</span>
                     ) : (
                       <span className="text-white/40">Not yet available</span>
                     )}
@@ -516,7 +516,7 @@ const loadData = async () => {
                   </h4>
                   {hasCompletedTest("pre") && (
                     <div className="text-xs text-[#5CE3B6]">
-                      ✅ Completed
+                      Completed
                     </div>
                   )}
                 </div>
@@ -612,7 +612,7 @@ const loadData = async () => {
                   </h4>
                   {hasCompletedTest("post") && (
                     <div className="text-xs text-[#5CE3B6]">
-                      ✅ Completed
+                      Completed
                     </div>
                   )}
                 </div>
@@ -738,9 +738,9 @@ const loadData = async () => {
                       {mod.description}
                     </p>
                     <div className="flex justify-between text-xs text-white/40">
-                      <span>⏱️ {mod.durationHours}h</span>
+                      <span>{mod.durationHours}h</span>
                       <span>
-                        🏷️ {mod.cluster.charAt(0).toUpperCase() + mod.cluster.slice(1)}
+                        {mod.cluster.charAt(0).toUpperCase() + mod.cluster.slice(1)}
                       </span>
                     </div>
                   </div>
@@ -800,7 +800,7 @@ const loadData = async () => {
                   <span className="text-sm">Pre-Test</span>
                   {hasCompletedTest("pre") ? (
                     <span className="text-[#5CE3B6] text-sm">
-                      ✅ {getUserTestResult("pre")?.score}/{getUserTestResult("pre")?.maxScore} points
+                      {getUserTestResult("pre")?.score}/{getUserTestResult("pre")?.maxScore} points
                     </span>
                   ) : (
                     <span className="text-white/40 text-sm">Not taken</span>
@@ -812,7 +812,7 @@ const loadData = async () => {
                   <span className="text-sm">Post-Test</span>
                   {hasCompletedTest("post") ? (
                     <span className="text-[#5CE3B6] text-sm">
-                      ✅ {getUserTestResult("post")?.score}/{getUserTestResult("post")?.maxScore} points
+                      {getUserTestResult("post")?.score}/{getUserTestResult("post")?.maxScore} points
                     </span>
                   ) : (
                     <span className="text-white/40 text-sm">Not taken</span>
@@ -831,7 +831,7 @@ const loadData = async () => {
             toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"
           } text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}
         >
-          <span>{toast.type === "success" ? "✅" : "❌"}</span>
+          <span>{toast.type === "success" ? "" : ""}</span>
           {toast.msg}
         </div>
       )}

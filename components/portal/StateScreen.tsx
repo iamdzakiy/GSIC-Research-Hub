@@ -14,7 +14,7 @@ export default function StateScreen({ code, title, message, children, tone = "br
       <p className="mt-2 text-sm leading-6 text-slate-600">{message}</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         {children}
-        <Link href="/" className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">Ke beranda</Link>
+        <Link href="/" className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">Back to home</Link>
       </div>
     </section>
   );

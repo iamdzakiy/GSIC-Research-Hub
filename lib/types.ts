@@ -131,6 +131,10 @@ export interface UserProfile {
   avatarUrl: string | null;
   classcardTheme: Theme;
   skills: string[];
+  softSkills?: string[];
+  interests?: string[];
+  archetype?: string | null;
+  bccRole?: string | null;
   bio: string;
   isVerified: boolean;
   role: UserRole;

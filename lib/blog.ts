@@ -20,13 +20,12 @@ export interface TagCount { tag: string; count: number }
 
 /** Canonical tag list with counts (case/hash-insensitive merge), most used first. */
 export async function getTagCounts(): Promise<{ tags: TagCount[]; variants: Map<string, string[]> }> {
-  try {
   const rows = await prisma.blogPost.findMany({ where: { status: "published" }, select: { tags: true } });
   const counts = new Map<string, { label: string; count: number }>();
   const variants = new Map<string, Set<string>>();
   for (const r of rows) {
     const seen = new Set<string>();
-    for (const raw of r.tags ?? []) {
+    for (const raw of r.tags) {
       const key = tagKey(raw);
       if (!key) continue;
       (variants.get(key) ?? variants.set(key, new Set()).get(key)!).add(raw);
@@ -40,14 +39,9 @@ export async function getTagCounts(): Promise<{ tags: TagCount[]; variants: Map<
     .map((v) => ({ tag: v.label, count: v.count }))
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
   return { tags, variants: new Map([...variants].map(([k, v]) => [k, [...v]])) };
-  } catch (e) {
-    console.error("[getTagCounts] DB unavailable:", e);
-    return { tags: [], variants: new Map() };
-  }
 }
 
 export async function listPosts(opts: { q?: string; tag?: string; page?: number; variants: Map<string, string[]> }) {
-  try {
   const tagVariants = opts.tag ? opts.variants.get(tagKey(opts.tag)) ?? [] : [];
   const where: Prisma.BlogPostWhereInput = {
     status: "published",
@@ -74,19 +68,10 @@ export async function listPosts(opts: { q?: string; tag?: string; page?: number;
     include: { author: AUTHOR },
   });
   return { posts, total, page, pageCount };
-  } catch (e) {
-    console.error("[listPosts] DB unavailable:", e);
-    return { posts: [] as BlogListItem[], total: 0, page: 1, pageCount: 1 };
-  }
 }
 
 export async function getPostBySlug(slug: string) {
-  try {
-    return await prisma.blogPost.findFirst({ where: { slug, status: "published" }, include: { author: AUTHOR } });
-  } catch (e) {
-    console.error("[getPostBySlug] DB unavailable:", e);
-    return null;
-  }
+  return prisma.blogPost.findFirst({ where: { slug, status: "published" }, include: { author: AUTHOR } });
 }
 
 /**
@@ -94,8 +79,7 @@ export async function getPostBySlug(slug: string) {
  * with the latest posts so the section is never empty on a sparse blog.
  */
 export async function getRelatedPosts(post: { id: string; tags: string[] }, limit = 3): Promise<BlogListItem[]> {
-  try {
-  const keys = new Set((post.tags ?? []).map(tagKey).filter(Boolean));
+  const keys = new Set(post.tags.map(tagKey).filter(Boolean));
   const candidates = await prisma.blogPost.findMany({
     where: { status: "published", id: { not: post.id } },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
@@ -103,13 +87,9 @@ export async function getRelatedPosts(post: { id: string; tags: string[] }, limi
     include: { author: AUTHOR },
   });
   const scored = candidates
-    .map((c, i) => ({ c, i, score: (c.tags ?? []).reduce((n, t) => n + (keys.has(tagKey(t)) ? 1 : 0), 0) }))
+    .map((c, i) => ({ c, i, score: c.tags.reduce((n, t) => n + (keys.has(tagKey(t)) ? 1 : 0), 0) }))
     .sort((a, b) => b.score - a.score || a.i - b.i);
   const shared = scored.filter((s) => s.score > 0).map((s) => s.c);
   const rest = scored.filter((s) => s.score === 0).map((s) => s.c);
   return [...shared, ...rest].slice(0, limit);
-  } catch (e) {
-    console.error("[getRelatedPosts] DB unavailable:", e);
-    return [];
-  }
 }

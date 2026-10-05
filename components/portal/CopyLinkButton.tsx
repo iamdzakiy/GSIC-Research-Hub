@@ -8,8 +8,8 @@ export default function CopyLinkButton({ url, label }: { url: string; label: str
   return (
     <button
       type="button"
-      aria-label={`Salin tautan ${label}`}
-      title="Salin tautan"
+      aria-label={`Copy link to ${label}`}
+      title="Copy link"
       onClick={async () => { try { await navigator.clipboard.writeText(url); setOk(true); setTimeout(() => setOk(false), 1800); } catch { /* blocked */ } }}
       className="relative z-10 inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
     >

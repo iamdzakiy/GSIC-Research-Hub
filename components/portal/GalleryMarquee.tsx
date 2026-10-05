@@ -44,7 +44,7 @@ export default function GalleryMarquee({ items }: { items: GalleryEntry[] }) {
             <img src={open.imageUrl} alt={open.title} className="max-h-[75vh] rounded-xl object-contain" />
             <figcaption className="mt-3 text-center text-white"><p className="font-semibold">{open.title}</p>{open.caption && <p className="mt-1 text-sm text-slate-300">{open.caption}</p>}</figcaption>
           </figure>
-          <button type="button" aria-label="Tutup" onClick={() => setOpen(null)} className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><X className="h-5 w-5" /></button>
+          <button type="button" aria-label="Close" onClick={() => setOpen(null)} className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><X className="h-5 w-5" /></button>
         </div>
       )}
     </>

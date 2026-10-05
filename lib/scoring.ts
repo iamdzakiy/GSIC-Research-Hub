@@ -1,4 +1,4 @@
-// Pure scoring + report-card (rapor) logic. No I/O, so it is unit-testable and shared
+// Pure scoring + report-card logic. No I/O, so it is unit-testable and shared
 // by the API (authoritative scoring) and the UI.
 
 export interface Question { id: string; text: string; type: "multiple_choice" | "essay"; options?: string[]; correctAnswer?: string; points: number }
@@ -35,7 +35,7 @@ export function missingAnswers(questions: Question[], answers: AnswerIn[]): numb
   return questions.filter((q) => !have.has(q.id)).length;
 }
 
-// ---------------- Rapor ----------------
+// ---------------- Report card ----------------
 export interface RaporAttempt { testId: string; title: string; score: number; maxScore: number; percent: number; passingScore: number; passed: boolean; completedAt: string; detail?: QuestionResult[] }
 export interface RaporEvent {
   eventId: string; title: string; type: string; startDate: string; location: string;
@@ -108,7 +108,7 @@ export function buildRapor(regs: RegIn[], events: EvIn[], tests: TestIn[], resul
 
 export const raporToCsv = (events: RaporEvent[]): string => {
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
-  const rows = [["Kegiatan", "Tanggal", "Pre-test (%)", "Post-test (%)", "Selisih", "Status"]];
+  const rows = [["Event", "Date", "Pre-test (%)", "Post-test (%)", "Gain", "Stage"]];
   for (const e of events) rows.push([e.title, e.startDate.slice(0, 10), e.pre?.percent ?? "", e.post?.percent ?? "", e.gain ?? "", e.stage] as never);
   return rows.map((r) => r.map(esc).join(",")).join("\r\n");
 };
