@@ -52,7 +52,12 @@ export default function ProfileEditModal({ open, onClose }: ProfileEditModalProp
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    // When faculty/school changes, reset major so the major pop-out always depends on faculty.
+    if (name === "faculty") {
+      setFormData((prev) => ({ ...prev, faculty: value, major: "" }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSkillToggle = (skill: string) => {
@@ -191,7 +196,7 @@ export default function ProfileEditModal({ open, onClose }: ProfileEditModalProp
                 >
                   <option value="">Select</option>
                   {availableMajors.map((m) => (
-                    <option key={m.code} value={`${m.code} - ${m.name}`}>{m.code} - {m.name}</option>
+                    <option key={m.code} value={m.name}>{m.code} - {m.name}</option>
                   ))}
                 </select>
               </div>

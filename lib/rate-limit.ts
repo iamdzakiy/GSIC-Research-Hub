@@ -9,7 +9,7 @@ const buckets = new Map<string, Bucket>();
 export interface RateResult { ok: boolean; remaining: number; retryAfterSec: number }
 
 export function rateLimit(key: string, limit: number, windowMs: number, now = Date.now()): RateResult {
-  if (buckets.size > 5_000) for (const [k, b] of buckets) if (b.resetAt <= now) buckets.delete(k);
+  if (buckets.size > 5_000) buckets.forEach((b, k) => { if (b.resetAt <= now) buckets.delete(k); });
   const b = buckets.get(key);
   if (!b || b.resetAt <= now) {
     buckets.set(key, { count: 1, resetAt: now + windowMs });

@@ -866,13 +866,13 @@ export default function AdminDashboard() {
               </h3>
 
               <div className="flex flex-wrap gap-2 mb-4">
-                <select value={userFilter.faculty} onChange={(e) => setUserFilter({ ...userFilter, faculty: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
+                <select value={userFilter.faculty} onChange={(e) => setUserFilter({ ...userFilter, faculty: e.target.value, majorCode: "" })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
                   <option value="">All Faculties</option>
                   {Object.keys(FACULTY_MAJOR_MAP).map((f) => <option key={f} value={f}>{f}</option>)}
                 </select>
                 <select value={userFilter.majorCode} onChange={(e) => setUserFilter({ ...userFilter, majorCode: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
-                  <option value="">All Majors</option>
-                  {Object.values(FACULTY_MAJOR_MAP).flat().map((m) => <option key={m.code} value={m.code}>{m.code} - {m.name}</option>)}
+                  <option value="">{userFilter.faculty ? `Majors in ${userFilter.faculty}` : "All Majors"}</option>
+                  {(userFilter.faculty ? (FACULTY_MAJOR_MAP[userFilter.faculty] ?? []) : Object.values(FACULTY_MAJOR_MAP).flat()).map((m) => <option key={m.code} value={m.code}>{m.code} - {m.name}</option>)}
                 </select>
                 <select value={userFilter.verified} onChange={(e) => setUserFilter({ ...userFilter, verified: e.target.value })} className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none">
                   <option value="">All Status</option>

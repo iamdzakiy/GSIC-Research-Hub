@@ -48,7 +48,7 @@ async function main() {
       { type: "career" as const, slug: "sample-career", title: "[SAMPLE] Data Analyst Internship", organizer: "Sample Company Ltd.", deadline: d(-3), scope: "external", levels: ["S1"], benefits: ["Stipend"], fundingType: "paid", attendanceMode: "onsite", city: "Bandung", country: "Indonesia", summary: "Sample data with a past deadline, shown as \"Closed\" at the bottom of the list.", description: "**Sample** data.", eligibilityCriteria: [{ text: "Proficient in SQL", required: true }], applySteps: [{ title: "Submit your CV", description: "" }] },
     ];
     for (const s of samples) {
-      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: { ...base, ...(s as never) } });
+      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: ({ ...base, ...s } as unknown as Parameters<typeof prisma.opportunity.upsert>[0]["create"]) });
     }
     console.log("sample opportunities ensured (labelled [SAMPLE])");
   }

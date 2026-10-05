@@ -34,18 +34,24 @@ function profileFromMeta(meta: Record<string, unknown> | undefined) {
 }
 
 function createDefaultProfile(uid: string, email: string, name: string, meta?: Record<string, unknown>): UserProfile {
+  const m = profileFromMeta(meta);
   return {
     uid,
     htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
     email,
     name,
-    faculty: "",
-    major: "",
-    year: new Date().getFullYear(),
-    whatsapp: "",
+    faculty: m.faculty,
+    major: m.major,
+    majorCode: m.majorCode,
+    year: m.year,
+    whatsapp: m.whatsapp,
     avatarUrl: null,
     classcardTheme: "blue",
-    skills: [],
+    skills: m.skills,
+    softSkills: m.softSkills,
+    interests: m.interests,
+    archetype: m.archetype,
+    bccRole: m.bccRole,
     bio: "",
     isVerified: false,
     role: "user",
@@ -53,7 +59,6 @@ function createDefaultProfile(uid: string, email: string, name: string, meta?: R
     provider: "email",
     lastSignInAt: new Date().toISOString(),
     createdAt: new Date().toISOString(),
-    ...profileFromMeta(meta),
   };
 }
 

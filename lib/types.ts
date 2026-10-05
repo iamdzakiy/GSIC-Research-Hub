@@ -63,7 +63,7 @@ export const FACULTY_MAJOR_MAP: Record<string, MajorInfo[]> = {
     { code: "158", name: "Water Resources Engineering and Management" },
   ],
   "FSRD": [
-    { code: "170", name: "Fine Arts" },
+    { code: "170", name: "Visual Art" },
     { code: "171", name: "Craft (Cirebon Campus)" },
     { code: "172", name: "Craft" },
     { code: "173", name: "Interior Design" },
@@ -80,10 +80,10 @@ export const FACULTY_MAJOR_MAP: Record<string, MajorInfo[]> = {
   ],
   "STEI": [
     { code: "132", name: "Electrical Engineering" },
-    { code: "135", name: "Informatics (Computer Science)" },
-    { code: "180", name: "Power Engineering" },
+    { code: "135", name: "Informatics/Computer Science" },
+    { code: "180", name: "Electrical Power Engineering" },
     { code: "181", name: "Telecommunication Engineering" },
-    { code: "182", name: "Information Systems and Technology" },
+    { code: "182", name: "Information System and Technology" },
     { code: "183", name: "Biomedical Engineering" },
   ],
   "SF": [

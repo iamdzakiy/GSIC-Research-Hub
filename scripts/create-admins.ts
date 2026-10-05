@@ -75,7 +75,7 @@ async function main() {
     await prisma.user.upsert({
       where: { email },
       update: { role: "admin", isVerified: true, emailConfirmed: true },
-      create: { id, email, name, role: "admin", isVerified: true, emailConfirmed: true },
+      create: { id, email, name, role: "admin", isVerified: true, emailConfirmed: true, skills: [], },
     });
     lines.push(pw ? `${email}\t${pw}` : `${email}\t(existing account, password unchanged; use --reset to issue a new one)`);
     console.log(`${pw ? "created/reset" : "promoted "}  ${email}`);
