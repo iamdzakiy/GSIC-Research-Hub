@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "./legacy-bridge.css";
 import { AuthProvider } from "@/components/AuthContext";
 
-// NOTE: `next/font/google` requires network access to fonts.googleapis.com at
-// build time. The build environment is offline (ENOTFOUND), so we use
-// system font stacks instead. CSS variables below keep
-// `var(--font-inter)` / `var(--font-jakarta)` working with Tailwind.
-// To restore Google Fonts when online, re-add:
-//   import { Inter, Plus_Jakarta_Sans } from "next/font/google";
-//   const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-//   const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
-// and set <html className={`${inter.variable} ${jakarta.variable}`}>
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
@@ -36,7 +30,7 @@ export const metadata: Metadata = {
 //   (legacy) -> existing dark pages (home, events, dashboard, admin, documents)
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" className={`${inter.variable} ${jakarta.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

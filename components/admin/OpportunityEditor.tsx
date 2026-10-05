@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { apiFetch } from "@/lib/apiFetch";
 import { BENEFIT_CATEGORIES, LEVELS } from "@/lib/opportunity-status";
 import { FUNDING_LABEL, MODE_LABEL, OPP_TYPE_ORDER, TYPE_CONFIG, type OppType } from "@/lib/opportunity-config";
-import type { Opportunity, Status } from "@/lib/types";
+import type { Opportunity } from "@/lib/types";
 
 /* ----------------------------------------------------------------- helpers */
 type Row = Record<string, string | boolean>;
@@ -164,7 +164,7 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
               <Field label="Kategori"><select className={input} value={f.scope} onChange={(e) => set("scope", e.target.value)}><option value="external">Eksternal</option><option value="internal">Internal (ITB)</option></select></Field>
               <Field label="Judul *" className="md:col-span-2"><input className={input} value={f.title} onChange={(e) => set("title", e.target.value)} placeholder="mis. Beasiswa XYZ Batch 2 Tahun 2026" /></Field>
               <Field label="Penyelenggara *"><input className={input} value={f.organizer} onChange={(e) => set("organizer", e.target.value)} /></Field>
-              <Field label="Status"><select className={input} value={f.status} onChange={(e) => set("status", e.target.value as Status)}><option value="active">Aktif</option><option value="upcoming">Akan datang</option><option value="archived">Diarsipkan (paksa tutup)</option></select></Field>
+              <Field label="Status"><select className={input} value={f.status} onChange={(e) => set("status", e.target.value as Form["status"])}><option value="active">Aktif</option><option value="upcoming">Akan datang</option><option value="archived">Diarsipkan (paksa tutup)</option></select></Field>
               <Field label="Pendaftaran dibuka"><input type="datetime-local" className={input} value={f.openDate} onChange={(e) => set("openDate", e.target.value)} /></Field>
               <Field label="Batas pendaftaran *" hint="Setelah lewat, status otomatis “Ditutup”." error={fe.deadline}><input type="datetime-local" className={input} value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></Field>
               <Field label="Ringkasan singkat (tampil di kartu)" className="md:col-span-2" hint="1–2 kalimat." ><textarea rows={2} className={area} value={f.summary} onChange={(e) => set("summary", e.target.value)} /></Field>

@@ -45,6 +45,15 @@ export function mapServerError(e: unknown): NextResponse {
     console.error("[auth] SMTP not configured:", (e as Error).message);
     return fail(503, "Layanan email belum dikonfigurasi. Hubungi admin GSIC.");
   }
+  const msg = (e as Error)?.message ?? "";
+  if (/SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_SUPABASE_URL/.test(msg)) {
+    console.error("[auth] Supabase env missing:", msg);
+    return fail(503, "Konfigurasi autentikasi server belum lengkap (SUPABASE_SERVICE_ROLE_KEY). Hubungi admin GSIC.");
+  }
+  if ((e as { code?: string })?.code === "P2010" || /auth\.users/.test(msg)) {
+    console.error("[auth] cannot read auth.users:", msg);
+    return fail(503, "Layanan autentikasi belum siap (akses database). Hubungi admin GSIC.");
+  }
   console.error("[auth] failure:", e);
   return fail(502, "Gagal mengirim email. Coba lagi sebentar lagi.");
 }
