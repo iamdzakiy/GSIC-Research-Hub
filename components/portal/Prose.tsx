@@ -1,5 +1,5 @@
 import { cn } from "@/lib/cn";
-import { renderContentToHtml } from "@/lib/content";
+import { renderContentToHtml } from "@/lib/render-content";
 
 /** Light-theme typography for sanitised article / rich-text content. */
 export default function Prose({ content, className }: { content: string; className?: string }) {

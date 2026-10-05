@@ -48,8 +48,7 @@ async function main() {
       { type: "career" as const, slug: "contoh-karier", title: "[CONTOH] Magang Data Analyst", organizer: "PT Contoh", deadline: d(-3), scope: "external", levels: ["S1"], benefits: ["Uang saku"], fundingType: "paid", attendanceMode: "onsite", city: "Bandung", country: "Indonesia", summary: "Data contoh — sudah lewat tenggat, tampil sebagai 'Ditutup' di bagian bawah.", description: "Data **contoh**.", eligibilityCriteria: [{ text: "Menguasai SQL", required: true }], applySteps: [{ title: "Kirim CV", description: "" }] },
     ];
     for (const s of samples) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: { ...base, ...s } as any });
+      await prisma.opportunity.upsert({ where: { slug: s.slug }, update: {}, create: { ...base, ...(s as never) } });
     }
     console.log("sample opportunities ensured (labelled [CONTOH])");
   }

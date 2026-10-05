@@ -1,24 +1,12 @@
 // ============================================================
 // Content helpers shared by blog + opportunity detail pages.
-// Content may be TipTap HTML (admin editor) or Markdown (seeded / imported);
-// both are normalised to sanitised HTML.
+// Pure text helpers: reading time, excerpt, date formatting.
 // ============================================================
 import { marked } from "marked";
-import DOMPurify from "isomorphic-dompurify";
 
+// NOTE: HTML sanitising lives in lib/render-content.ts (sanitize-html, no jsdom). Keep THIS module free of
+// heavy/DOM dependencies: it is imported by the home page and every card, and a module-load crash here is a site-wide 500.
 const looksLikeHtml = (s: string) => /^\s*<[a-z!]/i.test(s);
-
-export function renderContentToHtml(content: string): string {
-  const raw = looksLikeHtml(content || "") ? content : (marked.parse(content || "", { async: false, gfm: true }) as string);
-  const clean = DOMPurify.sanitize(raw, {
-    ADD_ATTR: ["target", "rel"],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|data:image\/(?:png|jpe?g|gif|webp);base64,|[/#])/i,
-  });
-  // Force external links to be safe.
-  return clean.replace(/<a\s+([^>]*href="https?:[^"]*"[^>]*)>/gi, (m, attrs: string) =>
-    /rel=/.test(attrs) ? m : `<a ${attrs} target="_blank" rel="noopener noreferrer">`
-  );
-}
 
 export function stripToText(content: string): string {
   const html = looksLikeHtml(content || "") ? content : (marked.parse(content || "", { async: false }) as string);

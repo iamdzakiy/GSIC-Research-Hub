@@ -45,6 +45,13 @@ Lalu buka Pull Request `feat/portal-v2 -> main` di GitHub. Jika memakai Vercel, 
 * Respons `GET /api/tests` masih memuat `correctAnswer` ke browser. Pemisahan kunci jawaban dari soal untuk peserta adalah langkah lanjutan yang disarankan.
 
 ## Jika muncul 500
+Uji berurutan untuk mengetahui lapisan mana yang mati:
+1. `/api/ping` -> 200? Runtime Next hidup. Jika ini pun 500, build/deploy-nya rusak (lihat Vercel > Deployments > Build Logs).
+2. `/auth` -> halaman tanpa database. 500 di sini = masalah layout/env/font.
+3. `/api/health` -> semua `true`? Jika tidak, ikuti petunjuk di bawah.
+4. `/` dan `/blog` -> halaman dengan database.
+Kirimkan hasilnya (angka status tiap URL) dan baris `[API xxxxxx]` / error dari Vercel > Logs.
+
 1. Buka `https://<domain>/api/health`: semua nilai harus `true`. `P2021/P2022` = skema DB belum diperbarui -> `npx prisma db push`.
 2. Jalankan `npm run doctor` secara lokal: mengecek env, kolom/tabel yang hilang, service-role key, dan login SMTP.
 3. Lihat Vercel > Logs: setiap 500 mencetak `[API <ref>]` yang sama dengan `ref` pada respons JSON.
