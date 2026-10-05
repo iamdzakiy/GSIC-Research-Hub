@@ -182,6 +182,36 @@ export interface Opportunity {
   eligibility?: string;
   howToApply?: string;
   timeline?: OpportunityTimeline[];
+  scope?: string;
+  levels?: string[];
+  benefitCategories?: string[];
+  openDate?: string | null;
+  quota?: number | null;
+  summary?: string | null;
+  fundingType?: string | null;
+  fundingAmount?: string | null;
+  attendanceMode?: string | null;
+  city?: string | null;
+  country?: string | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
+  nationality?: string | null;
+  minGpa?: number | null;
+  duration?: string | null;
+  programStart?: string | null;
+  programEnd?: string | null;
+  language?: string | null;
+  fieldsOfStudy?: string[];
+  tags?: string[];
+  requiredDocuments?: string[];
+  eligibilityCriteria?: unknown;
+  applySteps?: unknown;
+  selectionStages?: unknown;
+  faqs?: unknown;
+  quickFacts?: unknown;
+  socialLinks?: unknown;
+  tips?: string | null;
+  contactEmail?: string | null;
   createdAt?: string;
 }
 

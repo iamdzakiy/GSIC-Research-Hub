@@ -19,6 +19,33 @@ enum OpportunityType {
   competition
 }
 
+enum OpportunityScope {
+  internal
+  external
+}
+
+enum FundingType {
+  fully_funded
+  partially_funded
+  tuition_only
+  stipend
+  prize_money
+  paid
+  unpaid
+  self_funded
+}
+
+enum AttendanceMode {
+  onsite
+  online
+  hybrid
+}
+
+enum LinkStatus {
+  published
+  hidden
+}
+
 enum Status {
   active
   archived
@@ -129,10 +156,43 @@ model Opportunity {
   eligibility    String?         @db.Text
   howToApply     String?         @db.Text
   timeline       Json?
+  scope             OpportunityScope @default(external)
+  levels            String[]
+  benefitCategories String[]
+  openDate          DateTime?
+  quota             Int?
+  // --- rich detail (all optional) ---
+  summary             String?          @db.Text
+  fundingType         FundingType?
+  fundingAmount       String?
+  attendanceMode      AttendanceMode?
+  city                String?
+  country             String?
+  ageMin              Int?
+  ageMax              Int?
+  nationality         String?
+  minGpa              Float?
+  duration            String?
+  programStart        DateTime?
+  programEnd          DateTime?
+  language            String?
+  fieldsOfStudy       String[]
+  tags                String[]
+  requiredDocuments   String[]
+  eligibilityCriteria Json?            // [{ text, required }]
+  applySteps          Json?            // [{ title, description }]
+  selectionStages     Json?            // [{ stage, description, date? }]
+  faqs                Json?            // [{ q, a }]
+  quickFacts          Json?            // [{ label, value }] type-specific extras
+  socialLinks         Json?            // [{ label, url }]
+  tips                String?          @db.Text
+  contactEmail        String?
   createdAt      DateTime        @default(now())
   documents      Document[]
 
   @@index([status])
+  @@index([deadline])
+  @@index([type])
 }
 
 model CuratedOpportunity {
@@ -190,6 +250,7 @@ model BlogPost {
 
   @@index([slug])
   @@index([status])
+  @@index([publishedAt])
 }
 
 model Test {
@@ -250,4 +311,36 @@ model Document {
   @@index([type])
   @@index([opportunityId])
   @@index([eventId])
+}
+
+model ResourceLink {
+  id          String     @id @default(cuid())
+  title       String
+  url         String     @unique
+  description String?    @db.Text
+  category    String
+  tags        String[]
+  isFeatured  Boolean    @default(false)
+  order       Int        @default(0)
+  status      LinkStatus @default(published)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([category])
+  @@index([status])
+}
+
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  caption     String?
+  imageUrl    String
+  eventLabel  String?
+  takenAt     DateTime?
+  order       Int      @default(0)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([isPublished, order])
 }

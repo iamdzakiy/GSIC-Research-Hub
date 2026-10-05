@@ -1,56 +1,21 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helper";
 import { withErrorHandler } from "@/lib/api-utils";
-import { computeScore } from "@/services/tests";
-import { TestQuestion, TestAnswer } from "@/lib/types";
+import { submitTestForUser, SubmitError } from "@/lib/test-submit";
 
 type Ctx = { params: { id: string } };
 
+/** Used by services/tests.ts#submitTest. Same guarded path as POST /api/test-results. */
 export const POST = withErrorHandler(async (request: Request, ctx: Ctx) => {
   const user = await requireUser(request);
-  const { id } = ctx.params;
-
-  const test = await prisma.test.findUnique({ where: { id } });
-  if (!test) {
-    return NextResponse.json({ error: "Test not found" }, { status: 404 });
+  const body = await request.json().catch(() => null);
+  const answers = Array.isArray(body?.answers)
+    ? body.answers.filter((a: unknown) => a && typeof (a as { questionId?: unknown }).questionId === "string").map((a: { questionId: string; answer?: unknown }) => ({ questionId: a.questionId, answer: String(a.answer ?? "") }))
+    : [];
+  try {
+    return NextResponse.json(await submitTestForUser(user.id, ctx.params.id, answers));
+  } catch (e) {
+    if (e instanceof SubmitError) return NextResponse.json({ error: e.message }, { status: e.status });
+    throw e;
   }
-
-  const body = await request.json();
-  const answers: TestAnswer[] = Array.isArray(body?.answers) ? body.answers : [];
-
-  // Parse and validate the stored question set (never trust client state).
-  const questions = parseQuestions(test.questions);
-  const { score, maxScore } = computeScore(questions, answers);
-
-  const result = await prisma.testResult.create({
-    data: {
-      testId: test.id,
-      userId: user.id,
-      answers: answers as unknown as Prisma.InputJsonValue,
-      score,
-      maxScore,
-      completedAt: new Date(),
-    },
-  });
-
-  return NextResponse.json({ ...result, passingScore: test.passingScore });
 });
-
-/** Safely coerces the JSON questions column into a typed array. */
-function parseQuestions(value: unknown): TestQuestion[] {
-  if (!Array.isArray(value)) return [];
-  return value
-    .filter((q): q is Record<string, unknown> => !!q && typeof q === "object")
-    .map((q) => ({
-      id: String(q.id ?? ""),
-      text: String(q.text ?? ""),
-      type: q.type === "essay" ? ("essay" as const) : ("multiple_choice" as const),
-      options: Array.isArray(q.options)
-        ? (q.options as unknown[]).map((o) => String(o))
-        : undefined,
-      correctAnswer: q.correctAnswer !== undefined ? String(q.correctAnswer) : undefined,
-      points: Number(q.points) || 0,
-    }));
-}

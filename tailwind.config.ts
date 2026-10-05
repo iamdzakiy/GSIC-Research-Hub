@@ -10,10 +10,28 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
-        body: ["Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        heading: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        body: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       colors: {
+        // Portal brand scale, anchored on the existing GSIC blue (#3352CD = 600).
+        // Palette-aligned accents (same hues as gsic.mint #5CE3B6 / gsic.cream #F2F8C9 / gsic.navy #0B1120)
+        mint: { DEFAULT: "#5CE3B6", 50: "#EEFBF6", 100: "#D5F6EA", 200: "#ADEFD5", 300: "#85E9C3", 400: "#5CE3B6", 600: "#1FA77F", 700: "#0F7E5E", 800: "#0B6049", 900: "#094A39" },
+        cream: { DEFAULT: "#F2F8C9", 50: "#FAFCEA", 100: "#F2F8C9", 200: "#E6F0A1", 300: "#D4E274", 700: "#6B7A12" },
+        navy: { DEFAULT: "#0B1120", 800: "#111C33", 700: "#16233F" },
+        brand: {
+          50: "#EFF3FD",
+          100: "#DDE5FA",
+          200: "#BDCBF5",
+          300: "#93A8EE",
+          400: "#6580E2",
+          500: "#4465D6",
+          600: "#3352CD",
+          700: "#2943AD",
+          800: "#233889",
+          900: "#1F326E",
+        },
         gsic: {
           navy: "#0B1120",
           slate: "#0F172A",

@@ -1,0 +1,71 @@
+/* Legacy-bridge: maps the old dark-theme utility classes onto the light GSIC palette.
+   Generated; scoped to .legacy-bridge so portal pages are untouched. */
+.legacy-bridge .text-white{color:#0B1120}
+.legacy-bridge .text-white\/90{color:#0F172A}
+.legacy-bridge .text-white\/80{color:#1E293B}
+.legacy-bridge .text-white\/75{color:#334155}
+.legacy-bridge .text-white\/70{color:#334155}
+.legacy-bridge .text-white\/60{color:#475569}
+.legacy-bridge .text-white\/50{color:#64748B}
+.legacy-bridge .text-white\/40{color:#64748B}
+.legacy-bridge .text-white\/30{color:#94A3B8}
+.legacy-bridge .text-white\/20{color:#94A3B8}
+.legacy-bridge .hover\:text-white\/60:hover{color:#0F172A}
+.legacy-bridge .hover\:text-white\/80:hover{color:#0F172A}
+.legacy-bridge .hover\:text-white:hover{color:#0B1120}
+.legacy-bridge .bg-white\/3{background-color:#F8FAFC}
+.legacy-bridge .bg-white\/5{background-color:#F8FAFC}
+.legacy-bridge .bg-white\/10{background-color:#F1F5F9}
+.legacy-bridge .bg-white\/15{background-color:#E2E8F0}
+.legacy-bridge .bg-white\/20{background-color:#E2E8F0}
+.legacy-bridge .bg-white\/\[0\.03\]{background-color:#F8FAFC}
+.legacy-bridge .hover\:bg-white\/10:hover{background-color:#F1F5F9}
+.legacy-bridge .hover\:bg-white\/20:hover{background-color:#E2E8F0}
+.legacy-bridge .hover\:bg-white\/5:hover{background-color:#F8FAFC}
+.legacy-bridge .border-white\/5{border-color:#EEF2F7}
+.legacy-bridge .border-white\/8{border-color:#E2E8F0}
+.legacy-bridge .border-white\/10{border-color:#E2E8F0}
+.legacy-bridge .border-white\/15{border-color:#CBD5E1}
+.legacy-bridge .border-white\/20{border-color:#CBD5E1}
+.legacy-bridge .divide-white\/5>:not([hidden])~:not([hidden]){border-color:#E2E8F0}
+.legacy-bridge .divide-white\/10>:not([hidden])~:not([hidden]){border-color:#E2E8F0}
+.legacy-bridge .glass,.legacy-bridge .glass-strong{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none;border:1px solid #E2E8F0;box-shadow:none}
+.legacy-bridge .glass:hover{border-color:#CBD5E1;box-shadow:none}
+.legacy-bridge .glow-border,.legacy-bridge .input-glow,.legacy-bridge .card-hover:hover{box-shadow:none;transform:none;animation:none}
+.legacy-bridge .animate-float-blob,.legacy-bridge .mesh-gradient::before{display:none}
+.legacy-bridge .bg-hero-gradient,.legacy-bridge .mesh-gradient{background:transparent}
+.legacy-bridge .gradient-text,.legacy-bridge .gradient-text-accent{background:none;-webkit-text-fill-color:#3352CD;color:#3352CD}
+.legacy-bridge [class*="bg-gradient-to"]{background-image:none;background-color:#3352CD;color:#fff}
+.legacy-bridge [class*="bg-gradient-to"] .text-white,.legacy-bridge [class*="bg-gradient-to"] svg{color:#fff}
+.legacy-bridge [class*="bg-gradient-to"][class*="from-[#3352CD]/"],.legacy-bridge [class*="bg-gradient-to"][class*="from-[#5CE3B6]/"],.legacy-bridge [class*="bg-gradient-to"][class*="from-[#8B5CF6]/"],.legacy-bridge [class*="bg-gradient-to"][class*="from-[#2563EB]/"]{background-color:#EFF3FD;color:#2943AD}
+.legacy-bridge [class*="bg-gradient-to"][class*="from-[#3352CD]/"] svg,.legacy-bridge [class*="bg-gradient-to"][class*="from-[#5CE3B6]/"] svg{color:#2943AD}
+.legacy-bridge .text-\[\#5CE3B6\]{color:#0F7E5E}
+.legacy-bridge .hover\:text-\[\#5CE3B6\]:hover{color:#0F7E5E}
+.legacy-bridge .text-\[\#F2F8C9\]{color:#6B7A12}
+.legacy-bridge .hover\:text-\[\#F2F8C9\]:hover{color:#6B7A12}
+.legacy-bridge .text-\[\#60A5FA\]{color:#2943AD}
+.legacy-bridge .hover\:text-\[\#60A5FA\]:hover{color:#2943AD}
+.legacy-bridge .text-\[\#A78BFA\]{color:#6D28D9}
+.legacy-bridge .hover\:text-\[\#A78BFA\]:hover{color:#6D28D9}
+.legacy-bridge .text-\[\#8B5CF6\]{color:#6D28D9}
+.legacy-bridge .hover\:text-\[\#8B5CF6\]:hover{color:#6D28D9}
+.legacy-bridge .text-\[\#06B6D4\]{color:#0E7490}
+.legacy-bridge .hover\:text-\[\#06B6D4\]:hover{color:#0E7490}
+.legacy-bridge .text-\[\#22D3EE\]{color:#0E7490}
+.legacy-bridge .hover\:text-\[\#22D3EE\]:hover{color:#0E7490}
+.legacy-bridge .text-\[\#E2C65C\]{color:#8A6D00}
+.legacy-bridge .hover\:text-\[\#E2C65C\]:hover{color:#8A6D00}
+.legacy-bridge .text-\[\#4a6cf7\]{color:#2943AD}
+.legacy-bridge .hover\:text-\[\#4a6cf7\]:hover{color:#2943AD}
+.legacy-bridge .bg-\[\#3352CD\], .legacy-bridge .bg-\[\#2563EB\]{color:#fff}
+.legacy-bridge .bg-\[\#3352CD\] .text-white,.legacy-bridge .bg-\[\#2563EB\] .text-white{color:#fff}
+.legacy-bridge input::placeholder,.legacy-bridge textarea::placeholder{color:#94A3B8!important}
+.legacy-bridge option{background:#fff;color:#0F172A}
+.legacy-bridge input,.legacy-bridge select,.legacy-bridge textarea{color:#0F172A}
+.legacy-bridge input:focus,.legacy-bridge select:focus,.legacy-bridge textarea:focus{border-color:#3352CD!important;outline:none;box-shadow:0 0 0 3px rgba(51,82,205,.15)}
+.legacy-bridge .bg-black\/60,.legacy-bridge .bg-black\/50,.legacy-bridge .bg-black\/70{background-color:rgba(15,23,42,.5)}
+.legacy-bridge .bg-\[\#0B1120\],.legacy-bridge .bg-\[\#0F172A\]{background-color:#fff;color:#0F172A}
+.legacy-bridge .backdrop-blur-xl,.legacy-bridge .backdrop-blur-sm,.legacy-bridge .backdrop-blur-2xl{backdrop-filter:none}
+.legacy-bridge .shadow-2xl,.legacy-bridge .shadow-lg{box-shadow:0 1px 2px rgba(15,23,42,.06)}
+.legacy-bridge table th{color:#475569}
+.legacy-bridge .prose-invert{--tw-prose-body:#334155;--tw-prose-headings:#0F172A;--tw-prose-bold:#0F172A;--tw-prose-links:#2943AD}
