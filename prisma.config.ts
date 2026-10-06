@@ -7,7 +7,7 @@ export default defineConfig({
   schema: './prisma/schema.prisma',
   datasource: {
     // Connection via PgBouncer pooler for Prisma Client and general CLI operations
-    url: process.env.DATABASE_URL ?? process.env.DIRECT_URL,
+    url: process.env.DIRECT_URL,
     // Direct connection for migrations/schema changes (port 5432, bypasses pooler)
     // Type assertion needed: @prisma/config Datasource type omits directUrl in v7.9.1,
     // but the schema engine reads it at runtime.
