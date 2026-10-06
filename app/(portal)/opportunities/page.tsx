@@ -24,7 +24,11 @@ type SP = Record<string, string | string[] | undefined>;
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: SP }) {
   const filters = parseFilters(searchParams);
-  const [result, counts] = await Promise.all([queryOpportunities(filters), getTypeCounts()]);
+  // Graceful fallback: a DB hiccup must show an empty directory, never the error screen.
+  const [result, counts] = await Promise.all([
+    queryOpportunities(filters).catch(() => ({ items: [], total: 0, page: 1, pageCount: 1, facets: { type: {}, scope: {}, level: {}, benefit: {}, funding: {}, mode: {}, status: {} } })),
+    getTypeCounts().catch(() => ({ all: 0, byType: {} as Record<string, number> })),
+  ]);
   const { page: _page, ...rest } = filters;
   const baseQuery = toQueryString(rest);
   const activeType = filters.type.length === 1 ? filters.type[0]! : "";

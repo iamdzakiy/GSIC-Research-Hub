@@ -23,7 +23,7 @@ export const dynamic = "force-dynamic";
 type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const o = await getOpportunityByKey(decodeURIComponent(params.slug));
+  const o = await getOpportunityByKey(decodeURIComponent(params.slug)).catch(() => null);
   if (!o) return { title: "Opportunity not found · GSIC Hub" };
   const desc = (o.summary || stripToText(o.description)).slice(0, 160);
   return { title: `${o.title} · ${typeLabel(o.type)} · GSIC Hub`, description: desc, openGraph: { title: o.title, description: desc, images: o.posterUrl ? [o.posterUrl] : undefined } };
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function OpportunityDetailPage({ params }: Props) {
   const key = decodeURIComponent(params.slug);
-  const o = await getOpportunityByKey(key);
+  const o = await getOpportunityByKey(key).catch(() => null);
   if (!o) notFound();
 
   const now = new Date();
@@ -51,7 +51,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
   const faqs = readList(faqItem, o.faqs);
   const socials = readList(socialLink, o.socialLinks);
   const place = formatPlace(o.city, o.country, o.location);
-  const related = await getRelatedOpportunities(o, 3, now);
+  const related = await getRelatedOpportunities(o, 3, now).catch(() => []);
 
   const hasBenefits = o.benefits.length > 0 || !!o.programBenefits || !!o.fundingType || !!o.fundingAmount;
   const hasEligibility = required.length + bonus.length + basic.length > 0 || !!o.eligibility;

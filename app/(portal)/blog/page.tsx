@@ -22,9 +22,9 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
   const tagParam = first(searchParams.tag).trim().slice(0, 60);
   const page = Math.max(1, parseInt(first(searchParams.page), 10) || 1);
 
-  const { tags, variants } = await getTagCounts();
+  const { tags, variants } = await getTagCounts().catch(() => ({ tags: [], variants: new Map<string, string[]>() }));
   const activeKey = tagParam ? tagKey(tagParam) : "";
-  const { posts, total, page: cur, pageCount } = await listPosts({ q, tag: tagParam, page, variants });
+  const { posts, total, page: cur, pageCount } = await listPosts({ q, tag: tagParam, page, variants }).catch(() => ({ posts: [], total: 0, page: 1, pageCount: 1 }));
 
   const qs = new URLSearchParams();
   if (q) qs.set("q", q);

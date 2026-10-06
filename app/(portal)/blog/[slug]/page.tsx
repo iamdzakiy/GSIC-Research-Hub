@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 type Props = { params: { slug: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const post = await getPostBySlug(params.slug);
+  const post = await getPostBySlug(params.slug).catch(() => null);
   if (!post) return { title: "Article not found · GSIC Hub" };
   return {
     title: `${post.title} · GSIC Hub`,
@@ -23,9 +23,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogPostPage({ params }: Props) {
-  const post = await getPostBySlug(params.slug);
+  const post = await getPostBySlug(params.slug).catch(() => null);
   if (!post) notFound();
-  const related = await getRelatedPosts(post, 3);
+  const related = await getRelatedPosts(post, 3).catch(() => []);
   const when = post.publishedAt ?? post.createdAt;
   const author = post.author?.name || "GSIC Team";
   const tagHref = (t: string) => `/blog?tag=${encodeURIComponent(t.replace(/^#+/, ""))}`;
