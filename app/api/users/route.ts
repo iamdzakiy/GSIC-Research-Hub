@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requireUser } from "@/lib/auth-helper";
+import { requireAdmin, requireAuth, requireUser } from "@/lib/auth-helper";
 import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 import { mapPrismaUserToProfile } from "@/services/userService";
 import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
@@ -11,11 +11,13 @@ import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
  * roles are only ever changed by an admin through PUT or by scripts/create-admins.ts.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const user = await requireUser(request);
+  const user = await requireAuth(request);
   const body = await request.json().catch(() => null);
   if (!body?.email) return NextResponse.json({ error: "Missing email" }, { status: 400 });
 
-  const parsed = profileUpdateSchema.safeParse(body);
+  // Default the display name to the email's local part when none was given.
+  const name = typeof body.name === "string" && body.name.trim().length >= 2 ? body.name : String(body.email).split("@")[0];
+  const parsed = profileUpdateSchema.safeParse({ ...body, name });
   if (!parsed.success) return NextResponse.json({ error: "Invalid profile data" }, { status: 400 });
   const data = profileToData(parsed.data);
 

@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { supabase } from "@/lib/supabaseClient";
 import { User } from "@supabase/supabase-js";
 import { UserProfile } from "@/lib/types";
-import { getUserProfile, saveUserProfile, createUserProfile, updateUserProfile } from "@/services/userService";
+import { ensureProfile, getUserProfile } from "@/services/userService";
 
 interface AuthContextType {
   user: User | null;
@@ -22,46 +22,6 @@ export function useAuth() {
   return context;
 }
 
-function profileFromMeta(meta: Record<string, unknown> | undefined) {
-  const list = (v: unknown) => (Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : []);
-  const str = (v: unknown) => (typeof v === "string" ? v : "");
-  return {
-    faculty: str(meta?.faculty), major: str(meta?.major), majorCode: str(meta?.majorCode) || undefined,
-    year: Number(meta?.year) || new Date().getFullYear(), whatsapp: str(meta?.whatsapp),
-    skills: list(meta?.skills), softSkills: list(meta?.softSkills), interests: list(meta?.interests),
-    archetype: str(meta?.archetype) || null, bccRole: str(meta?.bccRole) || null,
-  };
-}
-
-function createDefaultProfile(uid: string, email: string, name: string, meta?: Record<string, unknown>): UserProfile {
-  const m = profileFromMeta(meta);
-  return {
-    uid,
-    htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-    email,
-    name,
-    faculty: m.faculty,
-    major: m.major,
-    majorCode: m.majorCode,
-    year: m.year,
-    whatsapp: m.whatsapp,
-    avatarUrl: null,
-    classcardTheme: "blue",
-    skills: m.skills,
-    softSkills: m.softSkills,
-    interests: m.interests,
-    archetype: m.archetype,
-    bccRole: m.bccRole,
-    bio: "",
-    isVerified: false,
-    role: "user",
-    emailConfirmed: false,
-    provider: "email",
-    lastSignInAt: new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -70,105 +30,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshProfile = async () => {
     if (!user) return;
     const profile = await getUserProfile(user.id);
-    if (profile) setUserProfile(profile as UserProfile);
+    if (profile) setUserProfile(profile);
   };
 
-  // Sync auth metadata (email confirmed, last sign in) to the database
-  const syncAuthData = async (currentUser: User) => {
+  // Fetch the profile; create it once if the account has no row yet. Never throws.
+  const loadProfile = async (currentUser: User | null) => {
+    setUser(currentUser);
     try {
-      const emailConfirmed = !!currentUser.email_confirmed_at;
-      const lastSignInAt = currentUser.last_sign_in_at || new Date().toISOString();
-      const provider = currentUser.app_metadata?.provider || "email";
-
-      // Try to update the existing profile with auth metadata
-      await updateUserProfile(currentUser.id, {
-        emailConfirmed,
-        lastSignInAt,
-        provider,
-      }).catch(async () => {
-        // If profile doesn't exist yet, create it
-        const profile = await getUserProfile(currentUser.id);
-        if (!profile) {
-          const newProfile = createDefaultProfile(
-            currentUser.id,
-            currentUser.email || "",
-            currentUser.user_metadata?.name || "",
-            currentUser.user_metadata
-          );
-          newProfile.emailConfirmed = emailConfirmed;
-          newProfile.lastSignInAt = lastSignInAt;
-          newProfile.provider = provider;
-          await createUserProfile(newProfile);
-        }
-      });
+      if (!currentUser) return setUserProfile(null);
+      setUserProfile((await getUserProfile(currentUser.id)) ?? (await ensureProfile(currentUser)));
     } catch (e) {
-      console.error("Auth data sync error:", e);
+      console.error("Profile load error:", e);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      const currentUser = session?.user || null;
-      setUser(currentUser);
-      if (currentUser) {
-        // Sync auth metadata to DB
-        await syncAuthData(currentUser);
-
-        const profile = await getUserProfile(currentUser.id) as UserProfile | null;
-        if (profile) {
-          setUserProfile(profile);
-        } else {
-          // Create a new profile if the user doesn't have one yet
-          const newProfile = createDefaultProfile(
-            currentUser.id,
-            currentUser.email || "",
-            currentUser.user_metadata?.name || "",
-            currentUser.user_metadata
-          );
-          try {
-            await createUserProfile(newProfile);
-          } catch (e) {
-            console.error("Profile creation error:", e);
-          }
-          setUserProfile(newProfile);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Defer: supabase-js must not be called inside this callback.
+      setTimeout(() => void loadProfile(session?.user ?? null), 0);
     });
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user || null;
-      setUser(currentUser);
-      if (currentUser) {
-        // Sync auth metadata to DB
-        await syncAuthData(currentUser);
-
-        const profile = await getUserProfile(currentUser.id) as UserProfile | null;
-        if (profile) {
-          setUserProfile(profile);
-        } else {
-          const newProfile = createDefaultProfile(
-            currentUser.id,
-            currentUser.email || "",
-            currentUser.user_metadata?.name || "",
-            currentUser.user_metadata
-          );
-          try {
-            await createUserProfile(newProfile);
-          } catch (e) {
-            console.error("Profile creation error:", e);
-          }
-          setUserProfile(newProfile);
-        }
-      }
-      setLoading(false);
-    });
-
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
+    supabase.auth.getSession().then(({ data: { session } }) => loadProfile(session?.user ?? null));
+    return () => listener?.subscription.unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Admin status is controlled solely by the user's `role` field set to "admin"

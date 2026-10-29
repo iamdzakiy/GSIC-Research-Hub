@@ -19,14 +19,13 @@ export type LinkRequest =
 export type LinkOutcome = "sent" | "skipped";
 
 /**
- * Looks the account up in Supabase's `auth.users` (same Postgres as DATABASE_URL).
- * Used so magic-link / resend never *create* accounts as a side effect —
+ * Looks the account up in the Prisma `User` table (every account has a row).
+ * Used so magic-link never *creates* accounts as a side effect —
  * generateLink({type:"magiclink"}) would otherwise silently sign up unknown e-mails.
  */
 async function findAuthUser(email: string): Promise<{ confirmed: boolean } | null> {
-  const rows = await prisma.$queryRaw<{ confirmed: boolean }[]>`
-    SELECT (email_confirmed_at IS NOT NULL) AS confirmed FROM auth.users WHERE lower(email) = ${email} LIMIT 1`;
-  return rows[0] ?? null;
+  const u = await prisma.user.findUnique({ where: { email }, select: { emailConfirmed: true } });
+  return u ? { confirmed: u.emailConfirmed } : null;
 }
 
 const safeNext = (n?: string) => (n && /^\/(?!\/)[\w\-./?=&%]*$/.test(n) ? n : "/dashboard");

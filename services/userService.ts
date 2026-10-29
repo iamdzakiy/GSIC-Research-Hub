@@ -67,6 +67,18 @@ export async function createUserProfile(profile: UserProfile): Promise<void> {
   if (!res.ok) throw new Error("Failed to create profile");
 }
 
+/** Creates the signed-in user's profile row from their auth metadata (idempotent; used for accounts without a row, e.g. magic link). */
+export async function ensureProfile(user: { email?: string; user_metadata?: Record<string, unknown>; app_metadata?: Record<string, unknown> }): Promise<UserProfile> {
+  const meta = user.user_metadata ?? {};
+  const res = await fetch("/api/users", {
+    method: "POST",
+    headers: await getAuthHeaders(),
+    body: JSON.stringify({ ...meta, email: user.email ?? "", provider: user.app_metadata?.provider ?? "email" }),
+  });
+  if (!res.ok) throw new Error("Failed to create profile");
+  return mapPrismaUserToProfile(await res.json());
+}
+
 export async function getAllUsers(params?: { page?: number; pageSize?: number }): Promise<UserProfile[]> {
   const qs = new URLSearchParams();
   if (params?.page) qs.set("page", String(params.page));
