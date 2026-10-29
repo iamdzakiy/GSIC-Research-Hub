@@ -22,7 +22,6 @@ const TITLES: Record<AuthMode, { h: string; p: string; cta: string }> = {
 
 function mapSupabaseError(msg: string): string {
   if (/invalid login/i.test(msg)) return "Incorrect email or password.";
-  if (/not confirmed/i.test(msg)) return "Your email is not verified yet.";
   if (/rate limit|too many/i.test(msg)) return "Too many attempts. Try again in a few minutes.";
   return msg;
 }
@@ -37,7 +36,7 @@ function strength(pw: string): { score: number; label: string } {
   return { score: Math.min(s, 4), label: ["Weak", "Weak", "Fair", "Good", "Strong"][Math.min(s, 4)]! };
 }
 
-interface Sent { email: string; kind: "verify" | "magic" | "reset" }
+interface Sent { email: string; kind: "magic" | "reset" }
 
 /** Post-login destination from ?next=, restricted to same-site paths (no open redirect). */
 function safeNext(): string {
@@ -60,7 +59,6 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
   const [cooldown, setCooldown] = useState(0);
-  const [needsVerify, setNeedsVerify] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [profile, setProfile] = useState<ProfileValues>(EMPTY_PROFILE);
 
@@ -79,7 +77,6 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     setMode(m);
     setStep(1);
     setErrors({});
-    setNeedsVerify(false);
     router.replace(`/auth?mode=${m}`, { scroll: false });
   };
 
@@ -96,7 +93,6 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     e.preventDefault();
     if (loading) return;
     setErrors({});
-    setNeedsVerify(false);
 
     // 1) client-side validation (same zod schemas as the server)
     const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
@@ -117,7 +113,6 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
         if (error) {
-          if (/not confirmed/i.test(error.message)) setNeedsVerify(true);
           setErrors({ form: mapSupabaseError(error.message) });
           return;
         }
@@ -148,7 +143,17 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
         if (res.retryAfterSec) setCooldown(Math.min(res.retryAfterSec, 600));
         return;
       }
-      setSent({ email: email.trim().toLowerCase(), kind: mode === "signup" ? "verify" : mode === "magic" ? "magic" : "reset" });
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+        if (error) {
+          setErrors({ form: "Your account was created, but we could not sign you in. Try signing in." });
+          return;
+        }
+        toast("success", "Welcome to GSIC Hub.");
+        router.replace(safeNext());
+        return;
+      }
+      setSent({ email: email.trim().toLowerCase(), kind: mode === "magic" ? "magic" : "reset" });
       setCooldown(60);
     } finally {
       setLoading(false);
@@ -158,7 +163,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   async function resend(kind: Sent["kind"], to: string) {
     if (cooldown > 0 || loading) return;
     setLoading(true);
-    const path = kind === "verify" ? "resend-verification" : kind === "magic" ? "magic-link" : "forgot-password";
+    const path = kind === "magic" ? "magic-link" : "forgot-password";
     const res = await post(path, { email: to });
     setLoading(false);
     if (res.ok) {
@@ -178,7 +183,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
 
   // ---------- "email sent" confirmation ----------
   if (sent) {
-    const label = sent.kind === "verify" ? "verification" : sent.kind === "magic" ? "sign-in" : "password reset";
+    const label = sent.kind === "magic" ? "sign-in" : "password reset";
     return (
       <div className="text-center" role="status">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200">
@@ -226,12 +231,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
         {errors.form && (
           <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-800">
             {errors.form}
-            {needsVerify && (
-              <button type="button" onClick={() => resend("verify", email.trim().toLowerCase())} disabled={cooldown > 0 || loading} className="mt-2 block font-medium underline disabled:no-underline disabled:opacity-60">
-                {cooldown > 0 ? `Resend verification (${cooldown}s)` : "Resend verification email"}
-              </button>
-            )}
-            {!needsVerify && cooldown > 0 && <span className="mt-1 block text-xs">Try again in {cooldown}s.</span>}
+            {cooldown > 0 && <span className="mt-1 block text-xs">Try again in {cooldown}s.</span>}
           </div>
         )}
 

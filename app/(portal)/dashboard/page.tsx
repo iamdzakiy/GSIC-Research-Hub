@@ -9,7 +9,6 @@ import ProfileModal from "@/components/portal/ProfileModal";
 import { ARCHETYPES, BCC_ROLES, INTERESTS } from "@/lib/profile-options";
 import RaporView from "@/components/portal/rapor/RaporView";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
-import VerifyBanner from "@/components/portal/dashboard/VerifyBanner";
 import GalleryMarquee, { type GalleryEntry } from "@/components/portal/GalleryMarquee";
 import CountUp from "@/components/portal/CountUp";
 import Reveal from "@/components/portal/Reveal";
@@ -90,7 +89,6 @@ export default function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <VerifyBanner email={user.email ?? ""} verified={!!user.email_confirmed_at} />
         {loadErr && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-800">Some data could not be loaded. Reload the page if this keeps happening.</p>}
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

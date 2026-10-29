@@ -4,7 +4,6 @@ import { renderActionEmail, type EmailKind } from "../lib/email-templates";
 
 const OUT = "docs/supabase-email-templates";
 const FILES: [EmailKind, string, string][] = [
-  ["verify", "confirm-signup.html", "Confirm signup"],
   ["magic", "magic-link.html", "Magic link"],
   ["reset", "reset-password.html", "Reset password"],
 ];

@@ -5,7 +5,7 @@
 // so it renders the same in Gmail, Outlook and Apple Mail.
 // ============================================================
 
-export type EmailKind = "verify" | "magic" | "reset";
+export type EmailKind = "magic" | "reset";
 
 const BLUE = "#3352CD";
 const MINT = "#5CE3B6";
@@ -19,20 +19,13 @@ const FONT = "'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
-interface Copy { subject: string; preheader: string; title: string; body: string; cta: string; expiry: string; ignore: string; note?: string }
+/** Everything `renderEmail` needs. `body` is trusted HTML (callers escape user values); `steps` are plain text. */
+export interface EmailCopy { subject: string; preheader: string; title: string; body: string; cta: string; url: string; steps?: string[]; expiry?: string; ignore?: string; note?: string }
+type LinkCopy = Omit<EmailCopy, "url">
 
 const hi = (name?: string) => (name ? `Hi ${esc(name.split(" ")[0]!)},` : "Hi,");
 
-const COPY: Record<EmailKind, (name?: string) => Copy> = {
-  verify: (name) => ({
-    subject: "Confirm your GSIC Hub account",
-    preheader: "Confirm this address to activate your account.",
-    title: "Confirm your email address",
-    body: `${hi(name)} thanks for signing up. Confirm this address to activate your account. After that you can save opportunities, register for events and follow your pre-test and post-test results.`,
-    cta: "Confirm email",
-    expiry: "This link expires after a short while and works once.",
-    ignore: "If you did not create a GSIC Hub account, you can ignore this message. Nothing happens until the link is used.",
-  }),
+const COPY: Record<EmailKind, (name?: string) => LinkCopy> = {
   magic: (name) => ({
     subject: "Your GSIC Hub sign-in link",
     preheader: "One tap to sign in. No password needed.",
@@ -56,10 +49,35 @@ const COPY: Record<EmailKind, (name?: string) => Copy> = {
 
 export interface RenderedEmail { subject: string; html: string; text: string }
 
+/** Link emails (sign-in, password reset). */
 export function renderActionEmail(kind: EmailKind, opts: { url: string; name?: string; siteUrl: string }): RenderedEmail {
-  const c = COPY[kind](opts.name);
-  const url = esc(opts.url);
-  const logo = `${opts.siteUrl}/favicon.png`;
+  return renderEmail({ ...COPY[kind](opts.name), url: opts.url }, opts.siteUrl);
+}
+
+/** Sent once, right after an account is created. */
+export function renderWelcomeEmail(opts: { name?: string; siteUrl: string }): RenderedEmail {
+  const first = opts.name?.trim().split(/\s+/)[0] || "there";
+  return renderEmail({
+    subject: `Welcome to GSIC Hub, ${first}`,
+    preheader: "Your account is ready. Here is where to start.",
+    title: "Your account is ready",
+    body: `${hi(opts.name)} congratulations, you are now part of GSIC Hub. Three things worth doing first:`,
+    steps: [
+      "Complete your profile so teammates can find and assess you.",
+      "Open Match-making to find teammates with complementary roles.",
+      "Browse open opportunities and save the ones you want to apply for.",
+    ],
+    cta: "Open your dashboard",
+    url: `${opts.siteUrl}/dashboard`,
+  }, opts.siteUrl);
+}
+
+export function renderEmail(c: EmailCopy, siteUrl: string): RenderedEmail {
+  const url = esc(c.url);
+  const logo = `${siteUrl}/favicon.png`;
+  const steps = c.steps?.length
+    ? `<ol style="margin:0 0 28px;padding:0 0 0 20px;font-size:15px;line-height:1.7;color:${MUTED};">${c.steps.map((x) => `<li style="margin:0 0 6px;">${esc(x)}</li>`).join("")}</ol>`
+    : "";
 
   const html = `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>${esc(c.subject)}</title></head>
@@ -77,14 +95,15 @@ export function renderActionEmail(kind: EmailKind, opts: { url: string; name?: s
     <tr><td bgcolor="${MINT}" style="background:${MINT};height:4px;line-height:4px;font-size:0;">&nbsp;</td></tr>
     <tr><td style="padding:36px 32px 32px;font-family:${FONT};">
       <h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;font-weight:700;color:${INK};letter-spacing:-0.4px;">${esc(c.title)}</h1>
-      <p style="margin:0 0 28px;font-size:15px;line-height:1.7;color:${MUTED};">${c.body}</p>
+      <p style="margin:0 0 ${steps ? "14" : "28"}px;font-size:15px;line-height:1.7;color:${MUTED};">${c.body}</p>
+      ${steps}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;"><tr>
         <td align="center" bgcolor="${BLUE}" style="border-radius:8px;">
           <a href="${url}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:8px;">${esc(c.cta)}</a>
         </td>
       </tr></table>
-      <p style="margin:0 0 6px;font-size:13px;line-height:1.55;color:${MUTED};">${esc(c.expiry)}</p>
-      <p style="margin:0 0 ${c.note ? "20" : "24"}px;font-size:13px;line-height:1.55;color:${MUTED};">${esc(c.ignore)}</p>
+      ${c.expiry ? `<p style="margin:0 0 6px;font-size:13px;line-height:1.55;color:${MUTED};">${esc(c.expiry)}</p>` : ""}
+      ${c.ignore ? `<p style="margin:0 0 ${c.note ? "20" : "24"}px;font-size:13px;line-height:1.55;color:${MUTED};">${esc(c.ignore)}</p>` : ""}
       ${c.note ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;"><tr><td bgcolor="${CREAM}" style="background:${CREAM};border-radius:8px;padding:12px 16px;font-family:${FONT};font-size:13px;line-height:1.5;color:${NAVY};">${esc(c.note)}</td></tr></table>` : ""}
       <div style="height:1px;background:${BORDER};margin:0 0 18px;"></div>
       <p style="margin:0 0 4px;font-size:12px;line-height:1.5;color:#64748B;">If the button does not work, copy this link into your browser:</p>
@@ -96,6 +115,6 @@ export function renderActionEmail(kind: EmailKind, opts: { url: string; name?: s
   </table>
 </td></tr></table></body></html>`;
 
-  const text = [c.title, "", c.body.replace(/&[a-z#0-9]+;/g, ""), "", `${c.cta}: ${opts.url}`, "", c.expiry, c.ignore, ...(c.note ? [c.note] : []), "", "GSIC Hub, Institut Teknologi Bandung"].join("\n");
+  const text = [c.title, "", c.body.replace(/&[a-z#0-9]+;/g, ""), ...(c.steps ?? []).map((x, i) => `${i + 1}. ${x}`), "", `${c.cta}: ${c.url}`, "", ...[c.expiry, c.ignore, c.note].filter((x): x is string => !!x), "", "GSIC Hub, Institut Teknologi Bandung"].join("\n");
   return { subject: c.subject, html, text };
 }

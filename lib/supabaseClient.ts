@@ -11,11 +11,6 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_A
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Dev fallback: when "Confirm email" is disabled in Supabase, users are
-// auto-confirmed and can sign in immediately. Set NEXT_PUBLIC_DEV_AUTO_CONFIRM=1
-// in .env.local to skip the "check your email" step during local development.
-export const DEV_AUTO_CONFIRM = process.env.NEXT_PUBLIC_DEV_AUTO_CONFIRM === "1";
-
 // Resolve the site URL from env (production) or fall back to the current origin (dev).
 // In production, set NEXT_PUBLIC_SITE_URL=https://gsic-research-hub.vercel.app
 function getSiteUrl(): string {
@@ -26,19 +21,6 @@ function getSiteUrl(): string {
 }
 
 // Auth helpers
-export const signUp = async (email: string, password: string, name: string) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name },
-      emailRedirectTo: `${getSiteUrl()}/auth`,
-    },
-  })
-  if (error) throw error
-  return data
-}
-
 export const signIn = async (email: string, password: string) => {
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) throw error
