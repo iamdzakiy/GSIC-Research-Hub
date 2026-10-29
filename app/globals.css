@@ -78,17 +78,6 @@
     background-clip: text;
   }
 
-  .btn-gradient {
-    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
-  }
-
-  .gradient-text-blue {
-    background: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
   .glow-blue {
     box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), 0 0 60px rgba(37, 99, 235, 0.1);
   }
@@ -191,44 +180,6 @@
     border-color: #2563EB !important;
   }
 
-  /* Mesh gradient background */
-  .mesh-gradient {
-    background:
-      radial-gradient(at 20% 20%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
-  }
-
-  /* Soft glowing active border */
-  .glow-border {
-    position: relative;
-  }
-
-  .glow-border::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.5), rgba(6, 182, 212, 0.5), rgba(139, 92, 246, 0.3));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  .glow-border:hover::before {
-    opacity: 1;
-  }
-
-  /* Input focus glow */
-  .input-glow:focus {
-    border-color: rgba(37, 99, 235, 0.5) !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), 0 0 20px rgba(37, 99, 235, 0.1);
-  }
 }
 
 @layer utilities {
@@ -236,11 +187,20 @@
     text-wrap: balance;
   }
   
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
   
-  .animation-delay-4000 {
-    animation-delay: 4s;
+}
+/* Light, short motion. Sign-up steps and panels ease in; nothing moves for people who ask it not to. */
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: none; }
+}
+.step-in { animation: step-in 200ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

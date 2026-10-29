@@ -169,7 +169,7 @@ function OpenCalls() {
                 <p className="mt-0.5 text-sm text-slate-600">{c.competition} · closes {fmtDate(c.deadline)} · {c.slots} {c.slots === 1 ? "slot" : "slots"} left</p>
               </div>
               {c.myApplication ? <Badge s={c.myApplication.status} /> : (
-                <button type="button" onClick={() => setApplyTo(c)} className="h-10 rounded-lg bg-brand-600 px-4 text-sm font-semibold text-white hover:bg-brand-700">Apply</button>
+                <button type="button" onClick={() => setApplyTo(c)} className="h-10 rounded-lg border border-brand-600 px-4 text-sm font-semibold text-brand-700 hover:bg-brand-50">Apply</button>
               )}
             </div>
             <p className="mt-3 text-sm leading-6 text-slate-700">{c.description}</p>
@@ -218,7 +218,7 @@ function Apply({ row, onClose, onDone }: { row: CallRow; onClose: () => void; on
           {errors.role && <p className="mt-1 text-xs text-rose-600">{errors.role}</p>}
         </div>
         <div>
-          <label htmlFor="ap-msg" className="mb-1.5 block text-sm font-medium text-slate-700">Why you fit <span className="font-normal text-slate-400">({message.length}/400)</span></label>
+          <label htmlFor="ap-msg" className="mb-1.5 block text-sm font-medium text-slate-700">Why you fit <span className="font-normal text-slate-500">({message.length}/400)</span></label>
           <textarea id="ap-msg" rows={4} maxLength={400} value={message} onChange={(e) => setMessage(e.target.value)} aria-invalid={!!errors.message} className={cn(inputCls(errors.message), "py-2.5")} />
           {errors.message && <p className="mt-1 text-xs text-rose-600">{errors.message}</p>}
         </div>
@@ -280,7 +280,7 @@ function PostCall({ onClose, onDone }: { onClose: () => void; onDone: () => void
           <Err k="title" />
         </div>
         <div>
-          <label htmlFor="pc-opp" className="mb-1.5 block text-sm font-medium text-slate-700">Competition <span className="font-normal text-slate-400">(pick one or type below)</span></label>
+          <label htmlFor="pc-opp" className="mb-1.5 block text-sm font-medium text-slate-700">Competition <span className="font-normal text-slate-500">(pick one or type below)</span></label>
           <select id="pc-opp" value={f.opportunityId} onChange={(e) => { const o = opps.find((x) => x.id === e.target.value); setF((p) => ({ ...p, opportunityId: e.target.value, competition: o?.title ?? p.competition })); }} className={cn(inputCls(), "mb-2 h-11")}>
             <option value="">Not listed on GSIC Hub</option>
             {opps.map((o) => <option key={o.id} value={o.id}>{o.title}</option>)}
@@ -299,7 +299,7 @@ function PostCall({ onClose, onDone }: { onClose: () => void; onDone: () => void
           <Err k="rolesNeeded" />
         </fieldset>
         <fieldset>
-          <legend className="mb-1.5 text-sm font-medium text-slate-700">PKM scheme <span className="font-normal text-slate-400">(optional)</span></legend>
+          <legend className="mb-1.5 text-sm font-medium text-slate-700">PKM scheme <span className="font-normal text-slate-500">(optional)</span></legend>
           <div className="flex flex-wrap gap-2">
             {PKM_SCHEMES.map((s) => (
               <button key={s.id} type="button" aria-pressed={schemes.includes(s.id)} onClick={() => setSchemes(toggle(schemes, s.id))}
@@ -321,7 +321,7 @@ function PostCall({ onClose, onDone }: { onClose: () => void; onDone: () => void
           </div>
         </div>
         <div>
-          <label htmlFor="pc-desc" className="mb-1.5 block text-sm font-medium text-slate-700">What you are building <span className="font-normal text-slate-400">({f.description.length}/600)</span></label>
+          <label htmlFor="pc-desc" className="mb-1.5 block text-sm font-medium text-slate-700">What you are building <span className="font-normal text-slate-500">({f.description.length}/600)</span></label>
           <textarea id="pc-desc" rows={4} maxLength={600} value={f.description} onChange={(e) => set("description", e.target.value)} aria-invalid={!!errors.description} className={cn(inputCls(errors.description), "py-2.5")} />
           <Err k="description" />
         </div>
@@ -390,7 +390,7 @@ function MyCalls() {
                     <PersonLine p={a.applicant} />
                     <div className="flex items-center gap-2"><Badge s={a.status} />
                       {a.status === "pending" && (<>
-                        <button type="button" disabled={busy === a.id || c.status !== "open"} onClick={() => decide(a.id, "accepted")} className="h-9 rounded-lg bg-brand-600 px-3.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60">Accept</button>
+                        <button type="button" disabled={busy === a.id || c.status !== "open"} onClick={() => decide(a.id, "accepted")} className="h-9 rounded-lg border border-brand-600 px-3.5 text-sm font-semibold text-brand-700 hover:bg-brand-50 disabled:opacity-60">Accept</button>
                         <button type="button" disabled={busy === a.id} onClick={() => decide(a.id, "declined")} className="h-9 rounded-lg border border-slate-300 px-3.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60">Decline</button>
                       </>)}
                     </div>

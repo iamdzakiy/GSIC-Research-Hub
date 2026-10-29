@@ -14,7 +14,6 @@ import GalleryMarquee from "@/components/portal/GalleryMarquee";
 import HomeTeaser from "@/components/portal/HomeTeaser";
 import Reveal from "@/components/portal/Reveal";
 import CountUp from "@/components/portal/CountUp";
-import HeroField from "@/components/portal/motion/HeroField";
 import DeadlineTicker from "@/components/portal/motion/DeadlineTicker";
 import PillarTabs from "@/components/portal/PillarTabs";
 import PathStepper from "@/components/portal/PathStepper";
@@ -60,7 +59,6 @@ export default async function HomePage() {
     <>
       {/* HERO */}
       <section className="relative overflow-hidden bg-navy text-white">
-        <HeroField />
         <div className="relative mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:px-8 lg:py-24">
           <div>
             <Reveal><p className="inline-flex items-center rounded-full border border-mint/40 bg-mint/10 px-3 py-1 text-xs font-semibold text-mint">GSIC Research · ITB</p></Reveal>
@@ -97,7 +95,7 @@ export default async function HomePage() {
           </div>
 
           <Reveal delay={0.2}>
-            <aside aria-labelledby="closing-h" className="rounded-xl border border-white/10 bg-navy/60 p-5 backdrop-blur-sm">
+            <aside aria-labelledby="closing-h" className="rounded-xl border border-white/10 bg-navy-800 p-5">
               <h2 id="closing-h" className="text-sm font-semibold text-cream">Closing soon</h2>
               {closing.length === 0 ? (
                 <p className="mt-4 text-sm text-slate-400">Nothing is close to its deadline right now.</p>

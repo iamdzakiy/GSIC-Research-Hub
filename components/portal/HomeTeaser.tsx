@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
 import { Play } from "lucide-react";
-import VideoModal from "@/components/VideoModal";
+import dynamic from "next/dynamic";
+
+const VideoModal = dynamic(() => import("@/components/VideoModal"), { ssr: false });
 
 export default function HomeTeaser({ videoUrl }: { videoUrl: string }) {
   const [open, setOpen] = useState(false);

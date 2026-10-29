@@ -5,8 +5,10 @@ import { FileText, Download, Eye, Search, FolderOpen, ShieldCheck } from "lucide
 import { GsicDocument, DocumentType } from "@/lib/types";
 import { getDocuments } from "@/services/documents";
 import Navbar from "@/components/Navbar";
-import PDFViewerModal from "@/components/modals/PDFViewerModal";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/cn";
+
+const PDFViewerModal = dynamic(() => import("@/components/modals/PDFViewerModal"), { ssr: false });
 
 const TYPE_META: Record<DocumentType, { label: string; icon: string }> = {
   template: { label: "Template", icon: "bg-brand-50 text-brand-700" },

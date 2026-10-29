@@ -32,13 +32,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import Navbar from "@/components/Navbar";
-import BlogManager from "@/components/admin/BlogManager";
-import OpportunityEditor from "@/components/admin/OpportunityEditor";
-import LinksManager from "@/components/admin/LinksManager";
-import GalleryManager from "@/components/admin/GalleryManager";
-import DataSyncPanel from "@/components/admin/DataSyncPanel";
 import EventEditor from "@/components/admin/EventEditor";
-import TestBuilder from "@/components/tests/TestBuilder";
+import dynamic from "next/dynamic";
 import {
   getTypeLabel,
   generateId,
@@ -65,6 +60,14 @@ import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
 import { getSpeakers, createSpeaker, updateSpeaker, deleteSpeaker } from "@/services/speakers";
 import { getAllUsers } from "@/services/userService";
+
+// Heavy admin panels load when their tab opens.
+const BlogManager = dynamic(() => import("@/components/admin/BlogManager"), { ssr: false });
+const OpportunityEditor = dynamic(() => import("@/components/admin/OpportunityEditor"), { ssr: false });
+const LinksManager = dynamic(() => import("@/components/admin/LinksManager"), { ssr: false });
+const GalleryManager = dynamic(() => import("@/components/admin/GalleryManager"), { ssr: false });
+const DataSyncPanel = dynamic(() => import("@/components/admin/DataSyncPanel"), { ssr: false });
+const TestBuilder = dynamic(() => import("@/components/tests/TestBuilder"), { ssr: false });
 
 export default function AdminDashboard() {
   const { user, userProfile, loading, isAdmin } = useAuth();

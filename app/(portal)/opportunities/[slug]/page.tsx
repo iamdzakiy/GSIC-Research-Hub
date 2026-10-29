@@ -9,6 +9,7 @@ import ListingCard from "@/components/portal/ListingCard";
 import Prose from "@/components/portal/Prose";
 import SectionNav from "@/components/portal/detail/SectionNav";
 import ShareActions from "@/components/portal/detail/ShareActions";
+import SaveButton from "@/components/portal/detail/SaveButton";
 import { CriteriaList, DeadlineMeter, DocChecklist, FaqList, QuickOverview, Section, Steps, Timeline } from "@/components/portal/detail/Blocks";
 import { getOpportunityByKey, getRelatedOpportunities } from "@/lib/opportunities";
 import { SCOPE_LABEL, daysLeft, getDisplayStatus } from "@/lib/opportunity-status";
@@ -233,6 +234,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
             </dl>
             <div className="mt-5 space-y-3">
               <Cta className="w-full" />
+              <SaveButton opportunityId={o.id} next={`/opportunities/${o.slug}`} />
               {o.type === "competition" && !closed && (
                 <Link href={`/teams?opportunity=${encodeURIComponent(o.slug)}`} className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:border-brand-400 hover:text-brand-700">Find teammates</Link>
               )}
@@ -251,7 +253,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
       )}
 
       {/* mobile sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 p-3 backdrop-blur md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white p-3 md:hidden">
         <Cta className="w-full" />
       </div>
     </main>

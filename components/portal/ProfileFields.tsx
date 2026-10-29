@@ -107,7 +107,7 @@ export default function ProfileFields({
         </div>
         <div className="sm:col-span-2">
           <label htmlFor="major" className="mb-1.5 block text-sm font-medium text-slate-700">Major</label>
-          <select id="major" value={value.major} onChange={(e) => set("major", e.target.value)} disabled={!value.faculty} className={cn(field(errors.major), "disabled:bg-slate-50 disabled:text-slate-400")}>
+          <select id="major" value={value.major} onChange={(e) => set("major", e.target.value)} disabled={!value.faculty} className={cn(field(errors.major), "disabled:bg-slate-50 disabled:text-slate-500")}>
             <option value="">{value.faculty ? "Select major" : "Choose a faculty first"}</option>
             {majors.map((m) => <option key={m.code} value={m.name}>{m.name}</option>)}
           </select>
@@ -120,7 +120,7 @@ export default function ProfileFields({
           </select>
         </div>
         <div>
-          <label htmlFor="whatsapp" className="mb-1.5 block text-sm font-medium text-slate-700">WhatsApp <span className="font-normal text-slate-400">(optional)</span></label>
+          <label htmlFor="whatsapp" className="mb-1.5 block text-sm font-medium text-slate-700">WhatsApp <span className="font-normal text-slate-500">(optional)</span></label>
           <input id="whatsapp" inputMode="tel" autoComplete="tel" value={value.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="+62 812 0000 0000" className={field(errors.whatsapp)} />
           <Err k="whatsapp" />
         </div>
@@ -131,7 +131,7 @@ export default function ProfileFields({
         </div>
         {cv && (
           <div className="sm:col-span-2">
-            <label htmlFor="cv" className="mb-1.5 block text-sm font-medium text-slate-700">Add your CV <span className="font-normal text-slate-400">(optional, recommended for team calls)</span></label>
+            <label htmlFor="cv" className="mb-1.5 block text-sm font-medium text-slate-700">Add your CV <span className="font-normal text-slate-500">(optional, recommended for team calls)</span></label>
             <input id="cv" type="file" accept="application/pdf" onChange={(e) => cv.onPick(e.target.files?.[0] ?? null)}
               className="block w-full text-sm text-slate-600 file:mr-3 file:h-10 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100" />
             <p className="mt-1.5 text-xs text-slate-500">{cv.label ? `Current: ${cv.label}. ` : ""}PDF, up to 5 MB. Only shown to people you accept or who you apply to.</p>

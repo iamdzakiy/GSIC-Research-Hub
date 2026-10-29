@@ -8,6 +8,7 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/components/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
+import { useTeamBadge } from "@/components/portal/useTeamBadge";
 
 const TYPES = [
   { href: "/opportunities", label: "All opportunities" },
@@ -30,6 +31,7 @@ export default function SiteHeader() {
   const pathname = usePathname();
   const { user, loading } = useAuth();
   const [open, setOpen] = useState(false);
+  const pending = useTeamBadge();
   useEffect(() => setOpen(false), [pathname]);
 
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href.split("?")[0]!));
@@ -37,7 +39,7 @@ export default function SiteHeader() {
     cn("rounded-md px-3 py-2 text-sm font-medium transition-colors", isActive(href) ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900");
 
   return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-40 border-b border-slate-200 bg-white">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2.5" aria-label="GSIC Hub home">
           <BrandMark size={32} />
@@ -56,7 +58,12 @@ export default function SiteHeader() {
               ))}
             </ul>
           </div>
-          {LINKS.map((l) => <Link key={l.href} href={l.href} aria-current={isActive(l.href) ? "page" : undefined} className={linkCls(l.href)}>{l.label}</Link>)}
+          {LINKS.map((l) => (
+            <Link key={l.href} href={l.href} aria-current={isActive(l.href) ? "page" : undefined} className={linkCls(l.href)}>
+              {l.label}
+              {l.href === "/teams" && pending > 0 && <span className="ml-1.5 inline-block min-w-4 rounded-full bg-brand-600 px-1 text-center text-[10px] font-bold leading-4 text-white" aria-label={`${pending} waiting`}>{pending > 9 ? "9+" : pending}</span>}
+            </Link>
+          ))}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">

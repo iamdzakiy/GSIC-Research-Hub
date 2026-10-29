@@ -9,7 +9,6 @@ import { cn } from "@/lib/cn";
 import ScoreRing from "./ScoreRing";
 import CountUp from "@/components/portal/CountUp";
 import Reveal from "@/components/portal/Reveal";
-import Confetti from "@/components/portal/Confetti";
 
 interface Payload { profile: { name: string | null; email: string; faculty: string | null; major: string | null; year: number | null } | null; events: RaporEvent[]; summary: RaporSummary }
 
@@ -74,7 +73,6 @@ export default function RaporView({ embedded = false }: { embedded?: boolean }) 
     return () => { live = false; };
   }, []);
 
-  const celebrate = useMemo(() => !!data && data.summary.completed > 0 && (data.summary.avgGain ?? 0) > 0, [data]);
   const download = () => {
     if (!data) return;
     const url = URL.createObjectURL(new Blob(["﻿" + raporToCsv(data.events)], { type: "text/csv;charset=utf-8" }));
@@ -87,7 +85,6 @@ export default function RaporView({ embedded = false }: { embedded?: boolean }) 
   const { summary: s, events, profile } = data;
   return (
     <div>
-      {celebrate && <Confetti active />}
       {!embedded && (
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>

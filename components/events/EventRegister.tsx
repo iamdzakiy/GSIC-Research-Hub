@@ -139,14 +139,14 @@ export default function EventRegister({ event, closedReason }: Props) {
             </div>
           )}
           <div>
-            <label htmlFor="ev-lect" className="mb-1.5 block text-sm font-medium text-slate-700">Dosen pembimbing <span className="font-normal text-slate-400">(opsional)</span></label>
+            <label htmlFor="ev-lect" className="mb-1.5 block text-sm font-medium text-slate-700">Dosen pembimbing <span className="font-normal text-slate-500">(opsional)</span></label>
             <input id="ev-lect" value={lecturer} onChange={(e) => setLecturer(e.target.value)} className={cn(field(errors.lecturer), "h-11")} />
             <Err k="lecturer" />
           </div>
         </div>
       ) : (
         <div className="mt-4">
-          <label htmlFor="ev-hope" className="mb-1.5 block text-sm font-medium text-slate-700">Apa yang ingin Anda dapat? <span className="font-normal text-slate-400">(opsional, {hope.length}/300)</span></label>
+          <label htmlFor="ev-hope" className="mb-1.5 block text-sm font-medium text-slate-700">Apa yang ingin Anda dapat? <span className="font-normal text-slate-500">(opsional, {hope.length}/300)</span></label>
           <textarea id="ev-hope" rows={3} maxLength={300} value={hope} onChange={(e) => setHope(e.target.value)} className={cn(field(errors.hope), "py-2.5")} />
           <Err k="hope" />
         </div>

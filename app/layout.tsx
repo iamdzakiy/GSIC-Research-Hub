@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "./legacy-bridge.css";
@@ -16,7 +16,12 @@ function siteBase(): URL {
   return new URL("http://localhost:3000");
 }
 
+export const viewport: Viewport = { themeColor: "#3352CD", width: "device-width", initialScale: 1 };
+
 export const metadata: Metadata = {
+  applicationName: "GSIC Hub",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "GSIC Hub", statusBarStyle: "default" },
   metadataBase: siteBase(),
   title: "GSIC Hub · Ganesha Students Innovation Center",
   description:
@@ -33,7 +38,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.png?v=2", type: "image/png" }],
     shortcut: [{ url: "/favicon.png?v=2" }],
-    apple: [{ url: "/favicon.png?v=2" }],
+    apple: [{ url: "/icons/apple-touch-icon.png" }],
   },
 };
 

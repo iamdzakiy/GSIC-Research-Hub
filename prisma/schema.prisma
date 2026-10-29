@@ -135,6 +135,7 @@ model User {
   posts         BlogPost[]
   teamCalls        TeamCall[]
   teamApplications TeamApplication[]
+  savedOpportunities SavedOpportunity[]
 }
 
 model Speaker {
@@ -206,6 +207,7 @@ model Opportunity {
   createdAt      DateTime        @default(now())
   documents      Document[]
   teamCalls      TeamCall[]
+  savedBy        SavedOpportunity[]
 
   @@index([status])
   @@index([deadline])
@@ -425,4 +427,16 @@ model TeamApplication {
 
   @@unique([callId, applicantId])
   @@index([applicantId])
+}
+
+/// A user's bookmark; the dashboard surfaces the ones closing soon.
+model SavedOpportunity {
+  userId        String
+  opportunityId String
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, opportunityId])
 }

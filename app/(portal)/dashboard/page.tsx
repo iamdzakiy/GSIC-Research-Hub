@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Award, CalendarDays, Settings, Target, TrendingUp } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import ProfileModal from "@/components/portal/ProfileModal";
 import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
-import RaporView from "@/components/portal/rapor/RaporView";
+import dynamic from "next/dynamic";
+import HomeHooks from "@/components/portal/dashboard/HomeHooks";
 import MyEvents from "@/components/portal/dashboard/MyEvents";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
 import GalleryMarquee, { type GalleryEntry } from "@/components/portal/GalleryMarquee";
@@ -19,13 +19,14 @@ import { typeLabel } from "@/lib/opportunity-config";
 import type { RaporEvent, RaporSummary } from "@/lib/scoring";
 import { cn } from "@/lib/cn";
 
+const RaporView = dynamic(() => import("@/components/portal/rapor/RaporView"), { ssr: false, loading: () => <div className="h-40 animate-pulse rounded-xl bg-white" /> });
+
 interface Opp { id: string; slug: string; title: string; organizer: string; type: string; deadline: string; openDate: string | null; status: string }
 const TABS = [["ringkasan", "Overview"], ["rapor", "Report card"], ["peluang", "Opportunities"], ["galeri", "Gallery"]] as const;
 type Tab = (typeof TABS)[number][0];
 
 export default function DashboardPage() {
   const { user, userProfile, loading } = useAuth();
-  const reduce = useReducedMotion();
   const [tab, setTab] = useState<Tab>("ringkasan");
   const [edit, setEdit] = useState(false);
   const [rapor, setRapor] = useState<{ events: RaporEvent[]; summary: RaporSummary } | null>(null);
@@ -70,7 +71,6 @@ export default function DashboardPage() {
   return (
     <>
       <header className="relative overflow-hidden bg-navy text-white">
-        {!reduce && <motion.div aria-hidden="true" className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-600/30 blur-3xl" animate={{ x: [0, -24, 0], y: [0, 16, 0] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }} />}
         <div className="relative mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-8 sm:px-6">
           <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-brand-600 font-display text-2xl font-extrabold">
             {userProfile?.avatarUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={userProfile.avatarUrl} alt="" className="h-full w-full object-cover" /> : name.charAt(0).toUpperCase()}
@@ -117,6 +117,7 @@ export default function DashboardPage() {
         <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
           {tab === "ringkasan" && (
             <div className="space-y-4">
+              <HomeHooks />
               <MyEvents />
               <h2 className="font-display text-lg font-bold text-slate-900">Your progress</h2>
               {!rapor ? <div className="h-32 animate-pulse rounded-xl bg-white" /> : rapor.events.length === 0 ? (

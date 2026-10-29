@@ -13,7 +13,7 @@ export default function BlogCard({ post }: { post: BlogListItem }) {
         // eslint-disable-next-line @next/next/no-img-element
         <img src={post.coverImage} alt="" loading="lazy" className="aspect-[16/9] w-full border-b border-slate-200 object-cover" />
       ) : (
-        <div className="aspect-[16/9] w-full border-b border-slate-200 bg-gradient-to-br from-brand-50 to-slate-100" aria-hidden="true" />
+        <div className="aspect-[16/9] w-full border-b border-slate-200 bg-brand-50" aria-hidden="true" />
       )}
       <div className="flex flex-1 flex-col p-5">
         <h2 className="text-base font-semibold leading-snug tracking-tight text-slate-900 font-heading">
