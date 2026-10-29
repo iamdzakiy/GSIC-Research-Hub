@@ -4,26 +4,13 @@ import { profileToData } from "@/lib/validation/profile";
 import { fail, guard, mapServerError } from "@/lib/auth-route";
 import { siteUrl, supabaseAdmin } from "@/lib/supabaseAdmin";
 import { renderWelcomeEmail } from "@/lib/email-templates";
-import { sendMail } from "@/lib/mailer";
+import { trySendMail } from "@/lib/mailer";
 import { prisma } from "@/lib/prisma";
+import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
 
 export const runtime = "nodejs";
 
 const ALREADY = "This email is already registered. Sign in or reset your password.";
-const MAIL_TIMEOUT_MS = 8_000;
-
-/** Welcome email: bounded wait, never throws. A mail problem must not fail registration. */
-async function sendWelcome(to: string, name: string, site: string) {
-  try {
-    await Promise.race([
-      sendMail({ to, ...renderWelcomeEmail({ name, siteUrl: site }) }),
-      new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), MAIL_TIMEOUT_MS)),
-    ]);
-  } catch (e) {
-    console.error("[register] welcome email failed:", (e as Error).message);
-  }
-}
-
 export async function POST(req: Request) {
   const g = await guard(req, "register", registerSchema);
   if (!g.ok) return g.res;
@@ -64,7 +51,8 @@ export async function POST(req: Request) {
       throw e;
     }
 
-    await sendWelcome(email, name, siteUrl(req));
+    await syncProfileToSheet(data.user.id);
+    await trySendMail({ to: email, ...renderWelcomeEmail({ name, siteUrl: siteUrl(req) }) });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return mapServerError(e);

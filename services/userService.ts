@@ -27,8 +27,13 @@ export function mapPrismaUserToProfile(u: any): UserProfile {
     skills: u.skills || [],
     softSkills: u.softSkills || [],
     interests: u.interests || [],
-    archetype: u.archetype || null,
-    bccRole: u.bccRole || null,
+    preferredRole: u.preferredRole || null,
+    pkmRole: u.pkmRole || null,
+    fields: u.fields || [],
+    institution: u.institution || "ITB",
+    linkedinUrl: u.linkedinUrl || null,
+    hasCv: !!(u.cvPath || u.hasCv),
+    cvUrl: u.cvUrl || null,
     bio: u.bio || "",
     isVerified: u.isVerified || false,
     role: u.role || "user",
@@ -79,6 +84,24 @@ export async function ensureProfile(user: { email?: string; user_metadata?: Reco
   return mapPrismaUserToProfile(await res.json());
 }
 
+/** Uploads the signed-in user's CV (PDF, 5 MB max). Returns the refreshed profile. */
+export async function uploadCv(file: File): Promise<UserProfile> {
+  const { data } = await supabase.auth.getSession();
+  const form = new FormData();
+  form.set("file", file);
+  const res = await fetch("/api/users/cv", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` }, body: form });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(body?.error || "Could not upload your CV.");
+  return body.profile as UserProfile;
+}
+
+export async function removeCv(): Promise<UserProfile> {
+  const res = await fetch("/api/users/cv", { method: "DELETE", headers: await getAuthHeaders() });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(body?.error || "Could not remove your CV.");
+  return body.profile as UserProfile;
+}
+
 export async function getAllUsers(params?: { page?: number; pageSize?: number }): Promise<UserProfile[]> {
   const qs = new URLSearchParams();
   if (params?.page) qs.set("page", String(params.page));
@@ -99,7 +122,8 @@ export async function updateUserProfile(uid: string, updates: Partial<UserProfil
   });
   if (!res.ok) {
     const err = await res.json().catch(() => null);
-    throw new Error(err?.error || "Failed to update profile");
+    const first = err?.fieldErrors ? Object.values(err.fieldErrors as Record<string, string>)[0] : null;
+    throw new Error(first || err?.error || "Failed to update profile");
   }
   return mapPrismaUserToProfile(await res.json());
 }

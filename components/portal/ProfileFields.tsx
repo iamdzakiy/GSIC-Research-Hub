@@ -4,7 +4,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { FACULTY_MAJOR_MAP, FACULTY_NAMES } from "@/lib/types";
-import { ARCHETYPES, BCC_ROLES, HARD_SKILLS, INTERESTS, SOFT_SKILLS, YEARS } from "@/lib/profile-options";
+import { FIELDS, HARD_SKILLS, INTERESTS, PKM_ROLES, PREFERRED_ROLES, SOFT_SKILLS, YEARS } from "@/lib/profile-options";
 
 export interface ProfileValues {
   faculty: string;
@@ -14,13 +14,16 @@ export interface ProfileValues {
   skills: string[];
   softSkills: string[];
   interests: string[];
-  archetype: string;
-  bccRole: string;
+  linkedinUrl: string;
+  preferredRole: string;
+  pkmRole: string;
+  fields: string[];
+  institution: string;
 }
 
 export const EMPTY_PROFILE: ProfileValues = {
   faculty: "", major: "", year: new Date().getFullYear(), whatsapp: "",
-  skills: [], softSkills: [], interests: [], archetype: "", bccRole: "",
+  skills: [], softSkills: [], interests: [], linkedinUrl: "", preferredRole: "", pkmRole: "", fields: [], institution: "ITB",
 };
 
 const toggle = (list: string[], v: string, max: number) =>
@@ -75,9 +78,16 @@ function Group({ title, note, children }: { title: string; note?: string; childr
   );
 }
 
+export interface CvControl {
+  /** Name of the CV already on file or just picked, if any. */
+  label: string | null;
+  onPick: (file: File | null) => void;
+  error?: string;
+}
+
 export default function ProfileFields({
-  value, onChange, errors = {},
-}: { value: ProfileValues; onChange: (v: ProfileValues) => void; errors?: Record<string, string> }) {
+  value, onChange, errors = {}, cv,
+}: { value: ProfileValues; onChange: (v: ProfileValues) => void; errors?: Record<string, string>; cv?: CvControl }) {
   const set = <K extends keyof ProfileValues>(k: K, v: ProfileValues[K]) => onChange({ ...value, [k]: v });
   const majors = FACULTY_MAJOR_MAP[value.faculty] ?? [];
   const Err = ({ k }: { k: string }) => (errors[k] ? <p className="mt-1.5 text-xs text-rose-600">{errors[k]}</p> : null);
@@ -114,36 +124,53 @@ export default function ProfileFields({
           <input id="whatsapp" inputMode="tel" autoComplete="tel" value={value.whatsapp} onChange={(e) => set("whatsapp", e.target.value)} placeholder="+62 812 0000 0000" className={field(errors.whatsapp)} />
           <Err k="whatsapp" />
         </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="linkedin" className="mb-1.5 block text-sm font-medium text-slate-700">LinkedIn profile</label>
+          <input id="linkedin" type="url" inputMode="url" autoComplete="url" value={value.linkedinUrl} onChange={(e) => set("linkedinUrl", e.target.value)} placeholder="linkedin.com/in/your-name" aria-invalid={!!errors.linkedinUrl} aria-describedby={errors.linkedinUrl ? "linkedin-err" : undefined} className={field(errors.linkedinUrl)} />
+          {errors.linkedinUrl ? <p id="linkedin-err" className="mt-1.5 text-xs text-rose-600">{errors.linkedinUrl}</p> : <p className="mt-1.5 text-xs text-slate-500">Teammates check this before they contact you.</p>}
+        </div>
+        {cv && (
+          <div className="sm:col-span-2">
+            <label htmlFor="cv" className="mb-1.5 block text-sm font-medium text-slate-700">Add your CV <span className="font-normal text-slate-400">(optional, recommended for team calls)</span></label>
+            <input id="cv" type="file" accept="application/pdf" onChange={(e) => cv.onPick(e.target.files?.[0] ?? null)}
+              className="block w-full text-sm text-slate-600 file:mr-3 file:h-10 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:text-sm file:font-medium file:text-brand-700 hover:file:bg-brand-100" />
+            <p className="mt-1.5 text-xs text-slate-500">{cv.label ? `Current: ${cv.label}. ` : ""}PDF, up to 5 MB. Only shown to people you accept or who you apply to.</p>
+            {cv.error && <p role="alert" className="mt-1.5 text-xs text-rose-600">{cv.error}</p>}
+          </div>
+        )}
       </div>
 
-      <Group title="Archetype" note="The role you usually play in a team. Pick one.">
-        <div className="grid gap-2 sm:grid-cols-3">
-          {ARCHETYPES.map((a) => {
-            const on = value.archetype === a.id;
+      <Group title="Preferred team role" note="A balanced team has one of each. Pick the role you want to take.">
+        <div className="grid gap-2 sm:grid-cols-2">
+          {PREFERRED_ROLES.map((r) => {
+            const on = value.preferredRole === r.id;
             return (
-              <button key={a.id} type="button" aria-pressed={on} onClick={() => set("archetype", on ? "" : a.id)}
+              <button key={r.id} type="button" aria-pressed={on} onClick={() => set("preferredRole", on ? "" : r.id)}
                 className={cn("rounded-xl border p-3.5 text-left transition-colors", on ? "border-brand-600 bg-brand-50 ring-1 ring-brand-600" : "border-slate-300 bg-white hover:border-brand-400")}>
-                <span className="block text-sm font-semibold text-slate-900">{a.label}</span>
-                <span className="mt-1 block text-xs leading-5 text-slate-600">{a.hint}</span>
-              </button>
-            );
-          })}
-        </div>
-      </Group>
-
-      <Group title="Business case role" note="Where you slot in on a business case team. Pick one.">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {BCC_ROLES.map((r) => {
-            const on = value.bccRole === r.id;
-            return (
-              <button key={r.id} type="button" aria-pressed={on} onClick={() => set("bccRole", on ? "" : r.id)}
-                className={cn("rounded-xl border p-3 text-left transition-colors", on ? "border-mint-600 bg-mint-50 ring-1 ring-mint-600" : "border-slate-300 bg-white hover:border-mint-400")}>
                 <span className="block text-sm font-semibold text-slate-900">{r.label}</span>
                 <span className="mt-1 block text-xs leading-5 text-slate-600">{r.hint}</span>
               </button>
             );
           })}
         </div>
+      </Group>
+
+      <Group title="Role in PKM">
+        <div className="flex gap-2" role="group">
+          {PKM_ROLES.map((r) => {
+            const on = value.pkmRole === r.id;
+            return (
+              <button key={r.id} type="button" aria-pressed={on} onClick={() => set("pkmRole", on ? "" : r.id)}
+                className={cn("h-10 flex-1 rounded-lg border text-sm font-medium transition-colors", on ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-brand-400")}>
+                {r.label}
+              </button>
+            );
+          })}
+        </div>
+      </Group>
+
+      <Group title="Field" note="Where your work sits. Pick up to 3.">
+        <Chips items={FIELDS} selected={value.fields} max={3} onToggle={(id) => set("fields", toggle(value.fields, id, 3))} />
       </Group>
 
       <Group title="Interests" note={`Programs and tracks you want to hear about. Up to 8. Selected: ${value.interests.length}`}>

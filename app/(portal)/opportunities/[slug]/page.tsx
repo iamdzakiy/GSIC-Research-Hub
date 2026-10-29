@@ -233,6 +233,9 @@ export default async function OpportunityDetailPage({ params }: Props) {
             </dl>
             <div className="mt-5 space-y-3">
               <Cta className="w-full" />
+              {o.type === "competition" && !closed && (
+                <Link href={`/teams?opportunity=${encodeURIComponent(o.slug)}`} className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-slate-300 text-sm font-medium text-slate-700 hover:border-brand-400 hover:text-brand-700">Find teammates</Link>
+              )}
               <ShareActions title={o.title} icsHref={`/api/opportunities/${o.slug}/ics`} />
             </div>
           </div>

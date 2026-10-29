@@ -133,8 +133,14 @@ export interface UserProfile {
   skills: string[];
   softSkills?: string[];
   interests?: string[];
-  archetype?: string | null;
-  bccRole?: string | null;
+  preferredRole?: string | null;
+  pkmRole?: string | null;
+  fields?: string[];
+  institution?: string;
+  linkedinUrl?: string | null;
+  hasCv?: boolean;
+  /** Short-lived signed URL; only present on the user's own profile responses. */
+  cvUrl?: string | null;
   bio: string;
   isVerified: boolean;
   role: UserRole;

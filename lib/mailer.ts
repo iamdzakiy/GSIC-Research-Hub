@@ -38,3 +38,14 @@ export async function sendMail({ to, subject, html, text }: MailInput): Promise<
   const from = process.env.SMTP_FROM || `GSIC Hub <${process.env.SMTP_USER}>`;
   await transporter().sendMail({ from, to, subject, html, text, headers: { "X-Auto-Response-Suppress": "OOF, AutoReply" } });
 }
+
+/** Best-effort send with a bounded wait. Never throws: a mail problem must not fail the caller's action. */
+export async function trySendMail(mail: MailInput, timeoutMs = 8_000): Promise<boolean> {
+  try {
+    await Promise.race([sendMail(mail), new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), timeoutMs))]);
+    return true;
+  } catch (e) {
+    console.error("[mail] not sent:", (e as Error).message);
+    return false;
+  }
+}

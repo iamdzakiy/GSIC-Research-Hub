@@ -1,6 +1,6 @@
 // Shared by the client forms AND the API routes (single source of truth).
 import { z } from "zod";
-import { profileFields, refineFacultyMajor } from "@/lib/validation/profile";
+import { linkedinSchema, profileFields, refineFacultyMajor } from "@/lib/validation/profile";
 
 export const emailSchema = z
   .string({ required_error: "Email is required" })
@@ -26,12 +26,13 @@ export const nameSchema = z
 /** Step 1 of sign-up (account). */
 export const accountSchema = z.object({ name: nameSchema, email: emailSchema, password: passwordSchema });
 
-/** Step 2 of sign-up (profile). Faculty and major are required here; everything else is optional. */
+/** Step 2 of sign-up (profile). Faculty, major and LinkedIn are required here; everything else is optional. */
 export const signupProfileSchema = profileFields
-  .pick({ faculty: true, major: true, year: true, whatsapp: true, skills: true, softSkills: true, interests: true, archetype: true, bccRole: true })
+  .pick({ faculty: true, major: true, year: true, whatsapp: true, skills: true, softSkills: true, interests: true, preferredRole: true, pkmRole: true, fields: true, institution: true })
   .extend({
     faculty: z.string({ required_error: "Choose your faculty or school" }).trim().min(1, "Choose your faculty or school"),
     major: z.string({ required_error: "Choose your major" }).trim().min(1, "Choose your major"),
+    linkedinUrl: linkedinSchema,
   });
 
 export const registerSchema = accountSchema.merge(signupProfileSchema).superRefine(refineFacultyMajor);

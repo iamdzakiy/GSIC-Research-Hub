@@ -1,7 +1,7 @@
 // Profile fields shared by sign-up (API + form) and the profile editor. English messages only.
 import { z } from "zod";
 import { FACULTY_MAJOR_MAP } from "@/lib/types";
-import { ARCHETYPE_IDS, BCC_ROLE_IDS, HARD_SKILLS, INTEREST_IDS, SOFT_SKILLS } from "@/lib/profile-options";
+import { FIELD_IDS, HARD_SKILLS, INTEREST_IDS, PKM_ROLE_IDS, PREFERRED_ROLE_IDS, SOFT_SKILLS, normalizeLinkedIn } from "@/lib/profile-options";
 
 const pick = (allowed: readonly string[], max: number) =>
   z.array(z.string()).max(max, `Pick at most ${max}`).transform((a) => Array.from(new Set(a.filter((x) => allowed.includes(x)))));
@@ -12,6 +12,17 @@ const phone = z
   .max(20)
   .regex(/^[+0-9 ()-]*$/, "Use digits, spaces, + or - only")
   .optional();
+
+/** Required LinkedIn profile URL, normalised to https://www.linkedin.com/in/<slug>. */
+export const linkedinSchema = z
+  .string({ required_error: "LinkedIn profile is required" })
+  .trim()
+  .min(1, "LinkedIn profile is required")
+  .transform((v, ctx) => {
+    const n = normalizeLinkedIn(v);
+    if (!n) ctx.addIssue({ code: "custom", message: "Use a link like linkedin.com/in/your-name" });
+    return n ?? v;
+  });
 
 /** Fields the user can edit. Everything is optional so partial updates work. */
 export const profileFields = z.object({
@@ -27,8 +38,11 @@ export const profileFields = z.object({
   skills: pick(HARD_SKILLS, 12).optional(), // hard skills (column kept as `skills`)
   softSkills: pick(SOFT_SKILLS, 8).optional(),
   interests: pick(INTEREST_IDS, 8).optional(),
-  archetype: z.string().nullish().refine((v) => !v || ARCHETYPE_IDS.includes(v), "Unknown archetype"),
-  bccRole: z.string().nullish().refine((v) => !v || BCC_ROLE_IDS.includes(v), "Unknown role"),
+  preferredRole: z.string().nullish().refine((v) => !v || PREFERRED_ROLE_IDS.includes(v), "Unknown role"),
+  pkmRole: z.string().nullish().refine((v) => !v || PKM_ROLE_IDS.includes(v), "Unknown PKM role"),
+  fields: pick(FIELD_IDS, 7).optional(),
+  institution: z.string().trim().min(1).max(80).optional(),
+  linkedinUrl: linkedinSchema.optional(),
   // sync fields written by AuthContext
   emailConfirmed: z.boolean().optional(),
   provider: z.string().max(30).optional(),
@@ -56,8 +70,9 @@ export function profileToData(p: z.infer<typeof profileFields>): Record<string, 
   }
   set("year", p.year); set("whatsapp", p.whatsapp); set("avatarUrl", p.avatarUrl); set("classcardTheme", p.classcardTheme);
   set("bio", p.bio); set("skills", p.skills); set("softSkills", p.softSkills); set("interests", p.interests);
-  if (p.archetype !== undefined) out.archetype = p.archetype || null;
-  if (p.bccRole !== undefined) out.bccRole = p.bccRole || null;
+  if (p.preferredRole !== undefined) out.preferredRole = p.preferredRole || null;
+  if (p.pkmRole !== undefined) out.pkmRole = p.pkmRole || null;
+  set("fields", p.fields); set("institution", p.institution); set("linkedinUrl", p.linkedinUrl);
   set("emailConfirmed", p.emailConfirmed); set("provider", p.provider);
   if (p.lastSignInAt) { const d = new Date(p.lastSignInAt); if (!Number.isNaN(+d)) out.lastSignInAt = d; }
   return out;

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireAuth, requireUser } from "@/lib/auth-helper";
 import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 import { mapPrismaUserToProfile } from "@/services/userService";
+import { profileResponse } from "@/lib/cv";
+import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
 import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
 
 /**
@@ -27,7 +29,8 @@ export const POST = withErrorHandler(async (request: Request) => {
     update: { ...data, email: String(body.email) },
     create: { id: user.id, email: String(body.email), htaId: body.htaId ?? "", ...data, role: "user", provider: body.provider || "email" },
   });
-  return NextResponse.json(mapPrismaUserToProfile(saved), { status: 201 });
+  await syncProfileToSheet(saved.id);
+  return NextResponse.json(await profileResponse(saved), { status: 201 });
 });
 
 export const PUT = withErrorHandler(async (request: Request) => {
@@ -42,7 +45,8 @@ export const PUT = withErrorHandler(async (request: Request) => {
   if (user.role === "admin" && body.role) data.role = body.role;
 
   const updated = await prisma.user.update({ where: { id }, data });
-  return NextResponse.json(mapPrismaUserToProfile(updated));
+  await syncProfileToSheet(updated.id);
+  return NextResponse.json(await profileResponse(updated));
 });
 
 /** Admin only, paginated. */

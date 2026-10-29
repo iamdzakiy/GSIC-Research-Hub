@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
-import { updateUserProfile } from "@/services/userService";
+import { removeCv, updateUserProfile, uploadCv } from "@/services/userService";
 import ProfileFields, { EMPTY_PROFILE, type ProfileValues } from "@/components/portal/ProfileFields";
 
 /** Light profile editor used on the dashboard. Same pickers as sign-up step 2. */
@@ -12,6 +12,9 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
   const [bio, setBio] = useState("");
   const [values, setValues] = useState<ProfileValues>(EMPTY_PROFILE);
   const [saving, setSaving] = useState(false);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [cvError, setCvError] = useState("");
+  const [fieldErrs, setFieldErrs] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,8 +24,11 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
     setValues({
       faculty: userProfile.faculty ?? "", major: userProfile.major ?? "", year: userProfile.year ?? new Date().getFullYear(),
       whatsapp: userProfile.whatsapp ?? "", skills: userProfile.skills ?? [], softSkills: userProfile.softSkills ?? [],
-      interests: userProfile.interests ?? [], archetype: userProfile.archetype ?? "", bccRole: userProfile.bccRole ?? "",
+      interests: userProfile.interests ?? [], linkedinUrl: userProfile.linkedinUrl ?? "", preferredRole: userProfile.preferredRole ?? "",
+      pkmRole: userProfile.pkmRole ?? "", fields: userProfile.fields ?? [], institution: userProfile.institution ?? "ITB",
     });
+    setCvFile(null);
+    setCvError("");
     setError(null);
   }, [open, userProfile]);
 
@@ -40,12 +46,16 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
     if (!user) return;
     setSaving(true);
     setError(null);
+    setFieldErrs({});
     try {
-      await updateUserProfile(user.id, { name: name.trim(), bio: bio.trim(), ...values, archetype: values.archetype || null, bccRole: values.bccRole || null } as never);
+      await updateUserProfile(user.id, { name: name.trim(), bio: bio.trim(), ...values, preferredRole: values.preferredRole || null, pkmRole: values.pkmRole || null } as never);
+      if (cvFile) await uploadCv(cvFile);
       await refreshProfile();
       onClose();
     } catch (er) {
-      setError(er instanceof Error ? er.message : "Could not save your profile.");
+      const msg = er instanceof Error ? er.message : "Could not save your profile.";
+      setError(msg);
+      if (/linkedin/i.test(msg)) setFieldErrs({ linkedinUrl: msg });
     } finally {
       setSaving(false);
     }
@@ -63,7 +73,26 @@ export default function ProfileModal({ open, onClose }: { open: boolean; onClose
             <label htmlFor="pm-name" className="mb-1.5 block text-sm font-medium text-slate-700">Full name</label>
             <input id="pm-name" value={name} onChange={(e) => setName(e.target.value)} className="h-11 w-full rounded-lg border border-slate-300 px-3.5 text-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20" />
           </div>
-          <ProfileFields value={values} onChange={setValues} />
+          <ProfileFields
+            value={values}
+            onChange={setValues}
+            errors={fieldErrs}
+            cv={{
+              label: cvFile?.name ?? (userProfile?.hasCv ? "a CV is on file" : null),
+              error: cvError,
+              onPick: (f) => {
+                const bad = !!f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024);
+                setCvError(bad ? "Use a PDF of 5 MB or less." : "");
+                setCvFile(bad ? null : f);
+              },
+            }}
+          />
+          {userProfile?.hasCv && (
+            <div className="flex items-center gap-4 text-sm">
+              {userProfile.cvUrl && <a href={userProfile.cvUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-700 hover:underline">View current CV</a>}
+              <button type="button" onClick={async () => { try { await removeCv(); await refreshProfile(); } catch (er) { setError(er instanceof Error ? er.message : "Could not remove your CV."); } }} className="font-medium text-rose-700 hover:underline">Remove CV</button>
+            </div>
+          )}
           <div>
             <label htmlFor="pm-bio" className="mb-1.5 block text-sm font-medium text-slate-700">Bio <span className="font-normal text-slate-400">(optional, 500 characters)</span></label>
             <textarea id="pm-bio" rows={3} maxLength={500} value={bio} onChange={(e) => setBio(e.target.value)} className="w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm focus:border-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-600/20" />

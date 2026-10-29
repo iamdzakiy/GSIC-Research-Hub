@@ -7,6 +7,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/Toast";
+import { uploadCv } from "@/services/userService";
 import { accountSchema, emailOnlySchema, fieldErrors, registerSchema, resetPasswordSchema, signInSchema } from "@/lib/validation/auth";
 import ProfileFields, { EMPTY_PROFILE, type ProfileValues } from "@/components/portal/ProfileFields";
 
@@ -61,6 +62,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   const [cooldown, setCooldown] = useState(0);
   const [step, setStep] = useState<1 | 2>(1);
   const [profile, setProfile] = useState<ProfileValues>(EMPTY_PROFILE);
+  const [cvFile, setCvFile] = useState<File | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode]);
   useEffect(() => {
@@ -96,7 +98,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
 
     // 1) client-side validation (same zod schemas as the server)
     const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
-    const values = mode === "signup" ? { name, email, password, ...profile, whatsapp: profile.whatsapp || undefined, archetype: profile.archetype || null, bccRole: profile.bccRole || null } : { name, email, password, confirm };
+    const values = mode === "signup" ? { name, email, password, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
@@ -149,6 +151,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           setErrors({ form: "Your account was created, but we could not sign you in. Try signing in." });
           return;
         }
+        if (cvFile) await uploadCv(cvFile).catch(() => toast("error", "Your account is ready, but the CV upload failed. Add it from your profile."));
         toast("success", "Welcome to GSIC Hub.");
         router.replace(safeNext());
         return;
@@ -287,7 +290,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} />}
+        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} cv={{ label: cvFile?.name ?? null, onPick: (f) => { setCvFile(f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? null : f); setErrors((p) => ({ ...p, cv: f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? "Use a PDF of 5 MB or less." : "" })); }, error: errors.cv }} />}
 
         {mode === "signup" && step === 2 && (
           <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-700">

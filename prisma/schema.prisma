@@ -108,8 +108,12 @@ model User {
   skills         String[]
   softSkills     String[]
   interests      String[]
-  archetype      String?
-  bccRole        String?
+  preferredRole  String?
+  pkmRole        String?
+  fields         String[]
+  institution    String   @default("ITB")
+  linkedinUrl    String?
+  cvPath         String?
   bio            String?
   isVerified     Boolean  @default(false)
   role           UserRole @default(user)
@@ -123,6 +127,8 @@ model User {
   testResults   TestResult[]
   documents     Document[]
   posts         BlogPost[]
+  teamCalls        TeamCall[]
+  teamApplications TeamApplication[]
 }
 
 model Speaker {
@@ -193,6 +199,7 @@ model Opportunity {
   contactEmail        String?
   createdAt      DateTime        @default(now())
   documents      Document[]
+  teamCalls      TeamCall[]
 
   @@index([status])
   @@index([deadline])
@@ -235,6 +242,7 @@ model Event {
   createdAt            DateTime      @default(now())
   registrations        Registration[]
   documents            Document[]
+  teamCalls            TeamCall[]
 }
 
 model BlogPost {
@@ -347,4 +355,60 @@ model GalleryItem {
   createdAt   DateTime @default(now())
 
   @@index([isPublished, order])
+}
+
+enum TeamCallStatus {
+  open
+  filled
+  closed
+}
+
+enum TeamApplicationStatus {
+  pending
+  accepted
+  declined
+  withdrawn
+}
+
+/// An open "seeking teammates" call for a specific competition.
+model TeamCall {
+  id            String         @id @default(cuid())
+  ownerId       String
+  title         String
+  competition   String
+  opportunityId String?
+  eventId       String?
+  interests     String[]
+  rolesNeeded   String[]
+  slots         Int            // free slots left; decremented on accept
+  description   String
+  deadline      DateTime
+  status        TeamCallStatus @default(open)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  owner        User              @relation(fields: [ownerId], references: [id])
+  opportunity  Opportunity?      @relation(fields: [opportunityId], references: [id])
+  event        Event?            @relation(fields: [eventId], references: [id])
+  applications TeamApplication[]
+
+  @@index([status, deadline])
+  @@index([ownerId])
+}
+
+model TeamApplication {
+  id          String                @id @default(cuid())
+  callId      String
+  applicantId String
+  role        String
+  message     String
+  status      TeamApplicationStatus @default(pending)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  call      TeamCall @relation(fields: [callId], references: [id], onDelete: Cascade)
+  applicant User     @relation(fields: [applicantId], references: [id])
+
+  @@unique([callId, applicantId])
+  @@index([applicantId])
 }

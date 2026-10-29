@@ -18,6 +18,7 @@ const TYPES = [
 ];
 const LINKS = [
   { href: "/pkm", label: "PKM" },
+  { href: "/teams", label: "Teams" },
   { href: "/events", label: "Events" },
   { href: "/blog", label: "Blog" },
   { href: "/links", label: "Links" },

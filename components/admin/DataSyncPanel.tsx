@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { RefreshCw, CheckCircle2, AlertTriangle, Users, ClipboardList, TestTube2, Database } from "lucide-react";
 import { triggerSync } from "@/services/sync";
+import { apiFetch } from "@/lib/apiFetch";
 import { cn } from "@/lib/cn";
 
 export default function DataSyncPanel() {
@@ -21,6 +22,23 @@ export default function DataSyncPanel() {
       setResult({ success: false, error: e instanceof Error ? e.message : "Sync failed." });
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const [sheetMsg, setSheetMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const [sheetBusy, setSheetBusy] = useState(false);
+  const resyncMatchmaking = async () => {
+    if (sheetBusy) return;
+    setSheetBusy(true);
+    setSheetMsg(null);
+    try {
+      const res = await apiFetch("/api/matchmaking/sync", { method: "POST" });
+      const body = await res.json().catch(() => null);
+      setSheetMsg(res.ok ? { ok: true, text: `${body.total} profiles checked: ${body.added} added, ${body.updated} updated.` } : { ok: false, text: body?.error ?? "Re-sync failed." });
+    } catch {
+      setSheetMsg({ ok: false, text: "Could not reach the server." });
+    } finally {
+      setSheetBusy(false);
     }
   };
 
@@ -92,10 +110,20 @@ export default function DataSyncPanel() {
           </motion.div>
         )}
 
+        <div className="mb-6 rounded-xl border border-white/10 p-4">
+          <p className="text-sm font-medium">Match-making sheet</p>
+          <p className="mt-1 text-xs text-white/50">Pushes every profile to the "GSIC Connection Matching Team Database" tab. Rows are matched by Email; hand-typed rows are left alone.</p>
+          <button onClick={resyncMatchmaking} disabled={sheetBusy} className="mt-3 inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-2 text-sm hover:bg-white/10 disabled:opacity-50">
+            <RefreshCw className={cn("w-4 h-4", sheetBusy && "animate-spin")} />
+            {sheetBusy ? "Re-syncing…" : "Re-sync to sheet"}
+          </button>
+          {sheetMsg && <p role="status" className={cn("mt-3 text-xs", sheetMsg.ok ? "text-[#5CE3B6]" : "text-red-400")}>{sheetMsg.text}</p>}
+        </div>
+
         <div className="mt-6 bg-white/[0.03] border border-white/10 rounded-xl p-4">
           <p className="text-xs text-white/40 mb-2">Required environment variables:</p>
           <code className="text-[11px] text-[#5CE3B6] block whitespace-pre-wrap">
-            {`GOOGLE_SHEETS_CLIENT_EMAIL\nGOOGLE_SHEETS_PRIVATE_KEY\nGOOGLE_SHEETS_SPREADSHEET_ID\n\nOptional sheet-title overrides:\nGOOGLE_SHEETS_SHEET_USERS, _REGISTRATIONS, _TESTRESULTS`}
+            {`GOOGLE_SHEETS_CLIENT_EMAIL\nGOOGLE_SHEETS_PRIVATE_KEY\nGOOGLE_SHEETS_SPREADSHEET_ID\nMATCHMAKING_SHEET_ID (optional)\n\nOptional sheet-title overrides:\nGOOGLE_SHEETS_SHEET_USERS, _REGISTRATIONS, _TESTRESULTS`}
           </code>
           <p className="text-xs text-white/40 mt-2">
             Share your spreadsheet with the service account email first.

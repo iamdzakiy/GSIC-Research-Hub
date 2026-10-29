@@ -6,7 +6,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Award, CalendarDays, Settings, Target, TrendingUp } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import ProfileModal from "@/components/portal/ProfileModal";
-import { ARCHETYPES, BCC_ROLES, INTERESTS } from "@/lib/profile-options";
+import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import RaporView from "@/components/portal/rapor/RaporView";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
 import GalleryMarquee, { type GalleryEntry } from "@/components/portal/GalleryMarquee";
@@ -79,8 +79,7 @@ export default function DashboardPage() {
             <h1 className="truncate font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Hello, {name}</h1>
             <p className="truncate text-sm text-slate-300">{[userProfile?.major, userProfile?.faculty].filter(Boolean).join(" · ") || "Complete your profile to get better matches"}</p>
             <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Profile tags">
-              {userProfile?.archetype && <li className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-navy">{ARCHETYPES.find((a) => a.id === userProfile.archetype)?.label}</li>}
-              {userProfile?.bccRole && <li className="rounded-full bg-cream px-2.5 py-0.5 text-xs font-semibold text-navy">BCC: {BCC_ROLES.find((r) => r.id === userProfile.bccRole)?.label}</li>}
+              {userProfile?.preferredRole && <li className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-navy">{labelOf(PREFERRED_ROLES, userProfile.preferredRole)}</li>}
               {(userProfile?.interests ?? []).slice(0, 4).map((id) => <li key={id} className="rounded-full border border-white/20 px-2.5 py-0.5 text-xs text-slate-200">{INTERESTS.find((i) => i.id === id)?.label ?? id}</li>)}
             </ul>
           </div>
