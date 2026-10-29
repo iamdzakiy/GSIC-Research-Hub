@@ -32,8 +32,8 @@ export default function SiteFooter() {
         <nav aria-label="Programs">
           <h2 className="text-sm font-semibold text-cream">Programs</h2>
           <ul className="mt-3 space-y-2 text-sm">
-            <li><Link href="/events/pkm-bootcamp" className="hover:text-white">PKM Bootcamp</Link></li>
-            <li><Link href="/events/sandbox" className="hover:text-white">The Sandbox</Link></li>
+            <li><Link href="/events/pkm-bootcamp-2027" className="hover:text-white">PKM Bootcamp</Link></li>
+            <li><Link href="/events/sandbox-sesi-1" className="hover:text-white">The Sandbox</Link></li>
             <li><Link href="/pkm" className="hover:text-white">PKM guide</Link></li>
             <li><Link href="/about" className="hover:text-white">About GSIC Research</Link></li>
             <li><Link href="/auth?mode=signin" className="hover:text-white">Sign in</Link></li>

@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthContext";
 import ProfileModal from "@/components/portal/ProfileModal";
 import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import RaporView from "@/components/portal/rapor/RaporView";
+import MyEvents from "@/components/portal/dashboard/MyEvents";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
 import GalleryMarquee, { type GalleryEntry } from "@/components/portal/GalleryMarquee";
 import CountUp from "@/components/portal/CountUp";
@@ -116,12 +117,13 @@ export default function DashboardPage() {
         <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
           {tab === "ringkasan" && (
             <div className="space-y-4">
+              <MyEvents />
               <h2 className="font-display text-lg font-bold text-slate-900">Your progress</h2>
               {!rapor ? <div className="h-32 animate-pulse rounded-xl bg-white" /> : rapor.events.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <p className="font-semibold text-slate-900">No events yet</p>
                   <p className="mt-1 text-sm text-slate-500">Register for a GSIC event to start building your report card.</p>
-                  <Link href="/events/pkm-bootcamp" className="mt-4 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  <Link href="/events/pkm-bootcamp-2027" className="mt-4 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                 </div>
               ) : (next.length ? next : rapor.events.slice(0, 2)).map((e, i) => <Reveal key={e.eventId} delay={i * 0.05}><JourneyStepper ev={e} /></Reveal>)}
               {live.length > 0 && (

@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helper";
+import { getUserFromRequest, requireAdmin } from "@/lib/auth-helper";
 import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 
 export const GET = withErrorHandler(async (request: Request) => {
   const { skip, take } = parsePagination(request.url);
+  const auth = await getUserFromRequest(request);
+  const isAdmin = !!auth && (await prisma.user.findUnique({ where: { id: auth.id }, select: { role: true } }))?.role === "admin";
   const [events, total] = await Promise.all([
     prisma.event.findMany({
       orderBy: { startDate: "asc" },
@@ -13,7 +15,8 @@ export const GET = withErrorHandler(async (request: Request) => {
     }),
     prisma.event.count(),
   ]);
-  return NextResponse.json({ events, total, page: Math.floor(skip / take) + 1, pageSize: take });
+  // meetingUrl is for registered users (see /api/events/[slug]) and admins only.
+  return NextResponse.json({ events: isAdmin ? events : events.map(({ meetingUrl: _m, ...e }) => e), total, page: Math.floor(skip / take) + 1, pageSize: take });
 });
 
 export const POST = withErrorHandler(async (request: Request) => {

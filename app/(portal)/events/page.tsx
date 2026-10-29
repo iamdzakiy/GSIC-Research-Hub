@@ -1,3 +1,4 @@
+import { eventHref, eventWhen } from "@/lib/event-links";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Users } from "lucide-react";
@@ -41,14 +42,14 @@ export default async function EventsIndexPage() {
           {events.map((e) => (
             <Link
               key={e.id}
-              href={e.type === "sandbox" ? "/events/sandbox" : "/events/pkm-bootcamp"}
+              href={eventHref(e)}
               className="rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-brand-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
             >
               <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-semibold capitalize text-brand-700">{e.type}</span>
               <h2 className="mt-3 text-base font-semibold text-slate-900">{e.title}</h2>
               <p className="mt-1 line-clamp-2 text-sm text-slate-600">{e.shortDescription}</p>
               <ul className="mt-4 space-y-1 text-xs text-slate-500">
-                <li className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{formatDate(e.startDate.toISOString())}</li>
+                <li className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{eventWhen(e)}</li>
                 <li className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{e.location}</li>
                 <li className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" aria-hidden="true" />{e.currentParticipants}/{e.maxParticipants} participants</li>
               </ul>

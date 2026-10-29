@@ -256,8 +256,9 @@ export interface EventModule {
   id: string;
   title: string;
   description: string;
-  cluster: "art" | "technology" | "discovery";
+  cluster?: "art" | "technology" | "discovery";
   durationHours: number;
+  dateLabel?: string;
   order: number;
   pdfUrl?: string;
   preTestId?: string;
@@ -266,6 +267,11 @@ export interface EventModule {
 
 export interface GSICEvent {
   id: string;
+  slug?: string | null;
+  dateLabel?: string | null;
+  mode?: "online" | "onsite" | "hybrid";
+  meetingUrl?: string | null;
+  registrationOpen?: boolean;
   type: EventType;
   title: string;
   description: string;

@@ -1,5 +1,5 @@
 // Minimal RFC 5545 all-day event generator (deadline reminder).
-const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+const esc = (s: string) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const ymd = (d: Date, tz = "Asia/Jakarta") => {
   const p = new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
   return p.replace(/-/g, "");
@@ -19,6 +19,19 @@ export function buildDeadlineIcs(o: { id: string; title: string; organizer: stri
     fold(`DESCRIPTION:${esc(`${o.organizer}\n${o.url}`)}`),
     fold(`URL:${o.url}`),
     "BEGIN:VALARM", "TRIGGER:-P3D", "ACTION:DISPLAY", "DESCRIPTION:Deadline in 3 days", "END:VALARM",
+    "END:VEVENT", "END:VCALENDAR",
+  ].join("\r\n") + "\r\n";
+}
+
+const utc = (d: Date) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+/** Timed event (UTC instants) for a registration confirmation. */
+export function buildEventIcs(e: { id: string; title: string; start: Date; end: Date; location: string; description: string; url: string }): string {
+  return [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//GSIC Hub//Events//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "BEGIN:VEVENT",
+    `UID:${e.id}@gsic-hub`, `DTSTAMP:${utc(new Date())}`, `DTSTART:${utc(e.start)}`, `DTEND:${utc(e.end)}`,
+    fold(`SUMMARY:${esc(e.title)}`), fold(`LOCATION:${esc(e.location)}`), fold(`DESCRIPTION:${esc(`${e.description}\n${e.url}`)}`), fold(`URL:${e.url}`),
+    "BEGIN:VALARM", "TRIGGER:-PT1H", "ACTION:DISPLAY", "DESCRIPTION:Starts in 1 hour", "END:VALARM",
     "END:VEVENT", "END:VCALENDAR",
   ].join("\r\n") + "\r\n";
 }

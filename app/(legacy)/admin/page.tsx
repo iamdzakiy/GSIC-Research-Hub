@@ -37,10 +37,9 @@ import OpportunityEditor from "@/components/admin/OpportunityEditor";
 import LinksManager from "@/components/admin/LinksManager";
 import GalleryManager from "@/components/admin/GalleryManager";
 import DataSyncPanel from "@/components/admin/DataSyncPanel";
+import EventEditor from "@/components/admin/EventEditor";
 import TestBuilder from "@/components/tests/TestBuilder";
 import {
-  PKM_BOOTCAMP,
-  SEED_TESTS,
   getTypeLabel,
   generateId,
 } from "@/lib/data";
@@ -94,6 +93,7 @@ export default function AdminDashboard() {
   // Test builder state
   const [testBuilderOpen, setTestBuilderOpen] = useState(false);
   const [builderEventId, setBuilderEventId] = useState("");
+  const [editingEvent, setEditingEvent] = useState<GSICEvent | null>(null);
 
   // Form states
   const [eventForm, setEventForm] = useState({
@@ -509,54 +509,21 @@ export default function AdminDashboard() {
                           <span className="text-[10px] text-white/30">{evt.type} · {evt.status}</span>
                         </div>
                       </div>
-                      <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button onClick={() => setEditingEvent(evt)} className="text-xs text-[#5CE3B6] hover:underline">Edit</button>
+                        <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             </div>
 
-            {/* Auto-Create PKM Bootcamp */}
-            <div className="glass rounded-2xl p-6 border border-[#5CE3B6]/20">
-              <h3 className="font-semibold mb-2 flex items-center gap-2 font-heading">
-                <Zap className="w-4 h-4 text-[#5CE3B6]" /> Auto-Create PKM Bootcamp
-              </h3>
-              <p className="text-xs text-white/40 mb-4">
-                One-click to create the full PKM Bootcamp event with pre-test, post-test, modules, and speakers.
-              </p>
-              <button
-                onClick={async () => {
-                  try {
-                    // Check if PKM Bootcamp already exists
-                    const existing = events.find((e) => e.id === "event-pkm-bootcamp");
-                    if (existing) {
-                      showToast("PKM Bootcamp already exists!", "error");
-                      return;
-                    }
-                    // Create the event
-                    await createEvent({
-                      ...PKM_BOOTCAMP,
-                      createdBy: user?.id || "unknown",
-                      createdAt: new Date().toISOString(),
-                    } as Partial<GSICEvent>);
-                    // Create pre-test and post-test
-                    for (const test of SEED_TESTS) {
-                      await createTest(test as Partial<Test>);
-                    }
-                    showToast("PKM Bootcamp created with pre/post tests!");
-                    await loadData();
-                  } catch (e) {
-                    console.error(e);
-                    showToast("Failed to auto-create PKM Bootcamp", "error");
-                  }
-                }}
-                className="w-full bg-gradient-to-r from-[#5CE3B6] to-[#3352CD] hover:from-[#7ff0cc] hover:to-[#4a6cf7] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2"
-              >
-                <Zap className="w-4 h-4" /> Auto-Create PKM Bootcamp + Pre/Post Tests
-              </button>
-            </div>
+            <p className="text-xs text-white/40">
+              Seed the real programs with <code>npx tsx scripts/seed-events.ts</code>. Re-running it is safe.
+            </p>
           </motion.div>
         )}
 
@@ -1082,6 +1049,13 @@ export default function AdminDashboard() {
         />
       )}
 
+      {editingEvent && (
+        <EventEditor
+          event={editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onSaved={(saved) => { setEvents((l) => l.map((x) => (x.id === saved.id ? { ...x, ...saved } : x))); setEditingEvent(null); showToast("Event saved."); }}
+        />
+      )}
       {toast && (
         <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>
           <span>{toast.type === "success" ? "" : ""}</span>

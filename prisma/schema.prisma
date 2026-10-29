@@ -54,6 +54,12 @@ enum Status {
   completed
 }
 
+enum EventMode {
+  online
+  onsite
+  hybrid
+}
+
 enum EventType {
   bootcamp
   sandbox
@@ -218,6 +224,11 @@ model CuratedOpportunity {
 
 model Event {
   id                   String        @id @default(cuid())
+  slug                 String?       @unique
+  dateLabel            String?       // shown instead of exact dates while they are still TBA
+  mode                 EventMode     @default(onsite)
+  meetingUrl           String?       // only ever shown to registered users
+  registrationOpen     Boolean       @default(true)
   type                 EventType
   title                String
   description          String
@@ -282,6 +293,7 @@ model Registration {
   userId            String
   eventId           String
   motivation        String?
+  details           Json?              // per-event answers: scheme, team members, lecturer, expectations
   status            RegistrationStatus @default(confirmed)
   preTestCompleted  Boolean            @default(false)
   postTestCompleted Boolean            @default(false)
@@ -289,6 +301,8 @@ model Registration {
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
 }
 
 model TestResult {

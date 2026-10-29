@@ -20,7 +20,7 @@ const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 /** Everything `renderEmail` needs. `body` is trusted HTML (callers escape user values); `steps` are plain text. */
-export interface EmailCopy { subject: string; preheader: string; title: string; body: string; cta: string; url: string; steps?: string[]; expiry?: string; ignore?: string; note?: string }
+export interface EmailCopy { subject: string; preheader: string; title: string; body: string; cta: string; url: string; steps?: string[]; facts?: [string, string][]; expiry?: string; ignore?: string; note?: string }
 type LinkCopy = Omit<EmailCopy, "url">
 
 const hi = (name?: string) => (name ? `Hi ${esc(name.split(" ")[0]!)},` : "Hi,");
@@ -75,6 +75,9 @@ export function renderWelcomeEmail(opts: { name?: string; siteUrl: string }): Re
 export function renderEmail(c: EmailCopy, siteUrl: string): RenderedEmail {
   const url = esc(c.url);
   const logo = `${siteUrl}/favicon.png`;
+  const facts = c.facts?.length
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;border-top:1px solid ${BORDER};">${c.facts.map(([k, v]) => `<tr><td style="padding:10px 12px 10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:13px;color:#64748B;white-space:nowrap;vertical-align:top;">${esc(k)}</td><td style="padding:10px 0;border-bottom:1px solid ${BORDER};font-family:${FONT};font-size:14px;color:${INK};">${esc(v)}</td></tr>`).join("")}</table>`
+    : "";
   const steps = c.steps?.length
     ? `<ol style="margin:0 0 28px;padding:0 0 0 20px;font-size:15px;line-height:1.7;color:${MUTED};">${c.steps.map((x) => `<li style="margin:0 0 6px;">${esc(x)}</li>`).join("")}</ol>`
     : "";
@@ -97,6 +100,7 @@ export function renderEmail(c: EmailCopy, siteUrl: string): RenderedEmail {
       <h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;font-weight:700;color:${INK};letter-spacing:-0.4px;">${esc(c.title)}</h1>
       <p style="margin:0 0 ${steps ? "14" : "28"}px;font-size:15px;line-height:1.7;color:${MUTED};">${c.body}</p>
       ${steps}
+      ${facts}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 28px;"><tr>
         <td align="center" bgcolor="${BLUE}" style="border-radius:8px;">
           <a href="${url}" target="_blank" rel="noopener" style="display:inline-block;padding:14px 30px;font-family:${FONT};font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;border-radius:8px;">${esc(c.cta)}</a>
@@ -115,6 +119,6 @@ export function renderEmail(c: EmailCopy, siteUrl: string): RenderedEmail {
   </table>
 </td></tr></table></body></html>`;
 
-  const text = [c.title, "", c.body.replace(/&[a-z#0-9]+;/g, ""), ...(c.steps ?? []).map((x, i) => `${i + 1}. ${x}`), "", `${c.cta}: ${c.url}`, "", ...[c.expiry, c.ignore, c.note].filter((x): x is string => !!x), "", "GSIC Hub, Institut Teknologi Bandung"].join("\n");
+  const text = [c.title, "", c.body.replace(/&[a-z#0-9]+;/g, ""), ...(c.steps ?? []).map((x, i) => `${i + 1}. ${x}`), ...(c.facts ?? []).map(([k, v]) => `${k}: ${v}`), "", `${c.cta}: ${c.url}`, "", ...[c.expiry, c.ignore, c.note].filter((x): x is string => !!x), "", "GSIC Hub, Institut Teknologi Bandung"].join("\n");
   return { subject: c.subject, html, text };
 }

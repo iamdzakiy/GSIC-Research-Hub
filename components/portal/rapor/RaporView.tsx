@@ -120,7 +120,7 @@ export default function RaporView({ embedded = false }: { embedded?: boolean }) 
         <div className="mt-6 rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
           <p className="text-base font-semibold text-slate-900">No report cards yet</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">Register for a GSIC event and take the pre-test and post-test. Your report card will appear here.</p>
-          <Link href="/events/pkm-bootcamp" className="mt-5 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+          <Link href="/events/pkm-bootcamp-2027" className="mt-5 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
         </div>
       ) : (
         <div className="mt-6 space-y-4">

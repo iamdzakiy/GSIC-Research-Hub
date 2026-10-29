@@ -1,6 +1,12 @@
 // next.config.js
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/events/pkm-bootcamp', destination: '/events/pkm-bootcamp-2027', permanent: true },
+      { source: '/events/sandbox', destination: '/events/sandbox-sesi-1', permanent: true },
+    ];
+  },
   images: {
     remotePatterns: [
       {

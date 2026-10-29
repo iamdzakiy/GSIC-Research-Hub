@@ -1,3 +1,4 @@
+import { eventHref, eventWhen } from "@/lib/event-links";
 import Link from "next/link";
 import { ArrowRight, Award, BookOpen, Briefcase, CalendarDays, FlaskConical, MapPin, Search, Trophy, Users } from "lucide-react";
 import { prisma } from "@/lib/prisma";
@@ -230,12 +231,12 @@ export default async function HomePage() {
             </div>
             <div className="grid gap-4 md:grid-cols-3">
               {events.map((e) => (
-                <Link key={e.id} href={e.type === "sandbox" ? "/events/sandbox" : "/events/pkm-bootcamp"} className="rounded-xl border border-white/10 bg-white/5 p-5 transition-all hover:-translate-y-1 hover:border-mint/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
+                <Link key={e.id} href={eventHref(e)} className="rounded-xl border border-white/10 bg-white/5 p-5 transition-all hover:-translate-y-1 hover:border-mint/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint">
                   <span className="rounded-md bg-cream px-2 py-0.5 text-xs font-semibold capitalize text-navy">{e.type}</span>
                   <h3 className="mt-3 text-base font-semibold">{e.title}</h3>
                   <p className="mt-1 line-clamp-2 text-sm text-slate-300">{e.shortDescription}</p>
                   <ul className="mt-4 space-y-1 text-xs text-slate-400">
-                    <li className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{formatDate(e.startDate.toISOString())}</li>
+                    <li className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />{eventWhen(e)}</li>
                     <li className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" aria-hidden="true" />{e.location}</li>
                     <li className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" aria-hidden="true" />{e.currentParticipants}/{e.maxParticipants} participants</li>
                   </ul>

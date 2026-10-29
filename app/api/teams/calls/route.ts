@@ -22,7 +22,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const role = q.get("role")?.trim();
   const [opp, ev] = await Promise.all([
     q.get("opportunity") ? prisma.opportunity.findUnique({ where: { slug: q.get("opportunity")! }, select: { id: true } }) : null,
-    q.get("event") ? prisma.event.findUnique({ where: { id: q.get("event")! }, select: { id: true } }) : null,
+    q.get("event") ? prisma.event.findFirst({ where: { OR: [{ id: q.get("event")! }, { slug: q.get("event")! }] }, select: { id: true } }) : null,
   ]);
 
   const calls = await prisma.teamCall.findMany({
