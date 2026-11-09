@@ -2,26 +2,26 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, Search, User, Users } from "lucide-react";
+import { CalendarDays, Home, Trophy, User, Users } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { useAuth } from "@/components/AuthContext";
-import { useTeamBadge } from "@/components/portal/useTeamBadge";
+import { useNotifications } from "@/components/hub/useNotifications";
 
 /** Phone navigation: five fixed tabs. The desktop top bar takes over from md. */
 export default function BottomTabBar() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const pending = useTeamBadge();
+  const { unread } = useNotifications();
 
   // Opportunity detail pages carry their own sticky apply bar; auth screens need the room.
-  if (pathname.startsWith("/auth") || /^\/opportunities\/[^/]+/.test(pathname)) return null;
+  if (pathname.startsWith("/auth") || /^\/opportunities\/[^/]+/.test(pathname) || pathname.startsWith("/partners/new")) return null;
 
   const tabs = [
     { href: "/", label: "Home", Icon: Home },
-    { href: "/teams", label: "Teams", Icon: Users, badge: pending },
+    { href: "/competitions", label: "Competitions", Icon: Trophy },
+    { href: "/partners", label: "Partners", Icon: Users },
     { href: "/events", label: "Events", Icon: CalendarDays },
-    { href: "/opportunities", label: "Opportunities", Icon: Search },
-    { href: user ? "/dashboard" : "/auth?mode=signin", label: "Profile", Icon: User },
+    { href: user ? "/dashboard" : "/auth?mode=signin", label: "Profile", Icon: User, badge: unread },
   ];
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href.split("?")[0]!));
 

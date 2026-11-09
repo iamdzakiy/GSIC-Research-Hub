@@ -33,6 +33,14 @@ export function mapPrismaUserToProfile(u: any): UserProfile {
     institution: u.institution || "ITB",
     linkedinUrl: u.linkedinUrl || null,
     hasCv: !!(u.cvPath || u.hasCv),
+    username: u.username || null,
+    headline: u.headline || "",
+    competitionInterests: u.competitionInterests || [],
+    openToTeam: u.openToTeam ?? true,
+    directoryVisible: u.directoryVisible ?? true,
+    portfolioUrl: u.portfolioUrl || null,
+    githubUrl: u.githubUrl || null,
+    achievements: Array.isArray(u.achievements) ? u.achievements : [],
     cvUrl: u.cvUrl || null,
     bio: u.bio || "",
     isVerified: u.isVerified || false,
@@ -93,6 +101,23 @@ export async function uploadCv(file: File): Promise<UserProfile> {
   const body = await res.json().catch(() => null);
   if (!res.ok) throw new Error(body?.error || "Could not upload your CV.");
   return body.profile as UserProfile;
+}
+
+/** Uploads a square avatar (webp, made by the client cropper). Returns the refreshed profile. */
+export async function uploadAvatar(blob: Blob): Promise<UserProfile> {
+  const { data } = await supabase.auth.getSession();
+  const form = new FormData();
+  form.set("file", blob, "avatar.webp");
+  const res = await fetch("/api/users/avatar", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` }, body: form });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(body?.error || "Could not upload your photo.");
+  return body.profile as UserProfile;
+}
+
+export async function deleteAccount(confirmEmail: string): Promise<void> {
+  const res = await fetch("/api/users/me", { method: "DELETE", headers: await getAuthHeaders(), body: JSON.stringify({ confirm: confirmEmail }) });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) throw new Error(body?.error || "Could not delete your account.");
 }
 
 export async function removeCv(): Promise<UserProfile> {

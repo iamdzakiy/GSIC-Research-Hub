@@ -120,6 +120,16 @@ model User {
   institution    String   @default("ITB")
   linkedinUrl    String?
   cvPath         String?
+  username       String?  @unique
+  headline       String?
+  competitionInterests String[]
+  openToTeam     Boolean  @default(true)
+  directoryVisible Boolean @default(true)
+  portfolioUrl   String?
+  githubUrl      String?
+  achievements   Json?    // [{ title, year, result }], max 5
+  notifyPrefs    Json?    // { [kind]: boolean }, missing = default on
+  deletedAt      DateTime?
   bio            String?
   isVerified     Boolean  @default(false)
   role           UserRole @default(user)
@@ -136,6 +146,9 @@ model User {
   teamCalls        TeamCall[]
   teamApplications TeamApplication[]
   savedOpportunities SavedOpportunity[]
+  notifications    Notification[]
+  eventInterests   EventInterest[]
+  reports          PostReport[]
 }
 
 model Speaker {
@@ -204,6 +217,16 @@ model Opportunity {
   socialLinks         Json?            // [{ label, url }]
   tips                String?          @db.Text
   contactEmail        String?
+  // --- competition focus (type = competition) ---
+  category            String?          // COMPETITION_CATEGORIES id
+  theme               String?
+  guidebookUrl        String?
+  submissionDeadline  DateTime?
+  teamSizeMin         Int?
+  teamSizeMax         Int?
+  registrationFee     String?
+  isPublished         Boolean          @default(true)
+  submittedById       String?
   createdAt      DateTime        @default(now())
   documents      Document[]
   teamCalls      TeamCall[]
@@ -212,6 +235,7 @@ model Opportunity {
   @@index([status])
   @@index([deadline])
   @@index([type])
+  @@index([type, isPublished, deadline])
 }
 
 model CuratedOpportunity {
@@ -231,15 +255,17 @@ model Event {
   mode                 EventMode     @default(onsite)
   meetingUrl           String?       // only ever shown to registered users
   registrationOpen     Boolean       @default(true)
+  comingSoon           Boolean       @default(false)
+  series               String?
   type                 EventType
   title                String
   description          String
   shortDescription     String
-  startDate            DateTime
-  endDate              DateTime
-  registrationDeadline DateTime
-  location             String
-  maxParticipants      Int
+  startDate            DateTime?
+  endDate              DateTime?
+  registrationDeadline DateTime?
+  location             String?
+  maxParticipants      Int?
   currentParticipants  Int           @default(0)
   status               Status        @default(upcoming)
   clusters             String[]
@@ -256,6 +282,7 @@ model Event {
   registrations        Registration[]
   documents            Document[]
   teamCalls            TeamCall[]
+  interests            EventInterest[]
 }
 
 model BlogPost {
@@ -373,6 +400,11 @@ model GalleryItem {
   @@index([isPublished, order])
 }
 
+enum TeamCallKind {
+  team_needs_member
+  looking_for_team
+}
+
 enum TeamCallStatus {
   open
   filled
@@ -396,6 +428,12 @@ model TeamCall {
   eventId       String?
   interests     String[]
   rolesNeeded   String[]
+  kind          TeamCallKind   @default(team_needs_member)
+  category      String?
+  skillsNeeded  String[]
+  commitment    String?
+  currentTeamSize Int?
+  hiddenAt      DateTime?      // set after 3 reports; admins can restore
   slots         Int            // free slots left; decremented on accept
   description   String
   deadline      DateTime
@@ -407,6 +445,7 @@ model TeamCall {
   opportunity  Opportunity?      @relation(fields: [opportunityId], references: [id])
   event        Event?            @relation(fields: [eventId], references: [id])
   applications TeamApplication[]
+  reports      PostReport[]
 
   @@index([status, deadline])
   @@index([ownerId])
@@ -439,4 +478,73 @@ model SavedOpportunity {
   opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
 
   @@id([userId, opportunityId])
+}
+
+model PostReport {
+  callId     String
+  reporterId String
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  call     TeamCall @relation(fields: [callId], references: [id], onDelete: Cascade)
+  reporter User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@id([callId, reporterId])
+}
+
+model EventInterest {
+  userId    String
+  eventId   String
+  notifiedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  kind      String
+  title     String
+  body      String
+  url       String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+enum OutboxKind {
+  email
+  sheet_upsert
+  sheet_clear
+}
+
+/// Durable queue for e-mail and sheet writes. Drained right after enqueue (waitUntil) and by the daily cron.
+model OutboxJob {
+  id        String     @id @default(cuid())
+  kind      OutboxKind
+  dedupeKey String?    @unique
+  payload   Json
+  attempts  Int        @default(0)
+  runAfter  DateTime   @default(now())
+  lastError String?
+  doneAt    DateTime?
+  failedAt  DateTime?
+  createdAt DateTime   @default(now())
+
+  @@index([doneAt, failedAt, runAfter])
+}
+
+/// Single-writer leases (e.g. "outbox") and small key/value markers (e.g. "lastSheetSyncAt").
+model JobLease {
+  name      String   @id
+  expiresAt DateTime
+  value     String?
 }

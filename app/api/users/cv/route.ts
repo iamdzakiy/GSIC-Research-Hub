@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth-helper";
 import { withErrorHandler } from "@/lib/api-utils";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { CV_BUCKET, CV_MAX_BYTES, ensureCvBucket, profileResponse } from "@/lib/cv";
-import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
+import { saveUser } from "@/lib/save-user";
 
 export const runtime = "nodejs";
 
@@ -23,15 +23,13 @@ export const POST = withErrorHandler(async (request: Request) => {
   const path = `${user.id}/cv.pdf`;
   const { error } = await supabaseAdmin().storage.from(CV_BUCKET).upload(path, buf, { contentType: "application/pdf", upsert: true });
   if (error) throw error;
-  const saved = await prisma.user.update({ where: { id: user.id }, data: { cvPath: path } });
-  await syncProfileToSheet(user.id);
+  const saved = await saveUser(user.id, { cvPath: path });
   return NextResponse.json({ ok: true, profile: await profileResponse(saved) });
 });
 
 export const DELETE = withErrorHandler(async (request: Request) => {
   const user = await requireUser(request);
   if (user.cvPath) await supabaseAdmin().storage.from(CV_BUCKET).remove([user.cvPath]);
-  const saved = await prisma.user.update({ where: { id: user.id }, data: { cvPath: null } });
-  await syncProfileToSheet(user.id);
+  const saved = await saveUser(user.id, { cvPath: null });
   return NextResponse.json({ ok: true, profile: await profileResponse(saved) });
 });

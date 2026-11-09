@@ -4,12 +4,15 @@
 // Rules: headers are found by NAME; never reorder or rename existing columns; never touch rows
 // the app did not create (matched by the Email column) or that are not empty; never use
 // writeSheet() from lib/googleSheets.ts (it clears the whole tab).
+// Writes go through the outbox (lib/outbox.ts), which holds a single-writer lease, so the
+// in-process serial() chain below is only a second guard within one instance.
 // Env: MATCHMAKING_SHEET_ID (optional, defaults to the GSIC sheet), GOOGLE_SHEETS_CLIENT_EMAIL,
 //      GOOGLE_SHEETS_PRIVATE_KEY. Without credentials every call is a quiet no-op.
 // ============================================================
 import "server-only";
 import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
+import { COMPETITION_CATEGORIES } from "@/lib/competitions";
 import { FIELDS, INTERESTS, PKM_ROLES, PKM_SCHEMES, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import type { Candidate } from "@/lib/matchmaking";
 
@@ -17,7 +20,7 @@ const DEFAULT_SHEET_ID = "13pRyUeItGva-t-2cmJmQsydK5j1jo0NZQa6eoYoQG_s";
 const TAB = "Database";
 const HEADER_IDX = 2; // row 3
 const FIRST_FREE_IDX = 5; // row 6; row 5 is the example
-const OWN_HEADERS = ["Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At"] as const;
+const OWN_HEADERS = ["Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At", "Headline", "Competition Interests", "Open to Team", "Portfolio", "GitHub", "Profile URL"] as const;
 
 export const sheetConfigured = () => !!(process.env.GOOGLE_SHEETS_CLIENT_EMAIL && process.env.GOOGLE_SHEETS_PRIVATE_KEY);
 const sheetId = () => process.env.MATCHMAKING_SHEET_ID || DEFAULT_SHEET_ID;
@@ -84,9 +87,12 @@ export interface SheetUser {
   email: string; name: string | null; preferredRole: string | null; pkmRole: string | null; interests: string[]; fields: string[];
   major: string | null; majorCode: string | null; institution: string; faculty: string | null; linkedinUrl: string | null;
   whatsapp: string | null; skills: string[]; softSkills: string[]; cvPath: string | null; updatedAt: Date;
+  headline: string | null; competitionInterests: string[]; openToTeam: boolean; portfolioUrl: string | null; githubUrl: string | null; username: string | null;
 }
 
-function userCells(u: SheetUser): Record<string, string> {
+const site = () => (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
+
+export function userCells(u: SheetUser): Record<string, string> {
   return {
     "Name": u.name ?? "",
     "Preferred Role": u.preferredRole ? labelOf(PREFERRED_ROLES, u.preferredRole) : "",
@@ -103,7 +109,19 @@ function userCells(u: SheetUser): Record<string, string> {
     "Soft Skills": u.softSkills.join(", "),
     "CV": u.cvPath ? "Yes" : "",
     "Updated At": u.updatedAt.toISOString(),
+    "Headline": u.headline ?? "",
+    "Competition Interests": u.competitionInterests.map((c) => labelOf(COMPETITION_CATEGORIES, c)).join(", "),
+    "Open to Team": u.openToTeam ? "Yes" : "No",
+    "Portfolio": u.portfolioUrl ?? "",
+    "GitHub": u.githubUrl ?? "",
+    "Profile URL": u.username && site() ? `${site()}/u/${u.username}` : "",
   };
+}
+
+/** Every cell the app writes, blanked (used when an account is deleted). */
+export function blankCells(): Record<string, string> {
+  const blank = userCells({ email: "", name: null, preferredRole: null, pkmRole: null, interests: [], fields: [], major: null, majorCode: null, institution: "", faculty: null, linkedinUrl: null, whatsapp: null, skills: [], softSkills: [], cvPath: null, updatedAt: new Date(0), headline: null, competitionInterests: [], openToTeam: false, portfolioUrl: null, githubUrl: null, username: null });
+  return Object.fromEntries(Object.keys(blank).map((k) => [k, ""]));
 }
 
 // ---------- sheet access ----------
@@ -170,25 +188,69 @@ export function upsertUsers(users: SheetUser[]): Promise<{ updated: number; adde
   });
 }
 
-const USER_SELECT = { email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true } as const;
+const USER_SELECT = { email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true, headline: true, competitionInterests: true, openToTeam: true, portfolioUrl: true, githubUrl: true, username: true } as const;
 
-/** Mirrors one profile to the sheet. Never throws: a sheet problem must not fail registration or a profile save. */
+/** Called by the outbox: upserts these users' rows with their current DB data (deleted accounts are skipped). */
+export async function syncUsersToSheet(userIds: string[]) {
+  const users = await prisma.user.findMany({ where: { id: { in: userIds }, deletedAt: null }, select: USER_SELECT });
+  return users.length ? upsertUsers(users) : { updated: 0, added: 0 };
+}
+
+/** Called by the outbox: blanks the app's cells in rows matched by Email. Never deletes rows, so row numbers stay put. */
+export function clearSheetRows(emails: string[]): Promise<number> {
+  return serial(async () => {
+    const t = await load();
+    const emailCol = t.col.get("email");
+    if (emailCol === undefined) return 0;
+    const keys = new Set(emails.map(norm));
+    const cells = blankCells();
+    const data: { range: string; values: string[][] }[] = [];
+    let n = 0;
+    t.rows.forEach((r, i) => {
+      if (i < FIRST_FREE_IDX || !keys.has(norm(r[emailCol]))) return;
+      n++;
+      for (const header of Object.keys(cells)) {
+        const c = t.col.get(norm(header));
+        if (c !== undefined) data.push({ range: `${TAB}!${colLetter(c)}${i + 1}`, values: [[""]] });
+      }
+    });
+    if (data.length) await client().spreadsheets.values.batchUpdate({ spreadsheetId: sheetId(), requestBody: { valueInputOption: "RAW", data } });
+    return n;
+  });
+}
+
+/** Queues a mirror of one profile. Never throws: a sheet problem must not fail registration or a profile save. */
 export async function syncProfileToSheet(userId: string): Promise<void> {
-  if (!sheetConfigured()) return;
   try {
-    const u = await prisma.user.findUnique({ where: { id: userId }, select: USER_SELECT });
-    if (!u) return;
-    await Promise.race([upsertUsers([u]), new Promise((_, rej) => setTimeout(() => rej(new Error("timed out")), 8_000))]);
+    const { enqueue } = await import("@/lib/outbox");
+    await enqueue("sheet_upsert", { userId });
   } catch (e) {
-    console.error("[matchmaking-sheet] sync failed (admin can re-sync):", (e as Error).message);
+    console.error("[matchmaking-sheet] could not queue sync:", (e as Error).message);
   }
 }
 
 /** Admin re-sync of every profile. Throws on failure so the admin sees the reason. */
 export async function syncAllProfiles(): Promise<{ updated: number; added: number; total: number }> {
   if (!sheetConfigured()) throw new Error("Google Sheets credentials are not set (GOOGLE_SHEETS_CLIENT_EMAIL, GOOGLE_SHEETS_PRIVATE_KEY).");
-  const users = await prisma.user.findMany({ select: USER_SELECT, orderBy: { createdAt: "asc" } });
-  return { ...(await upsertUsers(users)), total: users.length };
+  const users = await prisma.user.findMany({ where: { deletedAt: null }, select: USER_SELECT, orderBy: { createdAt: "asc" } });
+  const r = { ...(await upsertUsers(users)), total: users.length };
+  const { setMarker } = await import("@/lib/outbox");
+  await setMarker("lastSheetSyncAt", new Date().toISOString());
+  return r;
+}
+
+/**
+ * Daily reconcile: re-upserts users changed since the last successful sync, and rewrites every
+ * app-owned row (one with an Email) so hand edits in the sheet are replaced by the website's data.
+ * Rows without an Email (typed by hand) are never touched.
+ */
+export async function reconcileSheet(): Promise<{ rows: number } | null> {
+  if (!sheetConfigured()) return null;
+  const users = await prisma.user.findMany({ where: { deletedAt: null }, select: USER_SELECT, orderBy: { createdAt: "asc" } });
+  const r = await upsertUsers(users);
+  const { setMarker } = await import("@/lib/outbox");
+  await setMarker("lastSheetSyncAt", new Date().toISOString());
+  return { rows: r.updated + r.added };
 }
 
 /** Reads every person in the sheet (including rows typed by hand). Skips the example row and empty rows. */

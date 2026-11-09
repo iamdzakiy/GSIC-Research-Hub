@@ -5,6 +5,8 @@ import { ArrowLeft, CalendarDays, MapPin, Users, Video } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { eventTime, eventWhen } from "@/lib/event-links";
 import EventRegister from "@/components/events/EventRegister";
+import CampusSilhouette from "@/components/hub/CampusSilhouette";
+import { seriesOf } from "@/lib/event-links";
 
 export const dynamic = "force-dynamic";
 type Props = { params: { slug: string } };
@@ -27,13 +29,14 @@ export default async function EventPage({ params }: Props) {
 
   const modules = (Array.isArray(e.modules) ? e.modules : []) as unknown as Mod[];
   const speakers = (Array.isArray(e.speakers) ? e.speakers : []) as unknown as Spk[];
-  const seatsLeft = Math.max(0, e.maxParticipants - e.currentParticipants);
-  const exact = !e.dateLabel;
   const now = new Date();
+  if (e.comingSoon) return <ComingSoon e={e} />;
+  const seatsLeft = Math.max(0, (e.maxParticipants ?? 0) - e.currentParticipants);
+  const exact = !e.dateLabel && !!e.startDate && !!e.endDate;
   const closed =
     !e.registrationOpen ? "Pendaftaran belum dibuka." :
     e.status === "completed" || e.status === "archived" ? "Acara ini sudah selesai." :
-    now > e.registrationDeadline ? "Pendaftaran sudah ditutup." :
+    !e.registrationDeadline || now > e.registrationDeadline ? "Pendaftaran sudah ditutup." :
     seatsLeft === 0 ? "Kuota penuh." : null;
 
   return (
@@ -45,10 +48,10 @@ export default async function EventPage({ params }: Props) {
         <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{e.title}</h1>
         <p className="mt-2 max-w-2xl text-base text-slate-600">{e.shortDescription}</p>
         <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-700">
-          <li className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-400" aria-hidden="true" />{eventWhen(e)}{exact && `, ${eventTime(e.startDate)}–${eventTime(e.endDate)} WIB`}</li>
-          <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />{e.location}</li>
+          <li className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-400" aria-hidden="true" />{eventWhen(e)}{exact && e.startDate && e.endDate && `, ${eventTime(e.startDate)}–${eventTime(e.endDate)} WIB`}</li>
+          {e.location && <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-400" aria-hidden="true" />{e.location}</li>}
           <li className="flex items-center gap-2"><Video className="h-4 w-4 text-slate-400" aria-hidden="true" />{MODE[e.mode] ?? e.mode}</li>
-          <li className="flex items-center gap-2"><Users className="h-4 w-4 text-slate-400" aria-hidden="true" />{seatsLeft} dari {e.maxParticipants} kursi tersisa</li>
+          <li className="flex items-center gap-2"><Users className="h-4 w-4 text-slate-400" aria-hidden="true" />{seatsLeft} dari {e.maxParticipants ?? 0} kursi tersisa</li>
         </ul>
       </header>
 
@@ -105,6 +108,40 @@ export default async function EventPage({ params }: Props) {
             event={{ id: e.id, slug: e.slug ?? e.id, type: e.type, title: e.title, mode: e.mode }}
             closedReason={closed}
           />
+        </aside>
+      </div>
+    </main>
+  );
+}
+
+type Ev = NonNullable<Awaited<ReturnType<typeof load>>>;
+
+/** Calm placeholder while a program has no confirmed details: what it is, and "Notify me". */
+function ComingSoon({ e }: { e: Ev }) {
+  return (
+    <main>
+      <section className="relative overflow-hidden border-b border-slate-200 bg-navy text-white">
+        <div className="bp-grid-dark bp-fade absolute inset-0" aria-hidden="true" />
+        <div className="relative mx-auto max-w-5xl px-4 pb-0 pt-10 sm:px-6">
+          <Link href="/events" className="inline-flex items-center gap-1.5 text-sm font-medium text-white/70 hover:text-white"><ArrowLeft className="h-4 w-4" aria-hidden="true" /> Semua program</Link>
+          <p className="label-mono mt-8 text-mint">{seriesOf(e)} · Segera hadir</p>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold tracking-tight sm:text-5xl">{e.title}</h1>
+          <p className="mt-4 max-w-2xl text-base leading-7 text-white/75">{e.shortDescription}</p>
+          <CampusSilhouette draw className="mt-10 text-mint/60" strokeWidth={1.4} />
+        </div>
+      </section>
+      <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_20rem]">
+        <section aria-labelledby="tentang">
+          <h2 id="tentang" className="font-display text-xl font-bold text-ink">Tentang program</h2>
+          <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-ink-2">{e.description}</p>
+          <dl className="mt-8 grid gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200 sm:grid-cols-3">
+            {[["Jadwal", "Menyusul"], ["Tempat", "Menyusul"], ["Kuota", "Menyusul"]].map(([k, v]) => (
+              <div key={k} className="bg-white px-4 py-3"><dt className="label-mono text-ink-3">{k}</dt><dd className="mt-1 text-sm font-medium text-ink-2">{v}</dd></div>
+            ))}
+          </dl>
+        </section>
+        <aside className="self-start lg:sticky lg:top-24">
+          <EventRegister event={{ id: e.id, slug: e.slug ?? e.id, type: e.type, title: e.title, mode: e.mode, comingSoon: true }} closedReason={null} />
         </aside>
       </div>
     </main>

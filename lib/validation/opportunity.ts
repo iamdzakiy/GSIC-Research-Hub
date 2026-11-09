@@ -1,5 +1,6 @@
 // Zod schemas for the JSON-typed opportunity columns + the admin write payload.
 import { z } from "zod";
+import { isCategory } from "@/lib/competitions";
 
 export const OPP_TYPES = ["scholarship", "competition", "research", "career"] as const;
 export const FUNDING_TYPES = ["fully_funded", "partially_funded", "tuition_only", "stipend", "prize_money", "paid", "unpaid", "self_funded"] as const;
@@ -93,6 +94,15 @@ export const opportunityInput = z.object({
   quickFacts: z.array(quickFact).max(30).optional(),
   socialLinks: z.array(socialLink).max(10).optional(),
   timeline: z.array(timelineItem).max(30).optional(),
+  // competition focus
+  category: z.string().trim().max(20).refine((v) => !v || isCategory(v), "Unknown category").optional().nullable(),
+  theme: optStr(160),
+  guidebookUrl: z.string().trim().url().max(600).optional().nullable().or(z.literal("")),
+  submissionDeadline: optDate,
+  teamSizeMin: optInt,
+  teamSizeMax: optInt,
+  registrationFee: optStr(80),
+  isPublished: z.boolean().optional(),
 });
 export type OpportunityInput = z.infer<typeof opportunityInput>;
 

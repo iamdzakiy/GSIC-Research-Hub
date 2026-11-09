@@ -1,7 +1,7 @@
 // Registration confirmation e-mail (Indonesian, the community's language) with an .ics when the date is exact.
 import "server-only";
 import { renderEmail } from "@/lib/email-templates";
-import { trySendMail } from "@/lib/mailer";
+import { sendViaOutbox } from "@/lib/notify";
 import { buildEventIcs } from "@/lib/ics";
 import { eventHref, eventTime, eventWhen } from "@/lib/event-links";
 
@@ -27,11 +27,10 @@ export async function sendRegistrationEmail(user: { email: string; name: string 
     url,
     note: e.mode === "online" ? "Tautan Zoom hanya terlihat di halaman acara setelah Anda masuk." : undefined,
   }, site);
-  await trySendMail({
-    to: user.email,
+  await sendViaOutbox(user.email, {
     ...mail,
     attachments: exact
       ? [{ filename: "acara-gsic.ics", contentType: "text/calendar; charset=utf-8; method=PUBLISH", content: buildEventIcs({ id: e.id, title: e.title, start: e.startDate, end: e.endDate, location: e.location, description: e.title, url }) }]
       : undefined,
-  });
+  }, `event-confirm:${user.email}:${e.id}`);
 }

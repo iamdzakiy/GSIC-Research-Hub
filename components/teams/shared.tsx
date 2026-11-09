@@ -3,6 +3,7 @@
 import { Check, Copy, ExternalLink, FileText } from "lucide-react";
 import { useState } from "react";
 import { PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
+import { apiFetch } from "@/lib/apiFetch";
 
 export interface Person {
   id: string; name: string; major: string | null; faculty: string | null; institution: string; linkedinUrl: string | null;
@@ -85,4 +86,16 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
       </div>
     </div>
   );
+}
+
+/** fetch with the session token; never throws. */
+export async function callApi<T>(url: string, init?: RequestInit & { headers?: Record<string, string> }): Promise<{ ok: true; data: T } | { ok: false; error: string; fieldErrors?: Record<string, string> }> {
+  try {
+    const res = await apiFetch(url, init);
+    const body = await res.json().catch(() => null);
+    if (!res.ok || body?.ok === false) return { ok: false, error: body?.error ?? "Something went wrong.", fieldErrors: body?.fieldErrors };
+    return { ok: true, data: body as T };
+  } catch {
+    return { ok: false, error: "Could not reach the server. Check your connection." };
+  }
 }

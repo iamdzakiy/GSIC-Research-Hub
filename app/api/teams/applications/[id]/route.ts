@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helper";
 import { HttpError, withErrorHandler } from "@/lib/api-utils";
 import { decisionSchema } from "@/lib/validation/teams";
-import { siteUrl } from "@/lib/supabaseAdmin";
 import { notifyApplicantOfDecision } from "@/lib/team-calls";
 
 export const runtime = "nodejs";
@@ -19,7 +18,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   const next = parsed.data.status;
 
   const result = await prisma.$transaction(async (tx) => {
-    const app = await tx.teamApplication.findUnique({ where: { id: params.id }, include: { call: true, applicant: { select: { email: true, name: true } } } });
+    const app = await tx.teamApplication.findUnique({ where: { id: params.id }, include: { call: true, applicant: { select: { id: true, name: true } } } });
     if (!app) throw new HttpError(404, "Application not found");
     const isOwner = app.call.ownerId === me.id;
     const isApplicant = app.applicantId === me.id;
@@ -43,7 +42,7 @@ export const PATCH = withErrorHandler(async (request: Request, { params }: { par
   });
 
   if (next === "accepted" || next === "declined") {
-    await notifyApplicantOfDecision({ to: result.applicant.email, applicantName: result.applicant.name, callTitle: result.call.title, accepted: next === "accepted", siteUrl: siteUrl(request) });
+    await notifyApplicantOfDecision({ applicantId: result.applicant.id, applicantName: result.applicant.name, callId: result.call.id, callTitle: result.call.title, accepted: next === "accepted" });
   }
   return NextResponse.json({ ok: true, status: next });
 });

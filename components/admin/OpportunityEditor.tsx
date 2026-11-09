@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Loader2, Plus, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { apiFetch } from "@/lib/apiFetch";
+import { COMPETITION_CATEGORIES } from "@/lib/competitions";
 import { BENEFIT_CATEGORIES, LEVELS } from "@/lib/opportunity-status";
 import { FUNDING_LABEL, MODE_LABEL, OPP_TYPE_ORDER, TYPE_CONFIG, type OppType } from "@/lib/opportunity-config";
 import type { Opportunity } from "@/lib/types";
@@ -92,6 +93,9 @@ function initial(o?: O | null) {
     programBenefits: o?.programBenefits ?? "", applySteps: rows(o?.applySteps), howToApply: o?.howToApply ?? "", requiredDocuments: joinLines(o?.requiredDocuments),
     timeline: rows(o?.timeline), selectionStages: rows(o?.selectionStages), faqs: rows(o?.faqs), tips: o?.tips ?? "",
     cpName: o?.cpName ?? "", cpContact: o?.cpContact ?? "", contactEmail: o?.contactEmail ?? "", socialLinks: rows(o?.socialLinks),
+    category: o?.category ?? "", theme: o?.theme ?? "", guidebookUrl: o?.guidebookUrl ?? "", submissionDeadline: localInput(o?.submissionDeadline),
+    teamSizeMin: o?.teamSizeMin != null ? String(o.teamSizeMin) : "", teamSizeMax: o?.teamSizeMax != null ? String(o.teamSizeMax) : "",
+    registrationFee: o?.registrationFee ?? "", isPublished: o?.isPublished ?? true,
   };
 }
 type Form = ReturnType<typeof initial>;
@@ -109,6 +113,11 @@ function toPayload(f: Form) {
     applySteps: clean(f.applySteps, ["title"]), howToApply: f.howToApply, requiredDocuments: lines(f.requiredDocuments),
     timeline: clean(f.timeline, ["phase"]), selectionStages: clean(f.selectionStages, ["stage"]), faqs: clean(f.faqs, ["q", "a"]), tips: f.tips,
     cpName: f.cpName, cpContact: f.cpContact, contactEmail: f.contactEmail, socialLinks: clean(f.socialLinks, ["url"]),
+    ...(f.type === "competition" ? {
+      category: f.category || null, theme: f.theme, guidebookUrl: f.guidebookUrl, submissionDeadline: isoOrNull(f.submissionDeadline),
+      teamSizeMin: num(f.teamSizeMin), teamSizeMax: num(f.teamSizeMax), registrationFee: f.registrationFee,
+    } : {}),
+    isPublished: f.isPublished,
   };
 }
 
@@ -167,6 +176,30 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
               <Field label="Status"><select className={input} value={f.status} onChange={(e) => set("status", e.target.value as Form["status"])}><option value="active">Active</option><option value="upcoming">Upcoming</option><option value="archived">Archived (force close)</option></select></Field>
               <Field label="Applications open"><input type="datetime-local" className={input} value={f.openDate} onChange={(e) => set("openDate", e.target.value)} /></Field>
               <Field label="Application deadline *" hint="After this date the status changes to Closed automatically." error={fe.deadline}><input type="datetime-local" className={input} value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></Field>
+              {f.type === "competition" && (
+                <div className="grid gap-4 rounded-xl border border-brand-200 bg-brand-50/40 p-4 md:col-span-2 md:grid-cols-2">
+                  <p className="text-sm font-semibold text-brand-800 md:col-span-2">Competition focus: the deadline above is when registration closes (WIB).</p>
+                  <Field label="Category"><select className={input} value={f.category} onChange={(e) => set("category", e.target.value)}><option value="">—</option>{COMPETITION_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}</select></Field>
+                  <Field label="Registration fee"><input className={input} value={f.registrationFee} onChange={(e) => set("registrationFee", e.target.value)} placeholder="Gratis / Rp150.000 per tim" /></Field>
+                  <Field label="Theme" className="md:col-span-2"><input className={input} value={f.theme} onChange={(e) => set("theme", e.target.value)} maxLength={160} placeholder="e.g. Sustainable cities for 2045" /></Field>
+                  <Field label="Guidebook (link or PDF upload)" className="md:col-span-2">
+                    <div className="flex gap-2"><input className={input} value={f.guidebookUrl} onChange={(e) => set("guidebookUrl", e.target.value)} placeholder="https://drive.google.com/..." />
+                    <label className="inline-flex h-10 shrink-0 cursor-pointer items-center rounded-lg border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700 hover:bg-slate-50">Upload PDF<input type="file" accept="application/pdf" className="sr-only" onChange={async (e) => {
+                      const file = e.target.files?.[0]; if (!file) return;
+                      const { supabase } = await import("@/lib/supabaseClient"); const { data } = await supabase.auth.getSession();
+                      const form = new FormData(); form.set("file", file);
+                      const res = await fetch("/api/upload/guidebook", { method: "POST", headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` }, body: form });
+                      const b = await res.json().catch(() => null); if (res.ok && b?.url) set("guidebookUrl", b.url); else setErr(b?.error ?? "Upload failed.");
+                    }} /></label></div>
+                  </Field>
+                  <Field label="Submission deadline"><input type="datetime-local" className={input} value={f.submissionDeadline} onChange={(e) => set("submissionDeadline", e.target.value)} /></Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Team size min"><input type="number" min={1} className={input} value={f.teamSizeMin} onChange={(e) => set("teamSizeMin", e.target.value)} /></Field>
+                    <Field label="Team size max"><input type="number" min={1} className={input} value={f.teamSizeMax} onChange={(e) => set("teamSizeMax", e.target.value)} /></Field>
+                  </div>
+                </div>
+              )}
+              <label className="flex items-center gap-2 text-sm text-slate-700 md:col-span-2"><input type="checkbox" checked={f.isPublished} onChange={(e) => set("isPublished", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-600" /> Published (untick to keep it hidden; user submissions arrive unpublished)</label>
               <Field label="Short summary (shown on cards)" className="md:col-span-2" hint="One or two sentences." ><textarea rows={2} className={area} value={f.summary} onChange={(e) => set("summary", e.target.value)} /></Field>
               <Field label="Full description" hint="Markdown or HTML." className="md:col-span-2"><textarea rows={8} className={area} value={f.description} onChange={(e) => set("description", e.target.value)} /></Field>
               <Field label="Level" className="md:col-span-2"><Chips options={LEVELS} value={f.levels} onChange={(v) => set("levels", v)} /></Field>

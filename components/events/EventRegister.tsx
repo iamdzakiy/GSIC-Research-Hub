@@ -11,10 +11,10 @@ import { BOOTCAMP_SCHEMES, bootcampAnswers, sandboxAnswers } from "@/lib/validat
 import { fieldErrors } from "@/lib/validation/auth";
 
 interface Props {
-  event: { id: string; slug: string; type: string; title: string; mode: string };
+  event: { id: string; slug: string; type: string; title: string; mode: string; comingSoon?: boolean };
   closedReason: string | null;
 }
-interface Access { signedIn: boolean; registered: boolean; meetingUrl: string | null }
+interface Access { signedIn: boolean; registered: boolean; interested?: boolean; meetingUrl: string | null }
 
 const field = (err?: string) => cn("w-full rounded-lg border bg-white px-3.5 text-sm text-slate-900 focus:outline-none focus:ring-2", err ? "border-rose-400 focus:ring-rose-500/20" : "border-slate-300 focus:border-brand-600 focus:ring-brand-600/20");
 
@@ -69,9 +69,37 @@ export default function EventRegister({ event, closedReason }: Props) {
 
   const card = "rounded-xl border border-slate-200 bg-white p-5";
   const Err = ({ k }: { k: string }) => (errors[k] ? <p className="mt-1.5 text-xs text-rose-600">{errors[k]}</p> : null);
-  const teamsHref = `/teams?event=${encodeURIComponent(event.slug)}&tab=open`;
+  const teamsHref = `/partners?event=${encodeURIComponent(event.slug)}`;
 
   if (loading || !access) return <div className={card} aria-busy="true"><div className="h-6 w-1/2 animate-pulse rounded bg-slate-100" /><div className="mt-4 h-10 animate-pulse rounded bg-slate-100" /></div>;
+
+  if (event.comingSoon) {
+    const toggle = async () => {
+      if (!user) return;
+      setBusy(true);
+      try {
+        const res = await apiFetch(`/api/events/${event.slug}/interest`, { method: access.interested ? "DELETE" : "POST" });
+        if (res.ok) { setAccess({ ...access, interested: !access.interested }); toast("success", access.interested ? "We will not email you about this one." : "Done. We will email you when registration opens."); }
+        else toast("error", "Could not save. Try again.");
+      } finally { setBusy(false); }
+    };
+    return (
+      <div className={card}>
+        <p className="label-mono text-brand-700">Segera hadir</p>
+        <p className="mt-2 font-display text-lg font-semibold text-ink">Pendaftaran belum dibuka</p>
+        <p className="mt-1 text-sm leading-6 text-ink-3">Jadwal dan detailnya sedang disiapkan. Tekan tombol di bawah, kami kirim email begitu pendaftaran dibuka.</p>
+        {user ? (
+          <button type="button" onClick={toggle} disabled={busy} aria-pressed={!!access.interested}
+            className={cn("mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-sm font-semibold transition-colors", access.interested ? "border border-mint-600 bg-mint-50 text-mint-800" : "bg-brand-600 text-white hover:bg-brand-700")}>
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : access.interested ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+            {access.interested ? "Kami akan mengabari Anda" : "Kabari saya"}
+          </button>
+        ) : (
+          <Link href={`/auth?mode=signin&next=/events/${event.slug}`} className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-lg bg-brand-600 text-sm font-semibold text-white hover:bg-brand-700">Masuk untuk dikabari</Link>
+        )}
+      </div>
+    );
+  }
 
   if (access.registered) {
     return (
@@ -83,12 +111,12 @@ export default function EventRegister({ event, closedReason }: Props) {
           </a>
         ) : event.mode !== "onsite" ? <p className="mt-3 text-sm text-slate-600">Tautan Zoom akan muncul di sini begitu panitia mengunggahnya.</p> : null}
         <Link href="/dashboard" className="mt-3 block text-sm font-medium text-brand-700 hover:underline">Lihat di dasbor</Link>
-        {bootcamp && <Link href={teamsHref} className="mt-2 block text-sm font-medium text-brand-700 hover:underline">Find teammates</Link>}
+        {bootcamp && <Link href={teamsHref} className="mt-2 block text-sm font-medium text-brand-700 hover:underline">Cari partner</Link>}
       </div>
     );
   }
 
-  if (closedReason) return <div className={card}><p className="font-semibold text-slate-900">{closedReason}</p>{bootcamp && <Link href={teamsHref} className="mt-3 block text-sm font-medium text-brand-700 hover:underline">Find teammates</Link>}</div>;
+  if (closedReason) return <div className={card}><p className="font-semibold text-slate-900">{closedReason}</p>{bootcamp && <Link href={teamsHref} className="mt-3 block text-sm font-medium text-brand-700 hover:underline">Cari partner</Link>}</div>;
 
   if (!user) {
     return (
@@ -155,7 +183,7 @@ export default function EventRegister({ event, closedReason }: Props) {
       <button type="submit" disabled={busy} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-sm font-semibold text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70">
         {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{busy ? "Mendaftar…" : "Daftar sekarang"}
       </button>
-      {bootcamp && !needsTeam && <Link href={teamsHref} className="mt-3 block text-center text-sm font-medium text-brand-700 hover:underline">Find teammates</Link>}
+      {bootcamp && !needsTeam && <Link href={teamsHref} className="mt-3 block text-center text-sm font-medium text-brand-700 hover:underline">Cari partner</Link>}
     </form>
   );
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Mail, Phone } from "lucide-react";
 import StatusBadge from "@/components/portal/StatusBadge";
 import BenefitPill from "@/components/portal/BenefitPill";
@@ -34,6 +34,7 @@ export default async function OpportunityDetailPage({ params }: Props) {
   const key = decodeURIComponent(params.slug);
   const o = await getOpportunityByKey(key).catch(() => null);
   if (!o) notFound();
+  if (o.type === "competition" && o.isPublished) redirect(`/competitions/${o.slug}`);
 
   const now = new Date();
   const status = getDisplayStatus(o, now);

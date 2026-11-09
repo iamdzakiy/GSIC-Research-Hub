@@ -4,9 +4,10 @@ import { profileToData } from "@/lib/validation/profile";
 import { fail, guard, mapServerError } from "@/lib/auth-route";
 import { siteUrl, supabaseAdmin } from "@/lib/supabaseAdmin";
 import { renderWelcomeEmail } from "@/lib/email-templates";
-import { trySendMail } from "@/lib/mailer";
+import { sendViaOutbox } from "@/lib/notify";
 import { prisma } from "@/lib/prisma";
 import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
+import { uniqueUsername } from "@/lib/username";
 
 export const runtime = "nodejs";
 
@@ -14,7 +15,8 @@ const ALREADY = "This email is already registered. Sign in or reset your passwor
 export async function POST(req: Request) {
   const g = await guard(req, "register", registerSchema);
   if (!g.ok) return g.res;
-  const { name, email, password, ...profile } = g.data;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { name, email, password, confirm, ...profile } = g.data;
   const admin = supabaseAdmin();
   try {
     const { data, error } = await admin.auth.admin.createUser({
@@ -39,6 +41,7 @@ export async function POST(req: Request) {
           id: data.user.id,
           email,
           name,
+          username: await uniqueUsername(name),
           htaId: `HTA-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
           ...fields,
           emailConfirmed: true,
@@ -52,7 +55,8 @@ export async function POST(req: Request) {
     }
 
     await syncProfileToSheet(data.user.id);
-    await trySendMail({ to: email, ...renderWelcomeEmail({ name, siteUrl: siteUrl(req) }) });
+    const row = await prisma.user.findUnique({ where: { id: data.user.id }, select: { username: true, major: true, faculty: true } });
+    await sendViaOutbox(email, renderWelcomeEmail({ name, email, siteUrl: siteUrl(req), major: row?.major, faculty: row?.faculty, username: row?.username }), `welcome:${data.user.id}`);
     return NextResponse.json({ ok: true });
   } catch (e) {
     return mapServerError(e);

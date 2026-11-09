@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helper";
 import { withErrorHandler } from "@/lib/api-utils";
 import { profileResponse } from "@/lib/cv";
-import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
+import { saveUser } from "@/lib/save-user";
 import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
 
 type Ctx = { params: { id: string } };
@@ -30,7 +30,6 @@ export const PUT = withErrorHandler(async (request: Request, { params }: Ctx) =>
     if (body.role === "admin" || body.role === "user") data.role = body.role;
     if (typeof body.isVerified === "boolean") data.isVerified = body.isVerified;
   }
-  const updated = await prisma.user.update({ where: { id: params.id }, data });
-  await syncProfileToSheet(updated.id);
+  const updated = await saveUser(params.id, data);
   return NextResponse.json(await profileResponse(updated));
 });

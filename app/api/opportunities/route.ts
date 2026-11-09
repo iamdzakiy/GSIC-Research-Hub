@@ -1,13 +1,19 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth-helper";
+import { getUserFromRequest, requireAdmin } from "@/lib/auth-helper";
 import { withErrorHandler, parsePagination } from "@/lib/api-utils";
 import { slugify } from "@/lib/slugify";
 import { opportunityInput } from "@/lib/validation/opportunity";
 import { fieldErrors } from "@/lib/validation/auth";
+import { notify } from "@/lib/notify";
 
 const JSON_KEYS = ["eligibilityCriteria", "applySteps", "selectionStages", "faqs", "quickFacts", "socialLinks", "timeline"] as const;
+
+async function isAdminReq(request: Request) {
+  const auth = await getUserFromRequest(request);
+  return !!auth && (await prisma.user.findUnique({ where: { id: auth.id }, select: { role: true } }))?.role === "admin";
+}
 
 export const GET = withErrorHandler(async (request: Request) => {
   const url = new URL(request.url);
@@ -18,11 +24,15 @@ export const GET = withErrorHandler(async (request: Request) => {
   const { skip, take } = parsePagination(url);
 
   if (slug) {
-    const opp = await prisma.opportunity.findFirst({ where: { OR: [{ slug }, { id: slug }] } });
+    const opp = await prisma.opportunity.findFirst({ where: { OR: [{ slug }, { id: slug }], ...(await isAdminReq(request) ? {} : { isPublished: true }) } });
     return NextResponse.json(opp ? [opp] : []);
   }
 
+  // Unpublished (user-submitted, awaiting review) items are visible to admins only.
+  const isAdmin = await isAdminReq(request);
+  const unpublished = url.searchParams.get("unpublished");
   const where: Prisma.OpportunityWhereInput = {
+    ...(isAdmin ? (unpublished === "only" ? { isPublished: false } : {}) : { isPublished: true }),
     ...(type ? { type: type as never } : {}),
     ...(status ? { status: status as never } : {}),
     ...(search
@@ -49,7 +59,7 @@ function toData(input: Record<string, unknown>): Record<string, unknown> {
   for (const [k, v] of Object.entries(input)) {
     if (v === undefined || k === "slug") continue;
     if (k === "deadline") out.deadline = new Date(v as string);
-    else if (k === "link" || k === "contactEmail") out[k] = v ? v : null;
+    else if (k === "link" || k === "contactEmail" || k === "guidebookUrl" || k === "category") out[k] = v ? v : null;
     else if ((JSON_KEYS as readonly string[]).includes(k)) out[k] = v as Prisma.InputJsonValue;
     else out[k] = v;
   }
@@ -79,7 +89,15 @@ export const PUT = withErrorHandler(async (request: Request) => {
 
   const data = toData(parsed.data) as Prisma.OpportunityUpdateInput;
   if (parsed.data.slug) data.slug = slugify(parsed.data.slug);
+  const before = await prisma.opportunity.findUnique({ where: { id }, select: { isPublished: true, submittedById: true } });
   const updated = await prisma.opportunity.update({ where: { id }, data });
+  // Approving a user submission tells the submitter.
+  if (before && !before.isPublished && updated.isPublished && before.submittedById) {
+    await notify(before.submittedById, {
+      kind: "admin_submission", inApp: true, title: `Published: ${updated.title}`, body: "Thanks for submitting it. It is now on GSIC Hub.",
+      path: `/competitions/${updated.slug}`,
+    });
+  }
   return NextResponse.json(updated);
 });
 

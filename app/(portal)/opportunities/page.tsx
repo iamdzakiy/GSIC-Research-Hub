@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -23,6 +24,7 @@ export const dynamic = "force-dynamic";
 type SP = Record<string, string | string[] | undefined>;
 
 export default async function OpportunitiesPage({ searchParams }: { searchParams: SP }) {
+  if (searchParams.type === "competition") redirect("/competitions");
   const filters = parseFilters(searchParams);
   // Graceful fallback: a DB hiccup must show an empty directory, never the error screen.
   const [result, counts] = await Promise.all([
