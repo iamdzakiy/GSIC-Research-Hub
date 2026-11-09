@@ -39,7 +39,7 @@ export default async function PartnersPage({ searchParams }: Props) {
         <CampusSilhouette draw className="pointer-events-none absolute -bottom-2 right-0 hidden w-[520px] text-brand-200 lg:block" strokeWidth={1.2} />
         <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
           <p className="label-mono text-brand-700">Seeking Partner</p>
-          <h1 className="mt-2 max-w-2xl font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">{comp ? <>Partners for <span className="text-brand-700">{comp.title}</span></> : "Find the people your team is missing"}</h1>
+          <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-ink sm:text-6xl">{comp ? <>Partners for <span className="text-brand-700">{comp.title}</span></> : "Find the people your team is missing"}</h1>
           <p className="mt-2 max-w-xl text-[15px] leading-7 text-ink-3">Each post names the competition, the roles and the skills. Respond with one role and a short note. Contacts open up for both sides after an accept.</p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href={newHref} className={btnPrimary}><Plus className="h-4 w-4" aria-hidden="true" /> Post what you need</Link>
