@@ -47,21 +47,24 @@ export const POST = withErrorHandler(async (request: Request) => {
     details = r.data;
   }
 
+  if (event.comingSoon) throw new HttpError(409, "This program is coming soon. Use \"Notify me\" to hear when registration opens.");
+  if (!event.registrationDeadline || !event.maxParticipants || !event.startDate || !event.endDate) throw new HttpError(409, "Registration is not open yet.");
+  const deadline = event.registrationDeadline, cap = event.maxParticipants;
   const reg = await prisma.$transaction(async (tx) => {
     const now = new Date();
     if (!event.registrationOpen) throw new HttpError(409, "Registration is not open yet.");
     if (event.status === "completed" || event.status === "archived") throw new HttpError(409, "This event has ended.");
-    if (now > event.registrationDeadline) throw new HttpError(409, "The registration deadline has passed.");
+    if (now > deadline) throw new HttpError(409, "The registration deadline has passed.");
     if (await tx.registration.findUnique({ where: { userId_eventId: { userId: user.id, eventId: event.id } } })) throw new HttpError(409, "You are already registered for this event.");
     // Atomic capacity check: the increment only succeeds while seats remain.
-    const seat = await tx.event.updateMany({ where: { id: event.id, currentParticipants: { lt: event.maxParticipants } }, data: { currentParticipants: { increment: 1 } } });
+    const seat = await tx.event.updateMany({ where: { id: event.id, currentParticipants: { lt: cap } }, data: { currentParticipants: { increment: 1 } } });
     if (!seat.count) throw new HttpError(409, "This event is full.");
     return tx.registration.create({
       data: { userId: user.id, eventId: event.id, status: "confirmed", details: details as never, motivation: typeof details.hope === "string" ? details.hope : null },
     });
   });
 
-  await sendRegistrationEmail(user, event, siteUrl(request));
+  await sendRegistrationEmail(user, { ...event, startDate: event.startDate, endDate: event.endDate, location: event.location ?? "" }, siteUrl(request));
   return NextResponse.json({ ok: true, id: reg.id }, { status: 201 });
 });
 

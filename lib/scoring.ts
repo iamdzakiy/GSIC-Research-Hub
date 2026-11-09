@@ -48,7 +48,7 @@ export interface RaporEvent {
 }
 export interface RaporSummary { events: number; completed: number; avgPre: number | null; avgPost: number | null; avgGain: number | null; best: { title: string; gain: number } | null }
 
-interface EvIn { id: string; title: string; type: string; startDate: Date | string; location: string }
+interface EvIn { id: string; title: string; type: string; startDate: Date | string | null; location: string | null }
 interface TestIn { id: string; eventId: string; type: "pre" | "post"; title: string; passingScore: number; questions: unknown }
 interface ResIn { testId: string; answers: unknown; score: number; maxScore: number; completedAt: Date | string }
 interface RegIn { eventId: string; registeredAt: Date | string }
@@ -88,7 +88,7 @@ export function buildRapor(regs: RegIn[], events: EvIn[], tests: TestIn[], resul
     const pre = attempt(preT, hasBoth), post = attempt(postT, hasBoth);
     const gain = pre && post ? post.percent - pre.percent : null;
     out.push({
-      eventId: ev.id, title: ev.title, type: ev.type, startDate: iso(ev.startDate), location: ev.location, registeredAt: iso(reg.registeredAt),
+      eventId: ev.id, title: ev.title, type: ev.type, startDate: ev.startDate ? iso(ev.startDate) : "", location: ev.location ?? "", registeredAt: iso(reg.registeredAt),
       pre, post, gain, stage: pre && post ? "completed" : pre ? "pre_done" : "registered",
       verdict: gain === null ? null : gain > 0 ? "improved" : gain < 0 ? "declined" : "same",
     });

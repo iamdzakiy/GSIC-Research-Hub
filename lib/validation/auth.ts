@@ -23,8 +23,13 @@ export const nameSchema = z
   .min(2, "Name must be at least 2 characters")
   .max(80, "Name must be at most 80 characters");
 
-/** Step 1 of sign-up (account). */
-export const accountSchema = z.object({ name: nameSchema, email: emailSchema, password: passwordSchema });
+const accountFields = z.object({ name: nameSchema, email: emailSchema, password: passwordSchema, confirm: z.string({ required_error: "Repeat your password" }) });
+const refineConfirm = (d: { password: string; confirm: string }, ctx: z.RefinementCtx) => {
+  if (d.password !== d.confirm) ctx.addIssue({ code: "custom", path: ["confirm"], message: "Passwords do not match" });
+};
+
+/** Step 1 of sign-up (account). `confirm` is checked here and on the server, never stored. */
+export const accountSchema = accountFields.superRefine(refineConfirm);
 
 /** Step 2 of sign-up (profile). Faculty, major and LinkedIn are required here; everything else is optional. */
 export const signupProfileSchema = profileFields
@@ -35,7 +40,7 @@ export const signupProfileSchema = profileFields
     linkedinUrl: linkedinSchema,
   });
 
-export const registerSchema = accountSchema.merge(signupProfileSchema).superRefine(refineFacultyMajor);
+export const registerSchema = accountFields.merge(signupProfileSchema).superRefine((d, ctx) => { refineConfirm(d, ctx); refineFacultyMajor(d, ctx); });
 export const signInSchema = z.object({ email: emailSchema, password: z.string().min(1, "Password is required") });
 export const emailOnlySchema = z.object({ email: emailSchema });
 export const resetPasswordSchema = z

@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/auth-helper";
 import { HttpError, withErrorHandler, zodFieldErrors } from "@/lib/api-utils";
 import { applySchema } from "@/lib/validation/teams";
-import { siteUrl } from "@/lib/supabaseAdmin";
 import { closeExpired, notifyOwnerOfApplication } from "@/lib/team-calls";
 
 export const runtime = "nodejs";
@@ -17,7 +16,7 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
 
   await closeExpired();
   const app = await prisma.$transaction(async (tx) => {
-    const call = await tx.teamCall.findUnique({ where: { id: params.id }, include: { owner: { select: { email: true, name: true } } } });
+    const call = await tx.teamCall.findUnique({ where: { id: params.id }, include: { owner: { select: { id: true, name: true } } } });
     if (!call) throw new HttpError(404, "Call not found");
     if (call.ownerId === me.id) throw new HttpError(403, "You cannot apply to your own call.");
     if (call.status !== "open" || call.slots < 1) throw new HttpError(409, "This call is no longer open.");
@@ -30,6 +29,6 @@ export const POST = withErrorHandler(async (request: Request, { params }: { para
     return { saved, call };
   });
 
-  await notifyOwnerOfApplication({ to: app.call.owner.email, ownerName: app.call.owner.name, applicant: me.name ?? "A member", callTitle: app.call.title, role, siteUrl: siteUrl(request) });
+  await notifyOwnerOfApplication({ ownerId: app.call.owner.id, ownerName: app.call.owner.name, applicant: me.name ?? "A member", callId: app.call.id, callTitle: app.call.title, role, lookingForTeam: app.call.kind === "looking_for_team" });
   return NextResponse.json({ ok: true, id: app.saved.id }, { status: 201 });
 });

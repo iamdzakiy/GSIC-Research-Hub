@@ -7,8 +7,8 @@ import type { GSICEvent } from "@/lib/types";
 
 // Admin editor for every event field. Dates are entered in WIB (UTC+7), the community's timezone.
 const WIB = 7 * 3600_000;
-const toLocal = (iso: string) => new Date(new Date(iso).getTime() + WIB).toISOString().slice(0, 16);
-const fromLocal = (v: string) => new Date(`${v}:00+07:00`).toISOString();
+const toLocal = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + WIB).toISOString().slice(0, 16) : "");
+const fromLocal = (v: string) => (v ? new Date(`${v}:00+07:00`).toISOString() : null);
 
 const box = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] text-sm";
 const label = "block text-xs text-white/50 mb-1";
@@ -17,7 +17,8 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
   const [f, setF] = useState({
     title: event.title, slug: event.slug ?? "", type: event.type as string, shortDescription: event.shortDescription, description: event.description,
     dateLabel: event.dateLabel ?? "", startDate: toLocal(event.startDate), endDate: toLocal(event.endDate), registrationDeadline: toLocal(event.registrationDeadline),
-    location: event.location, mode: event.mode ?? "onsite", meetingUrl: event.meetingUrl ?? "", maxParticipants: event.maxParticipants,
+    location: event.location ?? "", mode: event.mode ?? "onsite", meetingUrl: event.meetingUrl ?? "", maxParticipants: event.maxParticipants ?? 0,
+    comingSoon: event.comingSoon ?? false, series: event.series ?? "",
     registrationOpen: event.registrationOpen ?? true, status: event.status as string,
     hasPreTest: event.hasPreTest, hasPostTest: event.hasPostTest, preTestExplanation: event.preTestExplanation, postTestExplanation: event.postTestExplanation,
     modules: JSON.stringify(event.modules ?? [], null, 2), speakers: JSON.stringify(event.speakers ?? [], null, 2),
@@ -38,7 +39,8 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
         title: f.title, slug: f.slug.trim() || null, type: f.type, shortDescription: f.shortDescription, description: f.description,
         dateLabel: f.dateLabel.trim() || null, // clear it to show the exact dates
         startDate: fromLocal(f.startDate), endDate: fromLocal(f.endDate), registrationDeadline: fromLocal(f.registrationDeadline),
-        location: f.location, mode: f.mode, meetingUrl: f.meetingUrl.trim() || null, maxParticipants: Number(f.maxParticipants) || 0,
+        location: f.location.trim() || null, mode: f.mode, meetingUrl: f.meetingUrl.trim() || null, maxParticipants: Number(f.maxParticipants) || null,
+        comingSoon: f.comingSoon, series: f.series || null,
         registrationOpen: f.registrationOpen, status: f.status, hasPreTest: f.hasPreTest, hasPostTest: f.hasPostTest,
         preTestExplanation: f.preTestExplanation, postTestExplanation: f.postTestExplanation, modules, speakers,
       };
@@ -59,15 +61,17 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-md p-1.5 text-white/60 hover:bg-white/10"><X className="h-5 w-5" /></button>
         </div>
         <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
+          <label className="sm:col-span-2 flex items-start gap-3 rounded-xl border border-[#5CE3B6]/30 bg-[#5CE3B6]/5 p-3 text-sm"><input type="checkbox" checked={f.comingSoon} onChange={(e) => set("comingSoon", e.target.checked)} className="mt-0.5 accent-[#5CE3B6]" /><span><b>Coming soon</b><br /><span className="text-white/60">Hides dates, capacity, speakers and registration. Turning it off needs start, end, deadline, location and capacity, and e-mails everyone who pressed &quot;Notify me&quot; (if registration is open).</span></span></label>
+          <div className="sm:col-span-2"><label className={label} htmlFor="ee-series">Series</label><select id="ee-series" className={box} value={f.series} onChange={(e) => set("series", e.target.value)}><option value="">(by type)</option><option>GSIC PKM Bootcamp</option><option>The Sandbox Series</option></select></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-title">Title</label><input id="ee-title" className={box} value={f.title} onChange={(e) => set("title", e.target.value)} required /></div>
           <div><label className={label} htmlFor="ee-slug">Slug (URL: /events/slug)</label><input id="ee-slug" className={box} value={f.slug} onChange={(e) => set("slug", e.target.value)} pattern="[a-z0-9-]*" /></div>
           <div><label className={label} htmlFor="ee-type">Type</label><select id="ee-type" className={box} value={f.type} onChange={(e) => set("type", e.target.value)}><option value="bootcamp">bootcamp</option><option value="sandbox">sandbox</option></select></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-short">Short description</label><input id="ee-short" className={box} value={f.shortDescription} onChange={(e) => set("shortDescription", e.target.value)} /></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-desc">Description</label><textarea id="ee-desc" rows={6} className={box} value={f.description} onChange={(e) => set("description", e.target.value)} /></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-label">Date label (shown instead of exact dates while TBA; clear it once dates are final)</label><input id="ee-label" className={box} value={f.dateLabel} onChange={(e) => set("dateLabel", e.target.value)} placeholder="e.g. Awal Desember 2026, tanggal menyusul" /></div>
-          <div><label className={label} htmlFor="ee-start">Start (WIB)</label><input id="ee-start" type="datetime-local" className={box} value={f.startDate} onChange={(e) => set("startDate", e.target.value)} required /></div>
-          <div><label className={label} htmlFor="ee-end">End (WIB)</label><input id="ee-end" type="datetime-local" className={box} value={f.endDate} onChange={(e) => set("endDate", e.target.value)} required /></div>
-          <div><label className={label} htmlFor="ee-dl">Registration deadline (WIB)</label><input id="ee-dl" type="datetime-local" className={box} value={f.registrationDeadline} onChange={(e) => set("registrationDeadline", e.target.value)} required /></div>
+          <div><label className={label} htmlFor="ee-start">Start (WIB)</label><input id="ee-start" type="datetime-local" className={box} value={f.startDate} onChange={(e) => set("startDate", e.target.value)} required={!f.comingSoon} /></div>
+          <div><label className={label} htmlFor="ee-end">End (WIB)</label><input id="ee-end" type="datetime-local" className={box} value={f.endDate} onChange={(e) => set("endDate", e.target.value)} required={!f.comingSoon} /></div>
+          <div><label className={label} htmlFor="ee-dl">Registration deadline (WIB)</label><input id="ee-dl" type="datetime-local" className={box} value={f.registrationDeadline} onChange={(e) => set("registrationDeadline", e.target.value)} required={!f.comingSoon} /></div>
           <div><label className={label} htmlFor="ee-cap">Capacity</label><input id="ee-cap" type="number" min={1} className={box} value={f.maxParticipants} onChange={(e) => set("maxParticipants", Number(e.target.value))} /></div>
           <div><label className={label} htmlFor="ee-loc">Location</label><input id="ee-loc" className={box} value={f.location} onChange={(e) => set("location", e.target.value)} /></div>
           <div><label className={label} htmlFor="ee-mode">Mode</label><select id="ee-mode" className={box} value={f.mode} onChange={(e) => set("mode", e.target.value as "online")}><option value="online">online</option><option value="onsite">onsite</option><option value="hybrid">hybrid</option></select></div>

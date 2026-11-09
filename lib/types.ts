@@ -139,6 +139,14 @@ export interface UserProfile {
   institution?: string;
   linkedinUrl?: string | null;
   hasCv?: boolean;
+  username?: string | null;
+  headline?: string;
+  competitionInterests?: string[];
+  openToTeam?: boolean;
+  directoryVisible?: boolean;
+  portfolioUrl?: string | null;
+  githubUrl?: string | null;
+  achievements?: { title: string; year?: number; result?: string }[];
   /** Short-lived signed URL; only present on the user's own profile responses. */
   cvUrl?: string | null;
   bio: string;
@@ -276,11 +284,13 @@ export interface GSICEvent {
   title: string;
   description: string;
   shortDescription: string;
-  startDate: string;
-  endDate: string;
-  registrationDeadline: string;
-  location: string;
-  maxParticipants: number;
+  startDate: string | null;
+  endDate: string | null;
+  registrationDeadline: string | null;
+  location: string | null;
+  maxParticipants: number | null;
+  comingSoon?: boolean;
+  series?: string | null;
   currentParticipants: number;
   status: Status;
   clusters: ("art" | "technology" | "discovery")[];

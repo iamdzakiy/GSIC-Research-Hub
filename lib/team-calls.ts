@@ -2,8 +2,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { signedCvUrl } from "@/lib/cv";
-import { renderEmail } from "@/lib/email-templates";
-import { trySendMail } from "@/lib/mailer";
+import { notify } from "@/lib/notify";
 import { PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import type { Prisma } from "../generated/prisma/client";
 
@@ -29,43 +28,55 @@ export async function personView(u: Person, opts: { reveal: boolean; withCv: boo
 
 const roleLabel = (id: string) => labelOf(PREFERRED_ROLES, id);
 
-export async function notifyOwnerOfApplication(opts: { to: string; ownerName: string | null; applicant: string; callTitle: string; role: string; siteUrl: string }) {
-  const first = opts.ownerName?.split(/\s+/)[0] || "there";
-  await trySendMail({
-    to: opts.to,
-    ...renderEmail({
-      subject: `New application for "${opts.callTitle}"`,
-      preheader: `${opts.applicant} wants to join as ${roleLabel(opts.role)}.`,
-      title: "You have a new applicant",
-      body: `Hi ${esc(first)}, ${esc(opts.applicant)} applied to your call "${esc(opts.callTitle)}" as ${esc(roleLabel(opts.role))}. Review their profile and decide.`,
-      cta: "Review application",
-      url: `${opts.siteUrl}/teams?tab=mine`,
-    }, opts.siteUrl),
+/** Owner: someone responded to their post (in-app + e-mail). */
+export async function notifyOwnerOfApplication(o: { ownerId: string; ownerName: string | null; applicant: string; callId: string; callTitle: string; role: string; lookingForTeam?: boolean }) {
+  const first = o.ownerName?.split(/\s+/)[0] || "there";
+  const what = o.lookingForTeam ? `invited you to join their team as ${roleLabel(o.role)}` : `wants to join as ${roleLabel(o.role)}`;
+  await notify(o.ownerId, {
+    kind: "partner_response",
+    title: `${o.applicant} responded to "${o.callTitle}"`,
+    body: `${o.applicant} ${what}.`,
+    path: `/partners/${o.callId}?tab=responses`,
+    email: {
+      subject: `New response to "${o.callTitle}"`,
+      preheader: `${o.applicant} ${what}.`,
+      title: "You have a new response",
+      body: `Hi ${esc(first)}, ${esc(o.applicant)} ${esc(what)} on your Seeking Partner post "${esc(o.callTitle)}". Review their profile and decide.`,
+      cta: "Review the response",
+    },
   });
 }
 
-export async function notifyApplicantOfDecision(opts: { to: string; applicantName: string | null; callTitle: string; accepted: boolean; siteUrl: string }) {
-  const first = opts.applicantName?.split(/\s+/)[0] || "there";
-  await trySendMail({
-    to: opts.to,
-    ...renderEmail(opts.accepted
-      ? {
-          subject: `You are in: "${opts.callTitle}"`,
-          preheader: "Your application was accepted. Contact details are now visible.",
-          title: "Your application was accepted",
-          body: `Hi ${esc(first)}, the owner of "${esc(opts.callTitle)}" accepted you. Their WhatsApp number is now visible on your applications page. Introduce yourself briefly and agree on next steps.`,
-          cta: "Open my applications",
-          url: `${opts.siteUrl}/teams?tab=applied`,
-        }
-      : {
-          subject: `Update on "${opts.callTitle}"`,
+/** Responder: accepted or declined (in-app + e-mail). */
+export async function notifyApplicantOfDecision(o: { applicantId: string; applicantName: string | null; callId: string; callTitle: string; accepted: boolean }) {
+  const first = o.applicantName?.split(/\s+/)[0] || "there";
+  await notify(o.applicantId, o.accepted
+    ? {
+        kind: "partner_decision",
+        title: `Accepted: "${o.callTitle}"`,
+        body: "Contact details are now visible to both of you.",
+        path: `/partners/${o.callId}`,
+        email: {
+          subject: `You are in: "${o.callTitle}"`,
+          preheader: "Your response was accepted. Contact details are now visible.",
+          title: "Your response was accepted",
+          body: `Hi ${esc(first)}, the owner of "${esc(o.callTitle)}" accepted you. Their WhatsApp number is now visible on the post. Introduce yourself briefly and agree on next steps.`,
+          cta: "Open the post",
+        },
+      }
+    : {
+        kind: "partner_decision",
+        title: `Update on "${o.callTitle}"`,
+        body: "The owner decided not to move forward this time.",
+        path: "/partners",
+        email: {
+          subject: `Update on "${o.callTitle}"`,
           preheader: "The owner decided not to move forward this time.",
-          title: "Your application was not accepted",
-          body: `Hi ${esc(first)}, the owner of "${esc(opts.callTitle)}" decided not to move forward with your application. Other open calls may fit you better.`,
-          cta: "Browse open calls",
-          url: `${opts.siteUrl}/teams`,
-        }, opts.siteUrl),
-  });
+          title: "Your response was not accepted",
+          body: `Hi ${esc(first)}, the owner of "${esc(o.callTitle)}" decided not to move forward this time. Other posts may fit you better.`,
+          cta: "Browse Seeking Partner",
+        },
+      });
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

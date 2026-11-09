@@ -81,7 +81,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   useEffect(() => {
     if (!touched.size && !profile.linkedinUrl) return;
     const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
-    const values = mode === "signup" ? { name, email, password, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
+    const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     const fe = parsed.success ? {} : fieldErrors(parsed.error);
     const keys = new Set(touched);
@@ -127,7 +127,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
 
     // 1) client-side validation (same zod schemas as the server)
     const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
-    const values = mode === "signup" ? { name, email, password, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
+    const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
@@ -169,7 +169,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       if (!res.ok) {
         if (res.fieldErrors) {
           setErrors(res.fieldErrors);
-          if (mode === "signup" && ["name", "email", "password"].some((k) => res.fieldErrors?.[k])) setStep(1);
+          if (mode === "signup" && ["name", "email", "password", "confirm"].some((k) => res.fieldErrors?.[k])) setStep(1);
         }
         setErrors((p) => ({ ...p, form: res.error ?? "Something went wrong." }));
         setSubmitted(true);
@@ -324,7 +324,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {mode === "reset" && (
+        {(mode === "reset" || (mode === "signup" && step === 1)) && (
           <div>
             <label htmlFor="confirm" className="mb-1.5 block text-sm font-medium text-slate-700">Repeat password</label>
             <input id="confirm" type={show ? "text" : "password"} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} onBlur={() => touch("confirm")} className={input("confirm", !!errors.confirm)} aria-invalid={!!errors.confirm} aria-describedby={errors.confirm ? "confirm-err" : undefined} />

@@ -6,7 +6,7 @@
   :root {
     /* Offline-safe fallbacks for --font-inter / --font-jakarta
        (previously provided by next/font/google). */
-    --font-inter: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-inter: var(--font-jakarta);
     --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
@@ -203,4 +203,43 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   GSIC Hub v2 signature: blueprint grid, campus silhouette, quiet motion.
+   Motion is transform/opacity only, 150-250 ms, and off under prefers-reduced-motion.
+   ============================================================ */
+.bp-grid {
+  background-image:
+    linear-gradient(to right, rgb(51 82 205 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(51 82 205 / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-grid-dark {
+  background-image:
+    linear-gradient(to right, rgb(92 227 182 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(92 227 182 / 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-fade { -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
+
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+.silhouette-draw path { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw-line 2.4s cubic-bezier(.65,0,.35,1) .2s forwards; }
+
+.lift { transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgb(11 17 32 / 0.35); }
+
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.pop { animation: pop 220ms ease-out both; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 220ms ease-out both; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.label-mono { font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+
+@media (prefers-reduced-motion: reduce) {
+  .silhouette-draw path { animation: none; stroke-dashoffset: 0; }
+  .lift, .lift:hover { transition: none; transform: none; }
+  .pop, .rise { animation: none; }
 }

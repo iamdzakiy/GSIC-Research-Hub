@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromRequest, requireAdmin } from "@/lib/auth-helper";
-import { withErrorHandler, parsePagination } from "@/lib/api-utils";
+import { HttpError, withErrorHandler, parsePagination } from "@/lib/api-utils";
+import { notifyEventOpened } from "@/lib/cron-tasks";
 
 export const GET = withErrorHandler(async (request: Request) => {
   const { skip, take } = parsePagination(request.url);
@@ -9,7 +10,7 @@ export const GET = withErrorHandler(async (request: Request) => {
   const isAdmin = !!auth && (await prisma.user.findUnique({ where: { id: auth.id }, select: { role: true } }))?.role === "admin";
   const [events, total] = await Promise.all([
     prisma.event.findMany({
-      orderBy: { startDate: "asc" },
+      orderBy: [{ comingSoon: "asc" }, { startDate: "asc" }],
       skip,
       take,
     }),
@@ -36,12 +37,17 @@ export const PUT = withErrorHandler(async (request: Request) => {
   const { id, ...data } = body;
   if (!id) return NextResponse.json({ error: "Missing id" }, { status: 400 });
 
-  const updated = await prisma.event.update({
-    where: { id },
-    data: {
-      ...data,
-    },
-  });
+  const before = await prisma.event.findUnique({ where: { id }, select: { comingSoon: true } });
+  if (!before) throw new HttpError(404, "Event not found");
+  const next = { ...before, ...data } as Record<string, unknown>;
+  if (next.comingSoon === false) {
+    const merged = { ...(await prisma.event.findUnique({ where: { id } })), ...data } as Record<string, unknown>;
+    const missing = ["startDate", "endDate", "registrationDeadline", "location", "maxParticipants"].filter((k) => !merged[k]);
+    if (missing.length) throw new HttpError(422, `Set ${missing.join(", ")} before turning "coming soon" off.`);
+  }
+  const updated = await prisma.event.update({ where: { id }, data: { ...data } });
+  // Opening a coming-soon program e-mails everyone who pressed "Notify me".
+  if (before.comingSoon && updated.comingSoon === false && updated.registrationOpen) await notifyEventOpened(updated.id);
   return NextResponse.json(updated);
 });
 

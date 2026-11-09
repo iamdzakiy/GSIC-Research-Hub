@@ -10,15 +10,19 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        heading: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
-        body: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        heading: ["var(--font-display)", "Bricolage Grotesque", "var(--font-jakarta)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        body: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "IBM Plex Mono", "ui-monospace", "monospace"],
       },
       colors: {
         // Portal brand scale, anchored on the existing GSIC blue (#3352CD = 600).
         // Palette-aligned accents (same hues as gsic.mint #5CE3B6 / gsic.cream #F2F8C9 / gsic.navy #0B1120)
         mint: { DEFAULT: "#5CE3B6", 50: "#EEFBF6", 100: "#D5F6EA", 200: "#ADEFD5", 300: "#85E9C3", 400: "#5CE3B6", 600: "#1FA77F", 700: "#0F7E5E", 800: "#0B6049", 900: "#094A39" },
         cream: { DEFAULT: "#F2F8C9", 50: "#FAFCEA", 100: "#F2F8C9", 200: "#E6F0A1", 300: "#D4E274", 700: "#6B7A12" },
+        paper: { DEFAULT: "#F7F8F2", 2: "#EEF0E6" },
+        ink: { DEFAULT: "#0B1120", 2: "#334155", 3: "#5B6475" },
         navy: { DEFAULT: "#0B1120", 800: "#111C33", 700: "#16233F" },
         brand: {
           50: "#EFF3FD",
