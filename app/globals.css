@@ -243,3 +243,18 @@
   .lift, .lift:hover { transition: none; transform: none; }
   .pop, .rise { animation: none; }
 }
+
+/* ---- v2.1 surface vocabulary ---- */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee { display: flex; width: max-content; animation: marquee 48s linear infinite; }
+.marquee:hover { animation-play-state: paused; }
+.outline-cream { -webkit-text-stroke: 1.5px #F2F8C9; color: transparent; }
+.outline-brand { -webkit-text-stroke: 1.5px #3352CD; color: transparent; }
+.corner { position: relative; }
+.corner::before, .corner::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: currentColor; opacity: .5; }
+.corner::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.corner::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+.tile { transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease; }
+.tile:hover { background-color: #0B1120; color: #fff; border-color: #0B1120; }
+.tile:hover .tile-n { color: #5CE3B6; }
+@media (prefers-reduced-motion: reduce) { .marquee { animation: none; } .tile { transition: none; } }
