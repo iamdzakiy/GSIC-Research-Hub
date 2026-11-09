@@ -28,7 +28,7 @@ export default async function CompetitionsPage({ searchParams }: Props) {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label-mono text-brand-700">Competitions</p>
-              <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">What closes next</h1>
+              <h1 className="mt-3 font-display text-5xl font-bold leading-[0.95] tracking-[-0.03em] text-ink sm:text-7xl">What closes <span className="outline-brand">next.</span></h1>
               <p className="mt-2 max-w-xl text-[15px] leading-7 text-ink-3">Sorted by when registration closes, in WIB. Every card has the guidebook and the people looking for partners.</p>
             </div>
             <Link href="/competitions/submit" className={btnSecondary}><Plus className="h-4 w-4" aria-hidden="true" /> Submit a competition</Link>
