@@ -67,6 +67,7 @@ const OpportunityEditor = dynamic(() => import("@/components/admin/OpportunityEd
 const LinksManager = dynamic(() => import("@/components/admin/LinksManager"), { ssr: false });
 const GalleryManager = dynamic(() => import("@/components/admin/GalleryManager"), { ssr: false });
 const DataSyncPanel = dynamic(() => import("@/components/admin/DataSyncPanel"), { ssr: false });
+const HubOpsPanel = dynamic(() => import("@/components/admin/HubOpsPanel"), { ssr: false });
 const TestBuilder = dynamic(() => import("@/components/tests/TestBuilder"), { ssr: false });
 
 export default function AdminDashboard() {
@@ -1020,6 +1021,7 @@ export default function AdminDashboard() {
 
         {activeTab === "tabSync" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <HubOpsPanel />
             <DataSyncPanel />
           </motion.div>
         )}

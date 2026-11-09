@@ -27,7 +27,7 @@ export const GET = withErrorHandler(async (request: Request) => {
 
   const calls = await prisma.teamCall.findMany({
     where: {
-      status: "open", deadline: { gt: new Date() }, ownerId: { not: me.id },
+      status: "open", deadline: { gt: new Date() }, ownerId: { not: me.id }, hiddenAt: null,
       ...(competition ? { competition: { contains: competition, mode: "insensitive" } } : {}),
       ...(scheme ? { interests: { has: scheme } } : {}),
       ...(role ? { rolesNeeded: { has: role } } : {}),
@@ -44,10 +44,13 @@ export const GET = withErrorHandler(async (request: Request) => {
     const fit = scoreMatch(meCand, hubCandidate(c.owner));
     const needsMe = !!me.preferredRole && c.rolesNeeded.includes(me.preferredRole);
     const sharedSchemes = c.interests.filter((i) => me.interests.includes(i)).length;
-    const relevance = fit.score + (needsMe ? 25 : 0) + sharedSchemes * 10;
-    const reason = [needsMe ? "Needs your role" : "", sharedSchemes ? `${sharedSchemes} shared scheme${sharedSchemes > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ") || fit.reason;
+    const catFit = !!c.category && me.competitionInterests.includes(c.category);
+    const skillHits = c.skillsNeeded.filter((s) => me.skills.some((m) => m.toLowerCase() === s.toLowerCase())).length;
+    const relevance = fit.score + (needsMe ? 25 : 0) + sharedSchemes * 10 + (catFit ? 15 : 0) + skillHits * 8;
+    const reason = [needsMe ? "Needs your role" : "", skillHits ? `${skillHits} matching skill${skillHits > 1 ? "s" : ""}` : "", catFit ? "A category you follow" : "", sharedSchemes ? `${sharedSchemes} shared scheme${sharedSchemes > 1 ? "s" : ""}` : ""].filter(Boolean).join(" · ") || fit.reason;
     return {
       id: c.id, title: c.title, competition: c.competition, opportunityId: c.opportunityId, eventId: c.eventId, interests: c.interests,
+      kind: c.kind, category: c.category, skillsNeeded: c.skillsNeeded, commitment: c.commitment, currentTeamSize: c.currentTeamSize,
       rolesNeeded: c.rolesNeeded, slots: c.slots, description: c.description, deadline: c.deadline, status: c.status, createdAt: c.createdAt,
       owner: await personView(c.owner, { reveal: false, withCv: false }),
       myApplication: c.applications[0] ?? null, relevance, reason,
@@ -67,11 +70,15 @@ export const POST = withErrorHandler(async (request: Request) => {
   await closeExpired();
   const open = await prisma.teamCall.count({ where: { ownerId: me.id, status: "open" } });
   if (open >= MAX_OPEN_CALLS) throw new HttpError(409, `You can have at most ${MAX_OPEN_CALLS} open calls. Close one first.`);
-  if (d.opportunityId && !(await prisma.opportunity.findUnique({ where: { id: d.opportunityId }, select: { id: true } }))) throw new HttpError(422, "That competition no longer exists.", { competition: "Pick a different competition" });
+  const opp = d.opportunityId ? await prisma.opportunity.findUnique({ where: { id: d.opportunityId }, select: { id: true, deadline: true, category: true } }) : null;
+  if (d.opportunityId && !opp) throw new HttpError(422, "That competition no longer exists.", { competition: "Pick a different competition" });
+  // A partner post cannot outlive the competition's registration.
+  const deadline = opp?.deadline && opp.deadline < d.deadline ? opp.deadline : d.deadline;
   if (d.eventId && !(await prisma.event.findUnique({ where: { id: d.eventId }, select: { id: true } }))) throw new HttpError(422, "That event no longer exists.", { competition: "Pick a different event" });
 
   const call = await prisma.teamCall.create({
-    data: { ownerId: me.id, title: d.title, competition: d.competition, opportunityId: d.opportunityId || null, eventId: d.eventId || null, interests: d.interests, rolesNeeded: d.rolesNeeded, slots: d.slots, description: d.description, deadline: d.deadline },
+    data: { ownerId: me.id, title: d.title, competition: d.competition, opportunityId: d.opportunityId || null, eventId: d.eventId || null, interests: d.interests, rolesNeeded: d.rolesNeeded, slots: d.slots, description: d.description, deadline,
+      kind: d.kind, category: opp?.category ?? null, skillsNeeded: d.skillsNeeded, commitment: d.commitment || null, currentTeamSize: d.currentTeamSize ?? null },
   });
   return NextResponse.json({ ok: true, id: call.id }, { status: 201 });
 });

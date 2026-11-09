@@ -7,6 +7,7 @@ import LinkCard from "@/components/portal/LinkCard";
 import EmptyState from "@/components/portal/EmptyState";
 import TagBadge from "@/components/portal/TagBadge";
 import { getLinkData, hostOf } from "@/lib/links";
+import CampusLinks from "@/components/hub/CampusLinks";
 
 export const metadata: Metadata = {
   title: "Links: Scholarships, Research, Careers and Tools · GSIC Hub",
@@ -31,9 +32,12 @@ export default async function LinksPage({ searchParams }: { searchParams: SP }) 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-heading">Links</h1>
+        <p className="label-mono text-brand-700">Links</p>
+        <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-ink">Everything worth bookmarking</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">Links selected by the GSIC team: scholarship portals, research journals and repositories, internship platforms, templates and communities. {total > 0 && <>There are currently <span className="font-medium text-slate-800">{total}</span> links.</>}</p>
       </header>
+
+      {!filtering && <div className="mb-8"><CampusLinks /></div>}
 
       <Suspense><SearchBox label="Search links" placeholder="Search by site name, topic or tag…" value={q} /></Suspense>
 

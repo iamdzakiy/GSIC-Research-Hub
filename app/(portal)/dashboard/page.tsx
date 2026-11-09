@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Award, CalendarDays, Settings, Target, TrendingUp } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
-import ProfileModal from "@/components/portal/ProfileModal";
 import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import dynamic from "next/dynamic";
 import HomeHooks from "@/components/portal/dashboard/HomeHooks";
@@ -28,7 +27,6 @@ type Tab = (typeof TABS)[number][0];
 export default function DashboardPage() {
   const { user, userProfile, loading } = useAuth();
   const [tab, setTab] = useState<Tab>("ringkasan");
-  const [edit, setEdit] = useState(false);
   const [rapor, setRapor] = useState<{ events: RaporEvent[]; summary: RaporSummary } | null>(null);
   const [opps, setOpps] = useState<Opp[]>([]);
   const [gallery, setGallery] = useState<GalleryEntry[]>([]);
@@ -84,7 +82,7 @@ export default function DashboardPage() {
               {(userProfile?.interests ?? []).slice(0, 4).map((id) => <li key={id} className="rounded-full border border-white/20 px-2.5 py-0.5 text-xs text-slate-200">{INTERESTS.find((i) => i.id === id)?.label ?? id}</li>)}
             </ul>
           </div>
-          <button type="button" onClick={() => setEdit(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><Settings className="h-4 w-4" aria-hidden="true" /> Edit profile</button>
+          <Link href="/settings" className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><Settings className="h-4 w-4" aria-hidden="true" /> Edit profile</Link>
         </div>
       </header>
 
@@ -156,7 +154,6 @@ export default function DashboardPage() {
           {tab === "galeri" && (gallery.length ? <GalleryMarquee items={gallery} /> : <p className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">The gallery will appear once an admin adds event photos.</p>)}
         </div>
       </main>
-      <ProfileModal open={edit} onClose={() => setEdit(false)} />
     </>
   );
 }

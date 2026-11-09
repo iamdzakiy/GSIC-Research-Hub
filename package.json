@@ -16,7 +16,8 @@
     "doctor": "tsx scripts/doctor.ts",
     "db:seed:portal": "tsx scripts/seed-portal.ts",
     "admins:create": "tsx scripts/create-admins.ts",
-    "db:migrate-english": "tsx scripts/migrate-english.ts"
+    "db:migrate-english": "tsx scripts/migrate-english.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",

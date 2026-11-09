@@ -92,7 +92,7 @@ export interface SheetUser {
 
 const site = () => (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
 
-function userCells(u: SheetUser): Record<string, string> {
+export function userCells(u: SheetUser): Record<string, string> {
   return {
     "Name": u.name ?? "",
     "Preferred Role": u.preferredRole ? labelOf(PREFERRED_ROLES, u.preferredRole) : "",
