@@ -3,10 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, Loader2, MailCheck } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/Toast";
+import { uploadCv } from "@/services/userService";
 import { accountSchema, emailOnlySchema, fieldErrors, registerSchema, resetPasswordSchema, signInSchema } from "@/lib/validation/auth";
 import ProfileFields, { EMPTY_PROFILE, type ProfileValues } from "@/components/portal/ProfileFields";
 
@@ -22,7 +23,6 @@ const TITLES: Record<AuthMode, { h: string; p: string; cta: string }> = {
 
 function mapSupabaseError(msg: string): string {
   if (/invalid login/i.test(msg)) return "Incorrect email or password.";
-  if (/not confirmed/i.test(msg)) return "Your email is not verified yet.";
   if (/rate limit|too many/i.test(msg)) return "Too many attempts. Try again in a few minutes.";
   return msg;
 }
@@ -37,7 +37,7 @@ function strength(pw: string): { score: number; label: string } {
   return { score: Math.min(s, 4), label: ["Weak", "Weak", "Fair", "Good", "Strong"][Math.min(s, 4)]! };
 }
 
-interface Sent { email: string; kind: "verify" | "magic" | "reset" }
+interface Sent { email: string; kind: "magic" | "reset" }
 
 /** Post-login destination from ?next=, restricted to same-site paths (no open redirect). */
 function safeNext(): string {
@@ -60,9 +60,12 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
   const [cooldown, setCooldown] = useState(0);
-  const [needsVerify, setNeedsVerify] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [profile, setProfile] = useState<ProfileValues>(EMPTY_PROFILE);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [touched, setTouched] = useState<Set<string>>(new Set());
+  const [done, setDone] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => setMode(initialMode), [initialMode]);
   useEffect(() => {
@@ -72,6 +75,31 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   }, [cooldown]);
 
   const copy = TITLES[mode];
+  const touch = (k: string) => setTouched((t) => (t.has(k) ? t : new Set(t).add(k)));
+
+  // Inline validation: once a field has been visited, re-check it as the user types.
+  useEffect(() => {
+    if (!touched.size && !profile.linkedinUrl) return;
+    const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
+    const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
+    const parsed = schema.safeParse(values);
+    const fe = parsed.success ? {} : fieldErrors(parsed.error);
+    const keys = new Set(touched);
+    if (profile.linkedinUrl) keys.add("linkedinUrl");
+    setErrors((prev) => {
+      const next = { ...prev };
+      keys.forEach((k) => { if (fe[k]) next[k] = fe[k]!; else delete next[k]; });
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, email, password, confirm, profile, touched, mode, step]);
+
+  // After a failed submit, move focus to the first field with an error.
+  useEffect(() => {
+    const first = Object.keys(errors).find((k) => k !== "form" && document.getElementById(k === "linkedinUrl" ? "linkedin" : k));
+    if (first && loading === false && submitted) { document.getElementById(first === "linkedinUrl" ? "linkedin" : first)?.focus(); setSubmitted(false); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [errors, submitted]);
   const pw = useMemo(() => strength(password), [password]);
   const usesPassword = mode === "signin" || mode === "signup" || mode === "reset";
 
@@ -79,7 +107,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     setMode(m);
     setStep(1);
     setErrors({});
-    setNeedsVerify(false);
+    setTouched(new Set());
     router.replace(`/auth?mode=${m}`, { scroll: false });
   };
 
@@ -96,14 +124,14 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     e.preventDefault();
     if (loading) return;
     setErrors({});
-    setNeedsVerify(false);
 
     // 1) client-side validation (same zod schemas as the server)
     const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
-    const values = mode === "signup" ? { name, email, password, ...profile, whatsapp: profile.whatsapp || undefined, archetype: profile.archetype || null, bccRole: profile.bccRole || null } : { name, email, password, confirm };
+    const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     if (!parsed.success) {
       setErrors(fieldErrors(parsed.error));
+      setSubmitted(true);
       return;
     }
 
@@ -117,7 +145,6 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
         if (error) {
-          if (/not confirmed/i.test(error.message)) setNeedsVerify(true);
           setErrors({ form: mapSupabaseError(error.message) });
           return;
         }
@@ -142,13 +169,25 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       if (!res.ok) {
         if (res.fieldErrors) {
           setErrors(res.fieldErrors);
-          if (mode === "signup" && ["name", "email", "password"].some((k) => res.fieldErrors?.[k])) setStep(1);
+          if (mode === "signup" && ["name", "email", "password", "confirm"].some((k) => res.fieldErrors?.[k])) setStep(1);
         }
         setErrors((p) => ({ ...p, form: res.error ?? "Something went wrong." }));
+        setSubmitted(true);
         if (res.retryAfterSec) setCooldown(Math.min(res.retryAfterSec, 600));
         return;
       }
-      setSent({ email: email.trim().toLowerCase(), kind: mode === "signup" ? "verify" : mode === "magic" ? "magic" : "reset" });
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+        if (error) {
+          setErrors({ form: "Your account was created, but we could not sign you in. Try signing in." });
+          return;
+        }
+        if (cvFile) await uploadCv(cvFile).catch(() => toast("error", "Your account is ready, but the CV upload failed. Add it from your profile."));
+        setDone(name.trim().split(/\s+/)[0] || "there");
+        setTimeout(() => router.replace(safeNext()), 1400);
+        return;
+      }
+      setSent({ email: email.trim().toLowerCase(), kind: mode === "magic" ? "magic" : "reset" });
       setCooldown(60);
     } finally {
       setLoading(false);
@@ -158,7 +197,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   async function resend(kind: Sent["kind"], to: string) {
     if (cooldown > 0 || loading) return;
     setLoading(true);
-    const path = kind === "verify" ? "resend-verification" : kind === "magic" ? "magic-link" : "forgot-password";
+    const path = kind === "magic" ? "magic-link" : "forgot-password";
     const res = await post(path, { email: to });
     setLoading(false);
     if (res.ok) {
@@ -176,9 +215,19 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       hasErr ? "border-rose-400 focus:border-rose-500 focus:ring-rose-500/20" : "border-slate-300 focus:border-brand-600 focus:ring-brand-600/20"
     ) + (id === "password" || id === "confirm" ? " pr-11" : "");
 
+  if (done) {
+    return (
+      <div className="step-in py-6 text-center" role="status">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-mint-100 text-mint-800"><Check className="h-7 w-7" aria-hidden="true" /></span>
+        <h1 className="mt-5 text-2xl font-bold tracking-tight text-slate-900 font-heading">Welcome, {done}</h1>
+        <p className="mt-2 text-sm text-slate-600">Your account is ready. Taking you to your dashboard.</p>
+      </div>
+    );
+  }
+
   // ---------- "email sent" confirmation ----------
   if (sent) {
-    const label = sent.kind === "verify" ? "verification" : sent.kind === "magic" ? "sign-in" : "password reset";
+    const label = sent.kind === "magic" ? "sign-in" : "password reset";
     return (
       <div className="text-center" role="status">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200">
@@ -213,7 +262,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           {["Account", "Profile"].map((t, i) => (
             <li key={t} className="flex flex-1 items-center gap-2">
               <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-[11px]", step >= i + 1 ? "bg-brand-600 text-white" : "bg-slate-200 text-slate-500")}>{i + 1}</span>
-              <span className={step >= i + 1 ? "text-slate-900" : "text-slate-400"}>{t}</span>
+              <span className={step >= i + 1 ? "text-slate-900" : "text-slate-500"}>{t}</span>
               <span className={cn("h-px flex-1", step > i + 1 ? "bg-brand-600" : "bg-slate-200")} />
             </li>
           ))}
@@ -226,19 +275,15 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
         {errors.form && (
           <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-3 text-sm text-rose-800">
             {errors.form}
-            {needsVerify && (
-              <button type="button" onClick={() => resend("verify", email.trim().toLowerCase())} disabled={cooldown > 0 || loading} className="mt-2 block font-medium underline disabled:no-underline disabled:opacity-60">
-                {cooldown > 0 ? `Resend verification (${cooldown}s)` : "Resend verification email"}
-              </button>
-            )}
-            {!needsVerify && cooldown > 0 && <span className="mt-1 block text-xs">Try again in {cooldown}s.</span>}
+            {cooldown > 0 && <span className="mt-1 block text-xs">Try again in {cooldown}s.</span>}
           </div>
         )}
 
+        <div key={`${mode}-${step}`} className="step-in space-y-4">
         {mode === "signup" && step === 1 && (
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">Full name</label>
-            <input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="As on your student card" className={input("name", !!errors.name)} aria-invalid={!!errors.name} aria-describedby={errors.name ? "name-err" : undefined} />
+            <input id="name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => touch("name")} placeholder="As on your student card" className={input("name", !!errors.name)} aria-invalid={!!errors.name} aria-describedby={errors.name ? "name-err" : undefined} />
             <Err k="name" />
           </div>
         )}
@@ -246,7 +291,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
         {mode !== "reset" && !(mode === "signup" && step === 2) && (
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
-            <input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@mahasiswa.itb.ac.id" className={input("email", !!errors.email)} aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-err" : undefined} />
+            <input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => touch("email")} placeholder="you@mahasiswa.itb.ac.id" className={input("email", !!errors.email)} aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-err" : undefined} />
             <Err k="email" />
           </div>
         )}
@@ -260,8 +305,8 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
               )}
             </div>
             <div className="relative">
-              <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={mode === "signin" ? "Your password" : "8+ characters, letters and a number"} className={input("password", !!errors.password)} aria-invalid={!!errors.password} aria-describedby={errors.password ? "password-err" : undefined} />
-              <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-slate-400 hover:text-slate-600">
+              <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signin" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} onBlur={() => touch("password")} placeholder={mode === "signin" ? "Your password" : "8+ characters, letters and a number"} className={input("password", !!errors.password)} aria-invalid={!!errors.password} aria-describedby={errors.password ? "password-err" : undefined} />
+              <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-slate-500 hover:text-slate-600">
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
@@ -279,15 +324,17 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {mode === "reset" && (
+        {(mode === "reset" || (mode === "signup" && step === 1)) && (
           <div>
             <label htmlFor="confirm" className="mb-1.5 block text-sm font-medium text-slate-700">Repeat password</label>
-            <input id="confirm" type={show ? "text" : "password"} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} className={input("confirm", !!errors.confirm)} aria-invalid={!!errors.confirm} aria-describedby={errors.confirm ? "confirm-err" : undefined} />
+            <input id="confirm" type={show ? "text" : "password"} autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} onBlur={() => touch("confirm")} className={input("confirm", !!errors.confirm)} aria-invalid={!!errors.confirm} aria-describedby={errors.confirm ? "confirm-err" : undefined} />
             <Err k="confirm" />
           </div>
         )}
 
-        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} />}
+        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} cv={{ label: cvFile?.name ?? null, onPick: (f) => { setCvFile(f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? null : f); setErrors((p) => ({ ...p, cv: f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? "Use a PDF of 5 MB or less." : "" })); }, error: errors.cv }} />}
+
+        </div>
 
         {mode === "signup" && step === 2 && (
           <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-700">

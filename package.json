@@ -16,7 +16,8 @@
     "doctor": "tsx scripts/doctor.ts",
     "db:seed:portal": "tsx scripts/seed-portal.ts",
     "admins:create": "tsx scripts/create-admins.ts",
-    "db:migrate-english": "tsx scripts/migrate-english.ts"
+    "db:migrate-english": "tsx scripts/migrate-english.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
@@ -33,6 +34,7 @@
     "@tiptap/react": "^2.27.2",
     "@tiptap/starter-kit": "^2.27.2",
     "@types/dompurify": "^3.0.5",
+    "@vercel/functions": "^2.2.13",
     "clsx": "^2.1.1",
     "dompurify": "^3.4.14",
     "framer-motion": "^12.42.2",
@@ -64,6 +66,7 @@
     "prisma": "^7.9.1",
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.12",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.7"
   }
 }

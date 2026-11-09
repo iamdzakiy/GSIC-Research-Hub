@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { eventHref } from "@/lib/event-links";
 import type { RaporEvent } from "@/lib/scoring";
 
 const STEPS = ["Registered", "Pre-test", "Event", "Post-test", "Report card"] as const;
@@ -10,7 +11,7 @@ export const stepOf = (e: RaporEvent): number => (e.stage === "completed" ? 5 : 
 
 export default function JourneyStepper({ ev }: { ev: RaporEvent }) {
   const cur = stepOf(ev);
-  const href = ev.type === "sandbox" ? "/events/sandbox" : "/events/pkm-bootcamp";
+  const href = eventHref(ev);
   const hint = ["", "Take the pre-test", "Attend the event", "Take the post-test", "Report card ready"][cur] || "Report card ready";
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-5">

@@ -127,7 +127,7 @@ export default function PkmPage() {
           <h2 className="font-display text-xl font-bold">Ready to start?</h2>
           <p className="mt-2 max-w-xl text-sm leading-6 text-white/85">Create an account, pick PKM-RE or another scheme as an interest, and register for the next bootcamp session.</p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link href="/events/pkm-bootcamp" className="inline-flex h-11 items-center gap-1 rounded-lg bg-mint px-5 text-sm font-semibold text-navy hover:bg-mint-300">PKM Bootcamp <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Link href="/events/pkm-bootcamp-2027" className="inline-flex h-11 items-center gap-1 rounded-lg bg-mint px-5 text-sm font-semibold text-navy hover:bg-mint-300">PKM Bootcamp <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
             <Link href="/blog" className="inline-flex h-11 items-center rounded-lg border border-white/30 px-5 text-sm font-semibold hover:bg-white/10">Read the blog guides</Link>
           </div>
         </section>

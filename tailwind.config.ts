@@ -10,15 +10,19 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
-        heading: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
-        body: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        heading: ["var(--font-display)", "Bricolage Grotesque", "var(--font-jakarta)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Bricolage Grotesque", "system-ui", "sans-serif"],
+        body: ["var(--font-jakarta)", "Plus Jakarta Sans", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "IBM Plex Mono", "ui-monospace", "monospace"],
       },
       colors: {
         // Portal brand scale, anchored on the existing GSIC blue (#3352CD = 600).
         // Palette-aligned accents (same hues as gsic.mint #5CE3B6 / gsic.cream #F2F8C9 / gsic.navy #0B1120)
         mint: { DEFAULT: "#5CE3B6", 50: "#EEFBF6", 100: "#D5F6EA", 200: "#ADEFD5", 300: "#85E9C3", 400: "#5CE3B6", 600: "#1FA77F", 700: "#0F7E5E", 800: "#0B6049", 900: "#094A39" },
         cream: { DEFAULT: "#F2F8C9", 50: "#FAFCEA", 100: "#F2F8C9", 200: "#E6F0A1", 300: "#D4E274", 700: "#6B7A12" },
+        paper: { DEFAULT: "#F7F8F2", 2: "#EEF0E6" },
+        ink: { DEFAULT: "#0B1120", 2: "#334155", 3: "#5B6475" },
         navy: { DEFAULT: "#0B1120", 800: "#111C33", 700: "#16233F" },
         brand: {
           50: "#EFF3FD",
@@ -54,10 +58,6 @@ const config: Config = {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "hero-gradient":
           "linear-gradient(135deg, #0B1120 0%, #0F172A 30%, #111C33 60%, #0B1120 100%)",
-        "glass-gradient":
-          "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%)",
-        "mesh-gradient":
-          "radial-gradient(at 20% 20%, rgba(37, 99, 235, 0.15) 0px, transparent 50%), radial-gradient(at 80% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%), radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%)",
       },
       boxShadow: {
         glass: "0 8px 32px rgba(0, 0, 0, 0.3)",
@@ -68,23 +68,11 @@ const config: Config = {
         "glow-emerald": "0 0 30px rgba(16,185,129,0.25), 0 0 60px rgba(16,185,129,0.1)",
       },
       animation: {
-        "float-blob": "floatBlob 30s ease-in-out infinite alternate",
-        "pulse-border": "pulseBorder 2s ease-in-out infinite",
         "fade-in": "fadeIn 0.5s ease-out",
         "slide-up": "slideUp 0.5s ease-out",
         "scale-in": "scaleIn 0.3s ease-out",
       },
       keyframes: {
-        floatBlob: {
-          "0%": { transform: "translate(0,0) scale(1) rotate(0deg)" },
-          "33%": { transform: "translate(60px,-40px) scale(1.15) rotate(5deg)" },
-          "66%": { transform: "translate(-30px,20px) scale(0.95) rotate(-3deg)" },
-          "100%": { transform: "translate(40px,-80px) scale(1.1) rotate(4deg)" },
-        },
-        pulseBorder: {
-          "0%, 100%": { borderColor: "rgba(37,99,235,0.3)" },
-          "50%": { borderColor: "rgba(6,182,212,0.8)" },
-        },
         fadeIn: {
           "0%": { opacity: "0" },
           "100%": { opacity: "1" },

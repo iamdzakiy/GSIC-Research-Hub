@@ -1,7 +1,7 @@
 /**
  * Local diagnosis for "500 Internal Server Error".   usage:  npx tsx scripts/doctor.ts
  * Checks: env vars, DB connection, schema drift (every model/column in prisma/schema.prisma exists),
- * Supabase service-role key, auth.users access, SMTP login. Prints exactly what to fix.
+ * Supabase service-role key, SMTP login. Prints exactly what to fix.
  */
 import "dotenv/config";
 import fs from "node:fs";
@@ -58,7 +58,6 @@ async function main() {
   if (drift) console.log("\n      -> FIX:  npx prisma db push      (uses DIRECT_URL; adds the missing tables/columns, keeps your data)\n         This is the most common cause of 500s after applying portal v2: *.sql is in .gitignore, so migrations never reach\n         GitHub/Vercel; the production database has to be updated once with db push.");
   else ok(`schema matches prisma/schema.prisma (${Object.keys(models).length} models)`);
 
-  try { await db.query("SELECT 1 FROM auth.users LIMIT 1"); ok("auth.users readable"); } catch (e) { bad(`auth.users not readable: ${(e as Error).message}`, "magic-link/resend need DB role access to auth schema"); }
   await db.end();
 
   console.log("\n3) Supabase service role");

@@ -13,16 +13,22 @@ export const SOFT_SKILLS = [
   "Mentoring", "Conflict resolution",
 ] as const;
 
-/** Interest areas. The PKM scheme codes follow the Indonesian student creativity program (PKM). */
+/** Interest areas. PKM scheme codes follow the Indonesian student creativity program; ids match the "GSIC Connection Matching Team Database" sheet. */
+export const PKM_SCHEMES = [
+  { id: "pkm-re", code: "RE", label: "PKM-RE", hint: "Exact science research" },
+  { id: "pkm-rsh", code: "RSH", label: "PKM-RSH", hint: "Social and humanities research" },
+  { id: "pkm-k", code: "K", label: "PKM-K", hint: "Student entrepreneurship" },
+  { id: "pkm-pm", code: "PM", label: "PKM-PM", hint: "Community service" },
+  { id: "pkm-pi", code: "PI", label: "PKM-PI", hint: "Applied technology" },
+  { id: "pkm-kc", code: "KC", label: "PKM-KC", hint: "Creative works" },
+  { id: "pkm-ki", code: "KI", label: "PKM-KI", hint: "Innovative works" },
+  { id: "pkm-gft", code: "GFT", label: "PKM-GFT", hint: "Futuristic written ideas" },
+  { id: "pkm-ai", code: "AI", label: "PKM-AI", hint: "Scientific articles" },
+  { id: "pkm-vgk", code: "VGK", label: "PKM-VGK", hint: "Constructive idea video" },
+] as const;
+
 export const INTERESTS = [
-  { id: "pkm-re", label: "PKM-RE", hint: "Exact science research" },
-  { id: "pkm-rsh", label: "PKM-RSH", hint: "Social and humanities research" },
-  { id: "pkm-k", label: "PKM-K", hint: "Student entrepreneurship" },
-  { id: "pkm-pm", label: "PKM-PM", hint: "Community service" },
-  { id: "pkm-pi", label: "PKM-PI", hint: "Applied technology" },
-  { id: "pkm-kc", label: "PKM-KC", hint: "Creative works" },
-  { id: "pkm-gft", label: "PKM-GFT", hint: "Futuristic written ideas" },
-  { id: "pkm-ai", label: "PKM-AI", hint: "Scientific articles" },
+  ...PKM_SCHEMES,
   { id: "bcc", label: "Business case competitions", hint: "BCC" },
   { id: "hackathon", label: "Hackathons", hint: "Build under a deadline" },
   { id: "research", label: "Research and publication", hint: "Journals, conferences" },
@@ -33,24 +39,47 @@ export const INTERESTS = [
   { id: "datasci", label: "Data science", hint: "Analysis and modeling" },
 ] as const;
 
-export const ARCHETYPES = [
-  { id: "hacker", label: "Hacker", hint: "You build the product: code, hardware, experiments." },
-  { id: "hipster", label: "Hipster", hint: "You shape the experience: design, story, brand." },
-  { id: "hustler", label: "Hustler", hint: "You drive the business: sales, partners, funding." },
+/** Team roles from the matching sheet's "balanced research team" model. */
+export const PREFERRED_ROLES = [
+  { id: "research-lead", label: "Research Lead / PI", hint: "Owns the question and the direction." },
+  { id: "methodology-analyst", label: "Methodology / Data Analyst", hint: "Designs the method, handles data." },
+  { id: "literature-content", label: "Literature / Content Specialist", hint: "Reviews sources, writes the content." },
+  { id: "finance-pm", label: "Finance / Project Management", hint: "Budget, timeline, coordination." },
 ] as const;
 
-/** Role you usually take in a business case competition. */
-export const BCC_ROLES = [
-  { id: "finance", label: "Finance", hint: "Valuation, budgets, unit economics." },
-  { id: "analyst", label: "Analyst", hint: "Research, data, structuring the problem." },
-  { id: "strategist", label: "Strategist", hint: "Positioning, recommendations, the story." },
-  { id: "flex", label: "Flexible", hint: "I fill whichever gap the team has." },
+export const PKM_ROLES = [
+  { id: "leader", label: "Leader" },
+  { id: "member", label: "Member" },
+  { id: "either", label: "Either" },
+] as const;
+
+export const FIELDS = [
+  { id: "science", label: "Science" },
+  { id: "engineering", label: "Engineering" },
+  { id: "business", label: "Business" },
+  { id: "social-humanities", label: "Social & Humanities" },
+  { id: "health", label: "Health" },
+  { id: "art-design", label: "Art & Design" },
+  { id: "technology", label: "Technology" },
 ] as const;
 
 export const YEARS = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
-export type ArchetypeId = (typeof ARCHETYPES)[number]["id"];
-export type BccRoleId = (typeof BCC_ROLES)[number]["id"];
 export const INTEREST_IDS: string[] = INTERESTS.map((i) => i.id);
-export const ARCHETYPE_IDS: string[] = ARCHETYPES.map((a) => a.id);
-export const BCC_ROLE_IDS: string[] = BCC_ROLES.map((a) => a.id);
+export const PREFERRED_ROLE_IDS: string[] = PREFERRED_ROLES.map((r) => r.id);
+export const PKM_ROLE_IDS: string[] = PKM_ROLES.map((r) => r.id);
+export const FIELD_IDS: string[] = FIELDS.map((f) => f.id);
+
+export const labelOf = (list: readonly { id: string; label: string }[], id?: string | null) => list.find((x) => x.id === id)?.label ?? id ?? "";
+
+/** Normalises a LinkedIn profile URL to https://www.linkedin.com/in/<slug>, or null when it is not one. */
+export function normalizeLinkedIn(input: string): string | null {
+  const raw = input.trim();
+  if (!raw) return null;
+  try {
+    const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    if (!/^([a-z]{2,3}\.|www\.)?linkedin\.com$/i.test(u.hostname)) return null;
+    const m = u.pathname.match(/^\/in\/([^/]+)\/?/i);
+    return m ? `https://www.linkedin.com/in/${m[1]}` : null;
+  } catch { return null; }
+}

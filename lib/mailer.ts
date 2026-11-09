@@ -32,9 +32,20 @@ function transporter(): Transporter {
   return cached;
 }
 
-export interface MailInput { to: string; subject: string; html: string; text: string }
+export interface MailInput { to: string; subject: string; html: string; text: string; attachments?: { filename: string; content: string; contentType: string }[]; headers?: Record<string, string> }
 
-export async function sendMail({ to, subject, html, text }: MailInput): Promise<void> {
+export async function sendMail({ to, subject, html, text, attachments, headers }: MailInput): Promise<void> {
   const from = process.env.SMTP_FROM || `GSIC Hub <${process.env.SMTP_USER}>`;
-  await transporter().sendMail({ from, to, subject, html, text, headers: { "X-Auto-Response-Suppress": "OOF, AutoReply" } });
+  await transporter().sendMail({ from, to, subject, html, text, attachments, headers: { "X-Auto-Response-Suppress": "OOF, AutoReply", ...headers } });
+}
+
+/** Best-effort send with a bounded wait. Never throws: a mail problem must not fail the caller's action. */
+export async function trySendMail(mail: MailInput, timeoutMs = 8_000): Promise<boolean> {
+  try {
+    await Promise.race([sendMail(mail), new Promise((_, reject) => setTimeout(() => reject(new Error("timed out")), timeoutMs))]);
+    return true;
+  } catch (e) {
+    console.error("[mail] not sent:", (e as Error).message);
+    return false;
+  }
 }

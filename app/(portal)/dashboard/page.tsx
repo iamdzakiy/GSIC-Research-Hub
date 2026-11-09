@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Award, CalendarDays, Settings, Target, TrendingUp } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
-import ProfileModal from "@/components/portal/ProfileModal";
-import { ARCHETYPES, BCC_ROLES, INTERESTS } from "@/lib/profile-options";
-import RaporView from "@/components/portal/rapor/RaporView";
+import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
+import dynamic from "next/dynamic";
+import HomeHooks from "@/components/portal/dashboard/HomeHooks";
+import MyEvents from "@/components/portal/dashboard/MyEvents";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
-import VerifyBanner from "@/components/portal/dashboard/VerifyBanner";
 import GalleryMarquee, { type GalleryEntry } from "@/components/portal/GalleryMarquee";
 import CountUp from "@/components/portal/CountUp";
 import Reveal from "@/components/portal/Reveal";
@@ -19,15 +18,15 @@ import { typeLabel } from "@/lib/opportunity-config";
 import type { RaporEvent, RaporSummary } from "@/lib/scoring";
 import { cn } from "@/lib/cn";
 
+const RaporView = dynamic(() => import("@/components/portal/rapor/RaporView"), { ssr: false, loading: () => <div className="h-40 animate-pulse rounded-xl bg-white" /> });
+
 interface Opp { id: string; slug: string; title: string; organizer: string; type: string; deadline: string; openDate: string | null; status: string }
 const TABS = [["ringkasan", "Overview"], ["rapor", "Report card"], ["peluang", "Opportunities"], ["galeri", "Gallery"]] as const;
 type Tab = (typeof TABS)[number][0];
 
 export default function DashboardPage() {
   const { user, userProfile, loading } = useAuth();
-  const reduce = useReducedMotion();
   const [tab, setTab] = useState<Tab>("ringkasan");
-  const [edit, setEdit] = useState(false);
   const [rapor, setRapor] = useState<{ events: RaporEvent[]; summary: RaporSummary } | null>(null);
   const [opps, setOpps] = useState<Opp[]>([]);
   const [gallery, setGallery] = useState<GalleryEntry[]>([]);
@@ -70,7 +69,6 @@ export default function DashboardPage() {
   return (
     <>
       <header className="relative overflow-hidden bg-navy text-white">
-        {!reduce && <motion.div aria-hidden="true" className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-600/30 blur-3xl" animate={{ x: [0, -24, 0], y: [0, 16, 0] }} transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }} />}
         <div className="relative mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-8 sm:px-6">
           <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-brand-600 font-display text-2xl font-extrabold">
             {userProfile?.avatarUrl ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={userProfile.avatarUrl} alt="" className="h-full w-full object-cover" /> : name.charAt(0).toUpperCase()}
@@ -80,17 +78,15 @@ export default function DashboardPage() {
             <h1 className="truncate font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Hello, {name}</h1>
             <p className="truncate text-sm text-slate-300">{[userProfile?.major, userProfile?.faculty].filter(Boolean).join(" · ") || "Complete your profile to get better matches"}</p>
             <ul className="mt-2 flex flex-wrap gap-1.5" aria-label="Profile tags">
-              {userProfile?.archetype && <li className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-navy">{ARCHETYPES.find((a) => a.id === userProfile.archetype)?.label}</li>}
-              {userProfile?.bccRole && <li className="rounded-full bg-cream px-2.5 py-0.5 text-xs font-semibold text-navy">BCC: {BCC_ROLES.find((r) => r.id === userProfile.bccRole)?.label}</li>}
+              {userProfile?.preferredRole && <li className="rounded-full bg-mint px-2.5 py-0.5 text-xs font-semibold text-navy">{labelOf(PREFERRED_ROLES, userProfile.preferredRole)}</li>}
               {(userProfile?.interests ?? []).slice(0, 4).map((id) => <li key={id} className="rounded-full border border-white/20 px-2.5 py-0.5 text-xs text-slate-200">{INTERESTS.find((i) => i.id === id)?.label ?? id}</li>)}
             </ul>
           </div>
-          <button type="button" onClick={() => setEdit(true)} className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><Settings className="h-4 w-4" aria-hidden="true" /> Edit profile</button>
+          <Link href="/settings" className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3.5 py-2 text-sm font-semibold hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mint"><Settings className="h-4 w-4" aria-hidden="true" /> Edit profile</Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6">
-        <VerifyBanner email={user.email ?? ""} verified={!!user.email_confirmed_at} />
         {loadErr && <p role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-800">Some data could not be loaded. Reload the page if this keeps happening.</p>}
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -119,12 +115,14 @@ export default function DashboardPage() {
         <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
           {tab === "ringkasan" && (
             <div className="space-y-4">
+              <HomeHooks />
+              <MyEvents />
               <h2 className="font-display text-lg font-bold text-slate-900">Your progress</h2>
               {!rapor ? <div className="h-32 animate-pulse rounded-xl bg-white" /> : rapor.events.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center">
                   <p className="font-semibold text-slate-900">No events yet</p>
                   <p className="mt-1 text-sm text-slate-500">Register for a GSIC event to start building your report card.</p>
-                  <Link href="/events/pkm-bootcamp" className="mt-4 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+                  <Link href="/events/pkm-bootcamp-2027" className="mt-4 inline-flex items-center gap-1 rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-700">View events <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
                 </div>
               ) : (next.length ? next : rapor.events.slice(0, 2)).map((e, i) => <Reveal key={e.eventId} delay={i * 0.05}><JourneyStepper ev={e} /></Reveal>)}
               {live.length > 0 && (
@@ -156,7 +154,6 @@ export default function DashboardPage() {
           {tab === "galeri" && (gallery.length ? <GalleryMarquee items={gallery} /> : <p className="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">The gallery will appear once an admin adds event photos.</p>)}
         </div>
       </main>
-      <ProfileModal open={edit} onClose={() => setEdit(false)} />
     </>
   );
 }

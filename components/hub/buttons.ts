@@ -1,0 +1,7 @@
+// Button and chip classes. One primary per view.
+export const btnPrimary = "inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-brand-600 px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60";
+export const btnSecondary = "inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-ink-2 transition-colors hover:border-slate-400 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 disabled:opacity-60";
+export const btnGhost = "inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium text-ink-2 hover:bg-slate-100 hover:text-ink";
+export const chip = (on = false) => `inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[13px] font-medium transition-colors ${on ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-ink-2 hover:border-slate-400"}`;
+export const tag = "inline-flex items-center rounded-md bg-paper-2 px-2 py-0.5 text-xs font-medium text-ink-2";
+export const input = (err?: boolean) => `h-11 w-full rounded-lg border bg-white px-3.5 text-sm text-ink placeholder:text-slate-400 focus:outline-none focus:ring-2 ${err ? "border-rose-400 focus:ring-rose-500/20" : "border-slate-300 focus:border-brand-600 focus:ring-brand-600/20"}`;

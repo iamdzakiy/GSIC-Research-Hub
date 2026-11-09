@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 import { AuthError } from "@/lib/auth-helper";
 
+/** Throw from a handler to answer with `{ ok:false, error, fieldErrors? }` and this status. */
+export class HttpError extends Error {
+  constructor(public status: number, message: string, public fieldErrors?: Record<string, string>) { super(message); }
+}
+
+/** First message per field from a zod error, for `fieldErrors`. */
+export function zodFieldErrors(err: { issues: { path: PropertyKey[]; message: string }[] }): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const i of err.issues) { const k = String(i.path[0] ?? "form"); if (!out[k]) out[k] = i.message; }
+  return out;
+}
+
 /**
  * Wraps an API route handler with consistent error handling.
  *  - AuthError           -> its own status (401/403)
@@ -17,14 +29,15 @@ export function withErrorHandler<T extends unknown[]>(
     try {
       return await handler(...args);
     } catch (e: unknown) {
-      if (e instanceof AuthError) return NextResponse.json({ error: e.message }, { status: e.status });
+      if (e instanceof AuthError) return NextResponse.json({ ok: false, error: e.message }, { status: e.status });
+      if (e instanceof HttpError) return NextResponse.json({ ok: false, error: e.message, ...(e.fieldErrors ? { fieldErrors: e.fieldErrors } : {}) }, { status: e.status });
 
       const err = e as { code?: string; name?: string; message?: string; meta?: { column?: string; table?: string } };
       const ref = Math.random().toString(36).slice(2, 8);
       const dev = process.env.NODE_ENV !== "production";
 
-      if (err?.code === "P2025") return NextResponse.json({ error: "Not found" }, { status: 404 });
-      if (err?.code === "P2002") return NextResponse.json({ error: "This record already exists." }, { status: 409 });
+      if (err?.code === "P2025") return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+      if (err?.code === "P2002") return NextResponse.json({ ok: false, error: "This record already exists." }, { status: 409 });
       if (err?.code === "P2021" || err?.code === "P2022") {
         console.error(`[API ${ref}] DB schema out of date`, err.code, err.meta);
         return NextResponse.json(
@@ -34,11 +47,11 @@ export function withErrorHandler<T extends unknown[]>(
       }
       if (err?.name === "PrismaClientInitializationError" || err?.code === "ECONNREFUSED" || err?.code === "P1001" || err?.code === "P1002") {
         console.error(`[API ${ref}] DB unreachable`, err.message);
-        return NextResponse.json({ error: "Cannot reach the database. Check DATABASE_URL.", ref }, { status: 503 });
+        return NextResponse.json({ ok: false, error: "Cannot reach the database. Check DATABASE_URL.", ref }, { status: 503 });
       }
 
       console.error(`[API ${ref}] Unhandled`, e);
-      return NextResponse.json({ error: "Internal server error", ref, ...(dev ? { detail: err?.message } : {}) }, { status: 500 });
+      return NextResponse.json({ ok: false, error: "Internal server error", ref, ...(dev ? { detail: err?.message } : {}) }, { status: 500 });
     }
   };
 }

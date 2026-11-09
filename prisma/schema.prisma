@@ -54,6 +54,12 @@ enum Status {
   completed
 }
 
+enum EventMode {
+  online
+  onsite
+  hybrid
+}
+
 enum EventType {
   bootcamp
   sandbox
@@ -108,8 +114,22 @@ model User {
   skills         String[]
   softSkills     String[]
   interests      String[]
-  archetype      String?
-  bccRole        String?
+  preferredRole  String?
+  pkmRole        String?
+  fields         String[]
+  institution    String   @default("ITB")
+  linkedinUrl    String?
+  cvPath         String?
+  username       String?  @unique
+  headline       String?
+  competitionInterests String[]
+  openToTeam     Boolean  @default(true)
+  directoryVisible Boolean @default(true)
+  portfolioUrl   String?
+  githubUrl      String?
+  achievements   Json?    // [{ title, year, result }], max 5
+  notifyPrefs    Json?    // { [kind]: boolean }, missing = default on
+  deletedAt      DateTime?
   bio            String?
   isVerified     Boolean  @default(false)
   role           UserRole @default(user)
@@ -123,6 +143,12 @@ model User {
   testResults   TestResult[]
   documents     Document[]
   posts         BlogPost[]
+  teamCalls        TeamCall[]
+  teamApplications TeamApplication[]
+  savedOpportunities SavedOpportunity[]
+  notifications    Notification[]
+  eventInterests   EventInterest[]
+  reports          PostReport[]
 }
 
 model Speaker {
@@ -191,12 +217,25 @@ model Opportunity {
   socialLinks         Json?            // [{ label, url }]
   tips                String?          @db.Text
   contactEmail        String?
+  // --- competition focus (type = competition) ---
+  category            String?          // COMPETITION_CATEGORIES id
+  theme               String?
+  guidebookUrl        String?
+  submissionDeadline  DateTime?
+  teamSizeMin         Int?
+  teamSizeMax         Int?
+  registrationFee     String?
+  isPublished         Boolean          @default(true)
+  submittedById       String?
   createdAt      DateTime        @default(now())
   documents      Document[]
+  teamCalls      TeamCall[]
+  savedBy        SavedOpportunity[]
 
   @@index([status])
   @@index([deadline])
   @@index([type])
+  @@index([type, isPublished, deadline])
 }
 
 model CuratedOpportunity {
@@ -211,15 +250,22 @@ model CuratedOpportunity {
 
 model Event {
   id                   String        @id @default(cuid())
+  slug                 String?       @unique
+  dateLabel            String?       // shown instead of exact dates while they are still TBA
+  mode                 EventMode     @default(onsite)
+  meetingUrl           String?       // only ever shown to registered users
+  registrationOpen     Boolean       @default(true)
+  comingSoon           Boolean       @default(false)
+  series               String?
   type                 EventType
   title                String
   description          String
   shortDescription     String
-  startDate            DateTime
-  endDate              DateTime
-  registrationDeadline DateTime
-  location             String
-  maxParticipants      Int
+  startDate            DateTime?
+  endDate              DateTime?
+  registrationDeadline DateTime?
+  location             String?
+  maxParticipants      Int?
   currentParticipants  Int           @default(0)
   status               Status        @default(upcoming)
   clusters             String[]
@@ -235,6 +281,8 @@ model Event {
   createdAt            DateTime      @default(now())
   registrations        Registration[]
   documents            Document[]
+  teamCalls            TeamCall[]
+  interests            EventInterest[]
 }
 
 model BlogPost {
@@ -274,6 +322,7 @@ model Registration {
   userId            String
   eventId           String
   motivation        String?
+  details           Json?              // per-event answers: scheme, team members, lecturer, expectations
   status            RegistrationStatus @default(confirmed)
   preTestCompleted  Boolean            @default(false)
   postTestCompleted Boolean            @default(false)
@@ -281,6 +330,8 @@ model Registration {
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
 }
 
 model TestResult {
@@ -347,4 +398,153 @@ model GalleryItem {
   createdAt   DateTime @default(now())
 
   @@index([isPublished, order])
+}
+
+enum TeamCallKind {
+  team_needs_member
+  looking_for_team
+}
+
+enum TeamCallStatus {
+  open
+  filled
+  closed
+}
+
+enum TeamApplicationStatus {
+  pending
+  accepted
+  declined
+  withdrawn
+}
+
+/// An open "seeking teammates" call for a specific competition.
+model TeamCall {
+  id            String         @id @default(cuid())
+  ownerId       String
+  title         String
+  competition   String
+  opportunityId String?
+  eventId       String?
+  interests     String[]
+  rolesNeeded   String[]
+  kind          TeamCallKind   @default(team_needs_member)
+  category      String?
+  skillsNeeded  String[]
+  commitment    String?
+  currentTeamSize Int?
+  hiddenAt      DateTime?      // set after 3 reports; admins can restore
+  slots         Int            // free slots left; decremented on accept
+  description   String
+  deadline      DateTime
+  status        TeamCallStatus @default(open)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  owner        User              @relation(fields: [ownerId], references: [id])
+  opportunity  Opportunity?      @relation(fields: [opportunityId], references: [id])
+  event        Event?            @relation(fields: [eventId], references: [id])
+  applications TeamApplication[]
+  reports      PostReport[]
+
+  @@index([status, deadline])
+  @@index([ownerId])
+}
+
+model TeamApplication {
+  id          String                @id @default(cuid())
+  callId      String
+  applicantId String
+  role        String
+  message     String
+  status      TeamApplicationStatus @default(pending)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  call      TeamCall @relation(fields: [callId], references: [id], onDelete: Cascade)
+  applicant User     @relation(fields: [applicantId], references: [id])
+
+  @@unique([callId, applicantId])
+  @@index([applicantId])
+}
+
+/// A user's bookmark; the dashboard surfaces the ones closing soon.
+model SavedOpportunity {
+  userId        String
+  opportunityId String
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@id([userId, opportunityId])
+}
+
+model PostReport {
+  callId     String
+  reporterId String
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  call     TeamCall @relation(fields: [callId], references: [id], onDelete: Cascade)
+  reporter User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@id([callId, reporterId])
+}
+
+model EventInterest {
+  userId    String
+  eventId   String
+  notifiedAt DateTime?
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@id([userId, eventId])
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  kind      String
+  title     String
+  body      String
+  url       String
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
+}
+
+enum OutboxKind {
+  email
+  sheet_upsert
+  sheet_clear
+}
+
+/// Durable queue for e-mail and sheet writes. Drained right after enqueue (waitUntil) and by the daily cron.
+model OutboxJob {
+  id        String     @id @default(cuid())
+  kind      OutboxKind
+  dedupeKey String?    @unique
+  payload   Json
+  attempts  Int        @default(0)
+  runAfter  DateTime   @default(now())
+  lastError String?
+  doneAt    DateTime?
+  failedAt  DateTime?
+  createdAt DateTime   @default(now())
+
+  @@index([doneAt, failedAt, runAfter])
+}
+
+/// Single-writer leases (e.g. "outbox") and small key/value markers (e.g. "lastSheetSyncAt").
+model JobLease {
+  name      String   @id
+  expiresAt DateTime
+  value     String?
 }

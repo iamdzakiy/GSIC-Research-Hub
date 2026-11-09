@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requireUser } from "@/lib/auth-helper";
-import { withErrorHandler, parsePagination } from "@/lib/api-utils";
+import { requireAdmin, requireAuth, requireUser } from "@/lib/auth-helper";
+import { withErrorHandler, parsePagination, zodFieldErrors } from "@/lib/api-utils";
 import { mapPrismaUserToProfile } from "@/services/userService";
+import { profileResponse } from "@/lib/cv";
+import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
+import { saveUser } from "@/lib/save-user";
+import { uniqueUsername } from "@/lib/username";
 import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
 
 /**
@@ -11,11 +15,13 @@ import { profileUpdateSchema, profileToData } from "@/lib/validation/profile";
  * roles are only ever changed by an admin through PUT or by scripts/create-admins.ts.
  */
 export const POST = withErrorHandler(async (request: Request) => {
-  const user = await requireUser(request);
+  const user = await requireAuth(request);
   const body = await request.json().catch(() => null);
   if (!body?.email) return NextResponse.json({ error: "Missing email" }, { status: 400 });
 
-  const parsed = profileUpdateSchema.safeParse(body);
+  // Default the display name to the email's local part when none was given.
+  const name = typeof body.name === "string" && body.name.trim().length >= 2 ? body.name : String(body.email).split("@")[0];
+  const parsed = profileUpdateSchema.safeParse({ ...body, name });
   if (!parsed.success) return NextResponse.json({ error: "Invalid profile data" }, { status: 400 });
   const data = profileToData(parsed.data);
 
@@ -23,9 +29,10 @@ export const POST = withErrorHandler(async (request: Request) => {
     where: { id: user.id },
     // existing rows keep their role/verification; only profile fields are refreshed
     update: { ...data, email: String(body.email) },
-    create: { id: user.id, email: String(body.email), htaId: body.htaId ?? "", ...data, role: "user", provider: body.provider || "email" },
+    create: { id: user.id, email: String(body.email), htaId: body.htaId ?? "", username: await uniqueUsername(String(data.name ?? name)), ...data, role: "user", provider: body.provider || "email" },
   });
-  return NextResponse.json(mapPrismaUserToProfile(saved), { status: 201 });
+  await syncProfileToSheet(saved.id);
+  return NextResponse.json(await profileResponse(saved), { status: 201 });
 });
 
 export const PUT = withErrorHandler(async (request: Request) => {
@@ -35,12 +42,12 @@ export const PUT = withErrorHandler(async (request: Request) => {
   if (user.role !== "admin" && id !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const parsed = profileUpdateSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "Invalid profile data" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ ok: false, error: "Invalid profile data", fieldErrors: zodFieldErrors(parsed.error) }, { status: 400 });
   const data: Record<string, unknown> = profileToData(parsed.data);
-  if (user.role === "admin" && body.role) data.role = body.role;
+  if (user.role === "admin" && (body.role === "admin" || body.role === "user")) data.role = body.role;
 
-  const updated = await prisma.user.update({ where: { id }, data });
-  return NextResponse.json(mapPrismaUserToProfile(updated));
+  const updated = await saveUser(id, data);
+  return NextResponse.json(await profileResponse(updated));
 });
 
 /** Admin only, paginated. */

@@ -6,7 +6,7 @@
   :root {
     /* Offline-safe fallbacks for --font-inter / --font-jakarta
        (previously provided by next/font/google). */
-    --font-inter: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-inter: var(--font-jakarta);
     --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
@@ -73,17 +73,6 @@
 
   .gradient-text-accent {
     background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .btn-gradient {
-    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
-  }
-
-  .gradient-text-blue {
-    background: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -191,44 +180,6 @@
     border-color: #2563EB !important;
   }
 
-  /* Mesh gradient background */
-  .mesh-gradient {
-    background:
-      radial-gradient(at 20% 20%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
-      radial-gradient(at 80% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
-  }
-
-  /* Soft glowing active border */
-  .glow-border {
-    position: relative;
-  }
-
-  .glow-border::before {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.5), rgba(6, 182, 212, 0.5), rgba(139, 92, 246, 0.3));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
-  }
-
-  .glow-border:hover::before {
-    opacity: 1;
-  }
-
-  /* Input focus glow */
-  .input-glow:focus {
-    border-color: rgba(37, 99, 235, 0.5) !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15), 0 0 20px rgba(37, 99, 235, 0.1);
-  }
 }
 
 @layer utilities {
@@ -236,11 +187,59 @@
     text-wrap: balance;
   }
   
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
   
-  .animation-delay-4000 {
-    animation-delay: 4s;
+}
+/* Light, short motion. Sign-up steps and panels ease in; nothing moves for people who ask it not to. */
+@keyframes step-in {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: none; }
+}
+.step-in { animation: step-in 200ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* ============================================================
+   GSIC Hub v2 signature: blueprint grid, campus silhouette, quiet motion.
+   Motion is transform/opacity only, 150-250 ms, and off under prefers-reduced-motion.
+   ============================================================ */
+.bp-grid {
+  background-image:
+    linear-gradient(to right, rgb(51 82 205 / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(51 82 205 / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-grid-dark {
+  background-image:
+    linear-gradient(to right, rgb(92 227 182 / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(92 227 182 / 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-fade { -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
+
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+.silhouette-draw path { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw-line 2.4s cubic-bezier(.65,0,.35,1) .2s forwards; }
+
+.lift { transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgb(11 17 32 / 0.35); }
+
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.pop { animation: pop 220ms ease-out both; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 220ms ease-out both; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.label-mono { font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+
+@media (prefers-reduced-motion: reduce) {
+  .silhouette-draw path { animation: none; stroke-dashoffset: 0; }
+  .lift, .lift:hover { transition: none; transform: none; }
+  .pop, .rise { animation: none; }
 }

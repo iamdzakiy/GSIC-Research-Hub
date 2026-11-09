@@ -1,8 +1,6 @@
 import {
   SEED_OPPORTUNITIES,
   SEED_CURATED,
-  SEED_EVENTS,
-  SEED_TESTS,
   SEED_DOCUMENTS,
 } from "@/lib/data";
 
@@ -18,12 +16,6 @@ export async function ensureSeed(collection: string): Promise<void> {
       break;
     case "curated":
       data = SEED_CURATED;
-      break;
-    case "events":
-      data = SEED_EVENTS;
-      break;
-    case "tests":
-      data = SEED_TESTS;
       break;
     case "documents":
       data = SEED_DOCUMENTS;
@@ -51,8 +43,6 @@ export async function ensureAllSeeds(): Promise<void> {
   await Promise.all([
     ensureSeed("opportunities"),
     ensureSeed("curated"),
-    ensureSeed("events"),
-    ensureSeed("tests"),
     ensureSeed("documents"),
   ]);
 }

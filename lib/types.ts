@@ -133,8 +133,22 @@ export interface UserProfile {
   skills: string[];
   softSkills?: string[];
   interests?: string[];
-  archetype?: string | null;
-  bccRole?: string | null;
+  preferredRole?: string | null;
+  pkmRole?: string | null;
+  fields?: string[];
+  institution?: string;
+  linkedinUrl?: string | null;
+  hasCv?: boolean;
+  username?: string | null;
+  headline?: string;
+  competitionInterests?: string[];
+  openToTeam?: boolean;
+  directoryVisible?: boolean;
+  portfolioUrl?: string | null;
+  githubUrl?: string | null;
+  achievements?: { title: string; year?: number; result?: string }[];
+  /** Short-lived signed URL; only present on the user's own profile responses. */
+  cvUrl?: string | null;
   bio: string;
   isVerified: boolean;
   role: UserRole;
@@ -250,8 +264,9 @@ export interface EventModule {
   id: string;
   title: string;
   description: string;
-  cluster: "art" | "technology" | "discovery";
+  cluster?: "art" | "technology" | "discovery";
   durationHours: number;
+  dateLabel?: string;
   order: number;
   pdfUrl?: string;
   preTestId?: string;
@@ -260,15 +275,22 @@ export interface EventModule {
 
 export interface GSICEvent {
   id: string;
+  slug?: string | null;
+  dateLabel?: string | null;
+  mode?: "online" | "onsite" | "hybrid";
+  meetingUrl?: string | null;
+  registrationOpen?: boolean;
   type: EventType;
   title: string;
   description: string;
   shortDescription: string;
-  startDate: string;
-  endDate: string;
-  registrationDeadline: string;
-  location: string;
-  maxParticipants: number;
+  startDate: string | null;
+  endDate: string | null;
+  registrationDeadline: string | null;
+  location: string | null;
+  maxParticipants: number | null;
+  comingSoon?: boolean;
+  series?: string | null;
   currentParticipants: number;
   status: Status;
   clusters: ("art" | "technology" | "discovery")[];

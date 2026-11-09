@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Bricolage_Grotesque, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import "./legacy-bridge.css";
 import { AuthProvider } from "@/components/AuthContext";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+// Display: Bricolage Grotesque (headings, numbers). Text: Plus Jakarta Sans (designed in Jakarta). Labels: IBM Plex Mono.
+const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["500", "600", "700", "800"] });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["500"] });
 
 /** A malformed NEXT_PUBLIC_SITE_URL (e.g. missing "https://") must never take the whole site down at module load. */
 function siteBase(): URL {
@@ -16,7 +18,12 @@ function siteBase(): URL {
   return new URL("http://localhost:3000");
 }
 
+export const viewport: Viewport = { themeColor: "#3352CD", width: "device-width", initialScale: 1 };
+
 export const metadata: Metadata = {
+  applicationName: "GSIC Hub",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "GSIC Hub", statusBarStyle: "default" },
   metadataBase: siteBase(),
   title: "GSIC Hub · Ganesha Students Innovation Center",
   description:
@@ -33,7 +40,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.png?v=2", type: "image/png" }],
     shortcut: [{ url: "/favicon.png?v=2" }],
-    apple: [{ url: "/favicon.png?v=2" }],
+    apple: [{ url: "/icons/apple-touch-icon.png" }],
   },
 };
 
@@ -42,7 +49,7 @@ export const metadata: Metadata = {
 //   (legacy) -> existing dark pages (home, events, dashboard, admin, documents)
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="en" className={`${display.variable} ${jakarta.variable} ${mono.variable}`}>
       <body>
         <AuthProvider>{children}</AuthProvider>
       </body>

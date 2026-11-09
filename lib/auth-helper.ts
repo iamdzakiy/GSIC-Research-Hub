@@ -26,6 +26,16 @@ export class AuthError extends Error {
 }
 
 /**
+ * Returns the verified Supabase user without requiring a Prisma row. Use it only
+ * where the row may not exist yet (creating one's own profile).
+ */
+export async function requireAuth(request: Request): Promise<User> {
+  const authUser = await getUserFromRequest(request);
+  if (!authUser) throw new AuthError("Unauthorized", 401);
+  return authUser;
+}
+
+/**
  * Extracts the authenticated user from the request, fetches their role from the
  * database (Prisma `User` model), and throws an `AuthError` (401/403) if the
  * requester is not authenticated or is not an admin.

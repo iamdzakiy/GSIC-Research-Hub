@@ -50,10 +50,6 @@ export function mapServerError(e: unknown): NextResponse {
     console.error("[auth] Supabase env missing:", msg);
     return fail(503, "Server authentication is not fully configured (SUPABASE_SERVICE_ROLE_KEY). Contact a GSIC admin.");
   }
-  if ((e as { code?: string })?.code === "P2010" || /auth\.users/.test(msg)) {
-    console.error("[auth] cannot read auth.users:", msg);
-    return fail(503, "Authentication is not ready (database access). Contact a GSIC admin.");
-  }
   console.error("[auth] failure:", e);
   return fail(502, "We could not send the email. Try again shortly.");
 }
