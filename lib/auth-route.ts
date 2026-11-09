@@ -40,16 +40,32 @@ export async function guard<S extends ZodTypeAny>(
   return { ok: true, data: parsed.data };
 }
 
+/** Turns an unexpected server error into a message that points at the real cause. The full error is always logged. */
 export function mapServerError(e: unknown): NextResponse {
+  const err = e as { name?: string; code?: string; message?: string; responseCode?: number; command?: string };
+  const msg = err?.message ?? "";
   if (e instanceof MailConfigError) {
-    console.error("[auth] SMTP not configured:", (e as Error).message);
+    console.error("[auth] SMTP not configured:", msg);
     return fail(503, "Email delivery is not configured yet. Contact a GSIC admin.");
   }
-  const msg = (e as Error)?.message ?? "";
   if (/SUPABASE_SERVICE_ROLE_KEY|NEXT_PUBLIC_SUPABASE_URL/.test(msg)) {
     console.error("[auth] Supabase env missing:", msg);
     return fail(503, "Server authentication is not fully configured (SUPABASE_SERVICE_ROLE_KEY). Contact a GSIC admin.");
   }
+  // Database problems (for example the schema was not pushed after an update) are not email problems.
+  if (/^PrismaClient/.test(err?.name ?? "") || /^P\d{4}$/.test(err?.code ?? "") || /does not exist in the current database|prisma/i.test(msg)) {
+    console.error("[auth] database failure:", err?.code, msg);
+    return fail(503, "The database is not up to date or not reachable. Contact a GSIC admin (schema push or DATABASE_URL).");
+  }
+  // nodemailer: EAUTH (login refused), ECONNECTION/ETIMEDOUT/ESOCKET (cannot reach the server), EENVELOPE (bad address).
+  if (err?.code === "EAUTH" || err?.responseCode === 535) {
+    console.error("[auth] SMTP login refused:", msg);
+    return fail(502, "The email server refused our login. Contact a GSIC admin (SMTP_USER / SMTP_PASSWORD).");
+  }
+  if (["ECONNECTION", "ETIMEDOUT", "ESOCKET", "ECONNREFUSED", "ENOTFOUND", "EDNS"].includes(err?.code ?? "")) {
+    console.error("[auth] SMTP unreachable:", err.code, msg);
+    return fail(502, "The email server could not be reached. Contact a GSIC admin (SMTP_HOST / SMTP_PORT / SMTP_SECURE).");
+  }
   console.error("[auth] failure:", e);
-  return fail(502, "We could not send the email. Try again shortly.");
+  return fail(502, "Something went wrong on our side. Try again shortly, and contact a GSIC admin if it keeps happening.");
 }
