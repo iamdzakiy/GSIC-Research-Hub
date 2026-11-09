@@ -44,6 +44,7 @@ export function toListingItem(r: Row, now: Date): ListingItem {
 
 export async function queryOpportunities(f: OpportunityFilters, now = new Date()): Promise<DirectoryResult> {
   const where: Prisma.OpportunityWhereInput = {
+    isPublished: true,
     ...(f.q
       ? {
           OR: [
@@ -78,7 +79,7 @@ export async function queryOpportunities(f: OpportunityFilters, now = new Date()
 
 /** Live (not closed) opportunity counts per type — drives the type tabs & home tiles. */
 export async function getTypeCounts(now = new Date()): Promise<{ all: number; byType: Record<string, number> }> {
-  const rows = await prisma.opportunity.findMany({ select: { type: true, deadline: true, openDate: true, status: true } });
+  const rows = await prisma.opportunity.findMany({ where: { isPublished: true }, select: { type: true, deadline: true, openDate: true, status: true } });
   const byType: Record<string, number> = {};
   let all = 0;
   for (const r of rows) {
@@ -92,20 +93,20 @@ export async function getTypeCounts(now = new Date()): Promise<{ all: number; by
 /** Soonest-closing live items, optionally of one type. */
 export async function getClosingSoon(limit = 4, now = new Date()): Promise<ListingItem[]> {
   const rows = await prisma.opportunity.findMany({
-    where: { deadline: { gte: now }, status: { notIn: ["archived", "completed"] } },
+    where: { isPublished: true, deadline: { gte: now }, status: { notIn: ["archived", "completed"] } },
     orderBy: { deadline: "asc" }, take: limit * 3, select: LISTING_SELECT,
   });
   return rows.map((r) => toListingItem(r, now)).filter((i) => i.status !== "closed" && i.status !== "upcoming").slice(0, limit);
 }
 
 export async function getLatest(limit = 6, now = new Date()): Promise<ListingItem[]> {
-  const rows = await prisma.opportunity.findMany({ where: { deadline: { gte: now }, status: { notIn: ["archived", "completed"] } }, orderBy: { createdAt: "desc" }, take: limit * 2, select: LISTING_SELECT });
+  const rows = await prisma.opportunity.findMany({ where: { isPublished: true, deadline: { gte: now }, status: { notIn: ["archived", "completed"] } }, orderBy: { createdAt: "desc" }, take: limit * 2, select: LISTING_SELECT });
   return rows.map((r) => toListingItem(r, now)).filter((i) => i.status !== "closed").slice(0, limit);
 }
 
 export async function getRelatedOpportunities(o: { id: string; type: string; tags: string[]; levels: string[] }, limit = 3, now = new Date()): Promise<ListingItem[]> {
   const rows = await prisma.opportunity.findMany({
-    where: { id: { not: o.id }, deadline: { gte: now }, status: { notIn: ["archived", "completed"] }, OR: [{ type: o.type as never }, ...(o.tags.length ? [{ tags: { hasSome: o.tags } }] : []), ...(o.levels.length ? [{ levels: { hasSome: o.levels } }] : [])] },
+    where: { isPublished: true, id: { not: o.id }, deadline: { gte: now }, status: { notIn: ["archived", "completed"] }, OR: [{ type: o.type as never }, ...(o.tags.length ? [{ tags: { hasSome: o.tags } }] : []), ...(o.levels.length ? [{ levels: { hasSome: o.levels } }] : [])] },
     take: 30, orderBy: { deadline: "asc" }, select: LISTING_SELECT,
   });
   const items = rows.map((r) => toListingItem(r, now)).filter((i) => i.status !== "closed");
@@ -114,5 +115,5 @@ export async function getRelatedOpportunities(o: { id: string; type: string; tag
 }
 
 export async function getOpportunityByKey(key: string) {
-  return prisma.opportunity.findFirst({ where: { OR: [{ slug: key }, { id: key }] } });
+  return prisma.opportunity.findFirst({ where: { OR: [{ slug: key }, { id: key }], isPublished: true } });
 }
