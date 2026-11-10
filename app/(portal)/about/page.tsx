@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageHero from "@/components/hub/PageHero";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import PillarTabs from "@/components/portal/PillarTabs";
@@ -19,14 +20,9 @@ const FLOW = [
 
 export default function AboutPage() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <Reveal>
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-700">About</p>
-        <h1 className="mt-2 font-display text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">GSIC Research</h1>
-        <p className="mt-4 max-w-3xl text-base leading-8 text-slate-600">
-          The Ganesha Students Innovation Center (GSIC) is a student-run center at Institut Teknologi Bandung. GSIC Research is its research and innovation arm. We keep a checked directory of opportunities, teach students how to write competitive research and PKM proposals, and give people from different majors a place to test ideas together.
-        </p>
-      </Reveal>
+    <>
+      <PageHero kicker="About" title={<>GSIC <span className="outline-cream">Research</span></>}>The Ganesha Students Innovation Center (GSIC) is a student-run center at Institut Teknologi Bandung. GSIC Research is its research and innovation arm. We keep a checked directory of opportunities, teach students how to write competitive research and PKM proposals, and give people from different majors a place to test ideas together.</PageHero>
+      <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
 
       <section className="mt-12" aria-labelledby="pillars">
         <h2 id="pillars" className="font-display text-xl font-bold text-slate-900">Three programs</h2>
@@ -57,5 +53,6 @@ export default function AboutPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }

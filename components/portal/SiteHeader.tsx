@@ -15,6 +15,7 @@ import SearchPalette, { openSearch } from "@/components/hub/SearchPalette";
 const MAIN = [
   { href: "/competitions", label: "Competitions" },
   { href: "/partners", label: "Seeking Partner" },
+  { href: "/members", label: "Members" },
   { href: "/events", label: "Events" },
   { href: "/pkm", label: "PKM" },
 ];

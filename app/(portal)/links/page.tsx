@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageHero from "@/components/hub/PageHero";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Star } from "lucide-react";
@@ -30,12 +31,9 @@ export default async function LinksPage({ searchParams }: { searchParams: SP }) 
   const chipHref = (c: string) => { const p = new URLSearchParams(); if (q) p.set("q", q); if (c) p.set("category", c); const s = p.toString(); return s ? `/links?${s}` : "/links"; };
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <p className="label-mono text-brand-700">Links</p>
-        <h1 className="mt-2 font-display text-4xl font-bold tracking-tight text-ink">Everything worth bookmarking</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">Links selected by the GSIC team: scholarship portals, research journals and repositories, internship platforms, templates and communities. {total > 0 && <>There are currently <span className="font-medium text-slate-800">{total}</span> links.</>}</p>
-      </header>
+    <>
+      <PageHero compact kicker="Links" title={<>Everything worth <span className="outline-cream">bookmarking</span></>}>Links selected by the GSIC team: scholarship portals, research journals and repositories, internship platforms, templates and communities. {total > 0 && <>There are currently <span className="font-semibold text-white">{total}</span> links.</>}</PageHero>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
       {!filtering && <div className="mb-8"><CampusLinks /></div>}
 
@@ -72,5 +70,6 @@ export default async function LinksPage({ searchParams }: { searchParams: SP }) 
         )}
       </div>
     </main>
+    </>
   );
 }

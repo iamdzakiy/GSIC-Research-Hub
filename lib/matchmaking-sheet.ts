@@ -135,11 +135,25 @@ async function load(): Promise<Table> {
   return { rows, col };
 }
 
+/** The sheet may have a small grid (this one started at 34 rows x 11 columns). Grows it so writes past the edge do not fail. */
+async function ensureGrid(minCols: number, minRows: number): Promise<void> {
+  const sheets = client();
+  const meta = await sheets.spreadsheets.get({ spreadsheetId: sheetId(), fields: "sheets.properties(sheetId,title,gridProperties)" });
+  const p = meta.data.sheets?.find((x) => x.properties?.title === TAB)?.properties;
+  if (!p || p.sheetId == null) return;
+  const requests: object[] = [];
+  const cols = p.gridProperties?.columnCount ?? 0, rows = p.gridProperties?.rowCount ?? 0;
+  if (cols < minCols) requests.push({ appendDimension: { sheetId: p.sheetId, dimension: "COLUMNS", length: minCols - cols } });
+  if (rows < minRows) requests.push({ appendDimension: { sheetId: p.sheetId, dimension: "ROWS", length: minRows - rows } });
+  if (requests.length) await sheets.spreadsheets.batchUpdate({ spreadsheetId: sheetId(), requestBody: { requests } });
+}
+
 /** Appends any missing own headers to the right of the last existing one. Returns the (possibly extended) table. */
 async function ensureHeaders(t: Table): Promise<Table> {
   const missing = OWN_HEADERS.filter((h) => !t.col.has(norm(h)));
   if (!missing.length) return t;
   let next = Math.max(...t.col.values(), -1) + 1;
+  await ensureGrid(next + missing.length, HEADER_IDX + 1);
   const data = missing.map((h) => { t.col.set(norm(h), next); return { range: `${TAB}!${colLetter(next++)}${HEADER_IDX + 1}`, values: [[h]] }; });
   await client().spreadsheets.values.batchUpdate({ spreadsheetId: sheetId(), requestBody: { valueInputOption: "RAW", data } });
   return t;
@@ -183,7 +197,10 @@ export function upsertUsers(users: SheetUser[]): Promise<{ updated: number; adde
         if (c !== undefined) data.push({ range: `${TAB}!${colLetter(c)}${idx + 1}`, values: [[value]] });
       }
     }
-    if (data.length) await client().spreadsheets.values.batchUpdate({ spreadsheetId: sheetId(), requestBody: { valueInputOption: "RAW", data } });
+    if (data.length) {
+      await ensureGrid(Math.max(...t.col.values()) + 1, nextIdx + 1);
+      await client().spreadsheets.values.batchUpdate({ spreadsheetId: sheetId(), requestBody: { valueInputOption: "RAW", data } });
+    }
     return { updated, added };
   });
 }

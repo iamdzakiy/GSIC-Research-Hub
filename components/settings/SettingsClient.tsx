@@ -152,7 +152,7 @@ export default function SettingsClient() {
           </fieldset>
           <div className="mt-4 divide-y divide-slate-100">
             <Toggle on={hub.openToTeam} onChange={(v) => setHub({ ...hub, openToTeam: v })} label="Open to joining a team" hint="Shows a badge on your profile and in the matching sheet." />
-            <Toggle on={hub.directoryVisible} onChange={(v) => setHub({ ...hub, directoryVisible: v })} label="Show me in the member directory" hint="Only signed-in members can see the directory. Your WhatsApp is never shown there." />
+            <Toggle on={hub.directoryVisible} onChange={(v) => setHub({ ...hub, directoryVisible: v })} label="Show me in the member directory" hint="Anyone on GSIC Hub can find you by skill and role. Your email and WhatsApp are never shown there." />
           </div>
           <Save s="hub" data={{ ...hub, username: hub.username || undefined, portfolioUrl: hub.portfolioUrl || null, githubUrl: hub.githubUrl || null, achievements: ach.filter((a) => a.title.trim()) }} />
         </Card>

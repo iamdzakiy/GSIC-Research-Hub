@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PageHero from "@/components/hub/PageHero";
 import Link from "next/link";
 import { Suspense } from "react";
 import BlogCard from "@/components/portal/BlogCard";
@@ -31,11 +32,9 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
   if (tagParam) qs.set("tag", tagParam);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-heading">Blog</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">Research tips, scholarship guides and competition preparation from the GSIC community.</p>
-      </header>
+    <>
+      <PageHero compact kicker="Blog" title={<>Notes from the <span className="outline-cream">community</span></>}>Research tips, scholarship guides and competition preparation from the GSIC community.</PageHero>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
       <Suspense>
         <SearchBox label="Search articles" placeholder="Search articles or topics…" value={q} />
@@ -67,5 +66,6 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
 
       <Pagination page={cur} pageCount={pageCount} basePath="/blog" query={qs.toString()} />
     </main>
+    </>
   );
 }

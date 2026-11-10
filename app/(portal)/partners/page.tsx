@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PageHero from "@/components/hub/PageHero";
 import { Plus, Search } from "lucide-react";
 import { listPartnerPosts, parsePartnerFilters, type PartnerFilters } from "@/lib/partners";
 import { COMPETITION_CATEGORIES, categoryLabel } from "@/lib/competitions";
 import { prisma } from "@/lib/prisma";
 import PartnerCard from "@/components/hub/PartnerCard";
 import Blank from "@/components/hub/Blank";
-import CampusSilhouette from "@/components/hub/CampusSilhouette";
 import { btnPrimary, btnSecondary, chip, input } from "@/components/hub/buttons";
 
 export const dynamic = "force-dynamic";
@@ -34,18 +34,11 @@ export default async function PartnersPage({ searchParams }: Props) {
 
   return (
     <main>
-      <header className="relative overflow-hidden border-b border-slate-200 bg-paper">
-        <div className="bp-grid bp-fade absolute inset-0" aria-hidden="true" />
-        <CampusSilhouette draw className="pointer-events-none absolute -bottom-2 right-0 hidden w-[520px] text-brand-200 lg:block" strokeWidth={1.2} />
-        <div className="relative mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8">
-          <p className="label-mono text-brand-700">Seeking Partner</p>
-          <h1 className="mt-3 max-w-3xl font-display text-4xl font-bold leading-[0.98] tracking-[-0.03em] text-ink sm:text-6xl">{comp ? <>Partners for <span className="text-brand-700">{comp.title}</span></> : "Find the people your team is missing"}</h1>
-          <p className="mt-2 max-w-xl text-[15px] leading-7 text-ink-3">Each post names the competition, the roles and the skills. Respond with one role and a short note. Contacts open up for both sides after an accept.</p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Link href={newHref} className={btnPrimary}><Plus className="h-4 w-4" aria-hidden="true" /> Post what you need</Link>
-            <Link href="/partners/manage" className={btnSecondary}>My posts and responses</Link>
-          </div>
-
+      <PageHero kicker="Seeking Partner" title={comp ? <>Partners for <span className="outline-cream">{comp.title}</span></> : <>Find the people your team <span className="outline-cream">is missing</span></>}
+        actions={<><Link href={newHref} className="inline-flex items-center gap-2 rounded-lg bg-mint px-4 py-2.5 text-sm font-semibold text-navy hover:bg-mint-100"><Plus className="h-4 w-4" aria-hidden="true" /> Post what you need</Link><Link href="/partners/manage" className="inline-flex items-center rounded-lg border border-white/25 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10">My posts and responses</Link></>}>
+        Each post names the competition, the roles and the skills. Respond with one role and a short note. Contacts open up for both sides after an accept.
+      </PageHero>
+      <div className="border-b border-slate-200 bg-paper"><div className="mx-auto max-w-7xl px-4 pb-5 pt-1 sm:px-6 lg:px-8">
           <form action="/partners" className="mt-8 flex max-w-xl gap-2" role="search">
             {f.kind && <input type="hidden" name="kind" value={f.kind} />}
             {f.cat && <input type="hidden" name="cat" value={f.cat} />}
@@ -67,8 +60,7 @@ export default async function PartnersPage({ searchParams }: Props) {
               <Link key={c.id} href={href(f, { cat: f.cat === c.id ? undefined : c.id })} className={chip(f.cat === c.id)} title={c.label}>{c.short}</Link>
             ))}
           </div>
-        </div>
-      </header>
+      </div></div>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <p className="mb-4 text-sm text-ink-3">
