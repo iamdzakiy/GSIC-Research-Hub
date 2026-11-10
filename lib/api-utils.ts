@@ -51,7 +51,7 @@ export function withErrorHandler<T extends unknown[]>(
       }
 
       console.error(`[API ${ref}] Unhandled`, e);
-      return NextResponse.json({ ok: false, error: "Internal server error", ref, ...(dev ? { detail: err?.message } : {}) }, { status: 500 });
+      return NextResponse.json({ ok: false, error: `Internal server error (${[err?.name, err?.code].filter(Boolean).join(" ").slice(0, 60) || "no code"}, ref ${ref})`, ref, hint: [err?.name, err?.code].filter(Boolean).join(" ").slice(0, 60) || undefined, ...(dev ? { detail: err?.message } : {}) }, { status: 500 });
     }
   };
 }
