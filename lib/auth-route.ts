@@ -60,7 +60,7 @@ export function mapServerError(e: unknown): NextResponse {
     //   P1017/P2024 pooler closed the connection or ran out of connections.  P2002 unique conflict.
     const code = /^P\d{4}$/.test(err?.code ?? "") ? err.code : /does not exist/i.test(msg) ? "P2021/P2022" : "no code";
     // Which table/column is missing (names only, no data or credentials).
-    const m: any = err?.meta ?? {};
+    const m: any = (err as any)?.meta ?? {};
     const where = m.column ?? m.table ?? (msg.match(/column `?([\w.]+)`? /i)?.[1] ?? msg.match(/table `?([\w.]+)`? /i)?.[1]);
     const detail = where ? `${code}: ${String(where).slice(0, 80)}` : code;
     return fail(503, `The database is not up to date or not reachable (${detail}). Contact a GSIC admin (schema push or DATABASE_URL).`, { dbCode: code, dbWhere: where ?? null });
