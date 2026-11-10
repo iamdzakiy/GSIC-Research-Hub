@@ -20,6 +20,7 @@ export default function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link href="/competitions" className="hover:text-white">Competitions</Link></li>
             <li><Link href="/partners" className="hover:text-white">Seeking Partner</Link></li>
+            <li><Link href="/members" className="hover:text-white">Members</Link></li>
             <li><Link href="/opportunities?type=scholarship" className="hover:text-white">Scholarships</Link></li>
             <li><Link href="/competitions/submit" className="hover:text-white">Submit a competition</Link></li>
           </ul>

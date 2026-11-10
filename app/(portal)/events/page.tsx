@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { SERIES, eventHref, eventWhen, seriesOf } from "@/lib/event-links";
-import CampusSilhouette from "@/components/hub/CampusSilhouette";
+import PageHero from "@/components/hub/PageHero";
 import Blank from "@/components/hub/Blank";
 
 export const metadata: Metadata = {
@@ -23,15 +23,9 @@ export default async function EventsIndexPage() {
 
   return (
     <main>
-      <header className="relative overflow-hidden border-b border-slate-200 bg-paper">
-        <div className="bp-grid bp-fade absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
-          <p className="label-mono text-brand-700">GSIC Programs</p>
-          <h1 className="mt-2 max-w-2xl font-display text-4xl font-bold tracking-tight text-ink sm:text-5xl">Programs run by GSIC</h1>
-          <p className="mt-3 max-w-xl text-[15px] leading-7 text-ink-3">Every program is being prepared. Open one and press &ldquo;Kabari saya&rdquo; to get an email when registration opens.</p>
-          <CampusSilhouette className="mt-8 text-brand-600/25" />
-        </div>
-      </header>
+      <PageHero kicker="GSIC Programs" title={<>Programs run <span className="outline-cream">by GSIC</span></>}>
+        Every program is being prepared. Open one and press &ldquo;Kabari saya&rdquo; to get an email when registration opens.
+      </PageHero>
 
       <div className="mx-auto max-w-7xl space-y-12 px-4 py-10 sm:px-6 lg:px-8">
         {groups.length === 0 && <Blank title="No programs yet" hint="GSIC programs appear here as soon as they are announced." />}

@@ -7,6 +7,7 @@ import { PARTNER_SELECT, liveWhere } from "@/lib/partners";
 import { categoryLabel } from "@/lib/competitions";
 import { PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import Avatar from "@/components/hub/Avatar";
+import CampusSilhouette from "@/components/hub/CampusSilhouette";
 import PartnerCard from "@/components/hub/PartnerCard";
 
 export const dynamic = "force-dynamic";
@@ -31,18 +32,24 @@ export default async function MemberPage({ params }: Props) {
   const links = [["LinkedIn", u.linkedinUrl], ["Portfolio", u.portfolioUrl], ["GitHub", u.githubUrl]].filter(([, v]) => v) as [string, string][];
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <header className="flex flex-col gap-5 sm:flex-row sm:items-center">
-        <Avatar name={u.name} src={u.avatarUrl} size={96} className="ring-4 ring-brand-100" />
+    <>
+    <header className="relative overflow-hidden bg-navy text-white">
+      <div className="bp-grid-dark absolute inset-0" aria-hidden="true" />
+      <CampusSilhouette draw className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto w-full max-w-[1500px] text-brand-400/40" strokeWidth={1.2} />
+      <div className="relative mx-auto flex max-w-4xl flex-col gap-5 px-4 pb-16 pt-10 sm:flex-row sm:items-center sm:px-6">
+        <Avatar name={u.name} src={u.avatarUrl} size={96} className="ring-4 ring-mint/60" />
         <div>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink">{u.name}</h1>
-          <p className="mt-1 text-ink-2">{u.headline || [u.major, u.faculty, u.year && `'${String(u.year).slice(-2)}`].filter(Boolean).join(" · ")}</p>
+          <p className="label-mono text-mint">Member</p>
+          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight sm:text-4xl">{u.name}</h1>
+          <p className="mt-1 text-slate-300">{u.headline || [u.major, u.faculty, u.year && `'${String(u.year).slice(-2)}`].filter(Boolean).join(" · ")}</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {u.openToTeam && <span className="label-mono rounded bg-mint-100 px-1.5 py-0.5 text-navy">Open to a team</span>}
-            {u.preferredRole && <span className="label-mono rounded bg-brand-50 px-1.5 py-0.5 text-brand-800">{labelOf(PREFERRED_ROLES, u.preferredRole)}</span>}
+            {u.openToTeam && <span className="label-mono rounded bg-mint px-1.5 py-0.5 text-navy">Open to a team</span>}
+            {u.preferredRole && <span className="label-mono rounded border border-white/25 px-1.5 py-0.5 text-white">{labelOf(PREFERRED_ROLES, u.preferredRole)}</span>}
           </div>
         </div>
-      </header>
+      </div>
+    </header>
+    <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       {links.length > 0 && <p className="mt-5 flex flex-wrap gap-4 text-sm">{links.map(([l, h]) => <a key={l} href={h} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium text-brand-700 hover:underline">{l}<ExternalLink className="h-3 w-3" aria-hidden="true" /></a>)}</p>}
       {u.bio && <p className="mt-6 max-w-2xl whitespace-pre-line text-[15px] leading-7 text-ink-2">{u.bio}</p>}
 
@@ -69,5 +76,6 @@ export default async function MemberPage({ params }: Props) {
         </section>
       )}
     </main>
+    </>
   );
 }

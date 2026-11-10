@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import PageHero from "@/components/hub/PageHero";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -39,13 +40,11 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
   const heading = activeType && isOppType(activeType) ? TYPE_CONFIG[activeType] : null;
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900 font-heading">{heading ? heading.plural : "Opportunities"}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          {heading ? heading.blurb : "Scholarships, competitions, research grants and careers selected by GSIC."} Closed opportunities move to the bottom of the list automatically.
-        </p>
-      </header>
+    <>
+      <PageHero compact kicker="Opportunities" title={<>{heading ? heading.plural : <>Open <span className="outline-cream">doors</span></>}</>}>
+        {heading ? heading.blurb : "Scholarships, competitions, research grants and careers selected by GSIC."} Closed opportunities move to the bottom of the list automatically.
+      </PageHero>
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 
       <Suspense>
         <div className="mb-8"><TypeTabs active={activeType} query={tabQuery} counts={counts} /></div>
@@ -78,5 +77,6 @@ export default async function OpportunitiesPage({ searchParams }: { searchParams
         </div>
       </Suspense>
     </main>
+    </>
   );
 }
