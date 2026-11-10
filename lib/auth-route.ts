@@ -55,7 +55,11 @@ export function mapServerError(e: unknown): NextResponse {
   // Database problems (for example the schema was not pushed after an update) are not email problems.
   if (/^PrismaClient/.test(err?.name ?? "") || /^P\d{4}$/.test(err?.code ?? "") || /does not exist in the current database|prisma/i.test(msg)) {
     console.error("[auth] database failure:", err?.code, msg);
-    return fail(503, "The database is not up to date or not reachable. Contact a GSIC admin (schema push or DATABASE_URL).");
+    // The Prisma code is safe to show and tells an admin exactly what to do:
+    //   P2021/P2022 table or column missing: run `prisma db push`.  P1000 bad password.  P1001/P1002 cannot reach the host.
+    //   P1017/P2024 pooler closed the connection or ran out of connections.  P2002 unique conflict.
+    const code = /^P\d{4}$/.test(err?.code ?? "") ? err.code : /does not exist/i.test(msg) ? "P2021/P2022" : "no code";
+    return fail(503, `The database is not up to date or not reachable (${code}). Contact a GSIC admin (schema push or DATABASE_URL).`, { dbCode: code });
   }
   // nodemailer: EAUTH (login refused), ECONNECTION/ETIMEDOUT/ESOCKET (cannot reach the server), EENVELOPE (bad address).
   if (err?.code === "EAUTH" || err?.responseCode === 535) {
