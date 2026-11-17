@@ -5,6 +5,7 @@ export const NOTIFY_KINDS = {
   partner_expiring: { label: "My post closes soon and still has free slots", admin: false },
   deadline: { label: "Saved competitions closing in 7 days and 1 day", admin: false },
   event_open: { label: "Events I asked to be notified about open registration", admin: false },
+  waitlist: { label: "A place opens for an event I am waitlisted on", admin: false },
   digest: { label: "Monday digest: competitions and partner posts that fit me", admin: false },
   admin_submission: { label: "Competitions submitted for review (admins)", admin: true },
 } as const;

@@ -55,6 +55,7 @@ import {
   deleteOpportunity,
 } from "@/services/opportunities";
 import { getCurated, createCurated, deleteCurated } from "@/services/curated";
+import MarkCompleted from "@/components/admin/MarkCompleted";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
@@ -514,6 +515,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
+                        {evt.slug && <MarkCompleted slug={evt.slug} status={evt.status} onDone={(st) => setEvents((list) => list.map((x) => (x.id === evt.id ? { ...x, status: st as GSICEvent["status"] } : x)))} />}
                         <button onClick={() => setEditingEvent(evt)} className="text-xs text-mint hover:underline">Edit</button>
                         <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />

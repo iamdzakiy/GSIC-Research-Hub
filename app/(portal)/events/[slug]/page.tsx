@@ -36,8 +36,8 @@ export default async function EventPage({ params }: Props) {
   const closed =
     !e.registrationOpen ? "Pendaftaran belum dibuka." :
     e.status === "completed" || e.status === "archived" ? "Acara ini sudah selesai." :
-    !e.registrationDeadline || now > e.registrationDeadline ? "Pendaftaran sudah ditutup." :
-    seatsLeft === 0 ? "Kuota penuh." : null;
+    !e.registrationDeadline || now > e.registrationDeadline ? "Pendaftaran sudah ditutup." : null;
+  const isCompleted = e.status === "completed";
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -106,7 +106,9 @@ export default async function EventPage({ params }: Props) {
         <aside className="self-start lg:sticky lg:top-24">
           <EventRegister
             event={{ id: e.id, slug: e.slug ?? e.id, type: e.type, title: e.title, mode: e.mode }}
-            closedReason={closed}
+            closedReason={isCompleted ? null : closed}
+            full={seatsLeft === 0}
+            completed={isCompleted ? { recap: e.recap } : null}
           />
         </aside>
       </div>

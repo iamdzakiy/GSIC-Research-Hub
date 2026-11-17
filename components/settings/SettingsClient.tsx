@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { z } from "zod";
+import { useDraftedForm } from "@/lib/hooks/useFormDraft";
+import SaveStatus from "@/components/motion/SaveStatus";
 import Link from "next/link";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
@@ -15,6 +18,11 @@ import { supabase } from "@/lib/supabaseClient";
 import { cn } from "@/lib/cn";
 
 const NAV = [["profile", "Profile"], ["photo", "Photo"], ["hub", "Hub profile"], ["notifications", "Email"], ["account", "Account"]] as const;
+const profileDraftSchema = z.object({
+  name: z.string().max(100), bio: z.string().max(1000), faculty: z.string().max(100), major: z.string().max(100), year: z.number().int().min(1990).max(2100), whatsapp: z.string().max(30),
+  skills: z.array(z.string().max(60)).max(30), softSkills: z.array(z.string().max(60)).max(30), interests: z.array(z.string().max(60)).max(30), linkedinUrl: z.string().max(300),
+  preferredRole: z.string().max(60), pkmRole: z.string().max(60), fields: z.array(z.string().max(60)).max(30), institution: z.string().max(80),
+});
 type Ach = { title: string; year?: number; result?: string };
 
 function Card({ id, title, note, children }: { id: string; title: string; note?: string; children: React.ReactNode }) {
@@ -63,6 +71,13 @@ export default function SettingsClient() {
     setHub({ username: u.username ?? "", headline: u.headline ?? "", portfolioUrl: u.portfolioUrl ?? "", githubUrl: u.githubUrl ?? "", openToTeam: u.openToTeam ?? true, directoryVisible: u.directoryVisible ?? true, competitionInterests: u.competitionInterests ?? [] });
     setAch(u.achievements ?? []);
   }, [userProfile]);
+  const { nim: _nim, ...profileDraft } = values; void _nim;
+  const draft = useDraftedForm("profile", profileDraftSchema, { name, bio, ...profileDraft }, (d) => {
+    const { name: n, bio: b, ...rest } = d;
+    if (typeof n === "string") setName(n);
+    if (typeof b === "string") setBio(b);
+    setValues((v) => ({ ...v, ...rest }));
+  }, { enabled: !!user && !!userProfile });
   useEffect(() => {
     if (!user) return;
     void callApi<{ prefs: Record<string, boolean>; isAdmin: boolean }>("/api/me/notify-prefs").then((r) => { if (r.ok) { setPrefs(r.data.prefs); setIsAdmin(r.data.isAdmin); } });
@@ -82,6 +97,7 @@ export default function SettingsClient() {
     try {
       await updateUserProfile(user.id, patch as never);
       if (section === "profile" && cvFile) { await uploadCv(cvFile); setCvFile(null); }
+      if (section === "profile") await draft.clear();
       await refreshProfile();
       toast("success", "Saved. The matching sheet updates within a minute.");
     } catch (e) {
@@ -91,7 +107,7 @@ export default function SettingsClient() {
   }
   const Save = ({ s, data }: { s: string; data: Record<string, unknown> }) => (
     <div className="mt-6 flex items-center justify-end gap-3 border-t border-slate-100 pt-5">
-      {errs[s] && <p role="alert" className="mr-auto text-sm text-rose-700">{errs[s]}</p>}
+      {errs[s] ? <p role="alert" className="mr-auto text-sm text-rose-700">{errs[s]}</p> : s === "profile" ? <SaveStatus state={draft.status} className="mr-auto" /> : null}
       <button type="button" disabled={!!saving} onClick={() => save(s, data)} className={btnPrimary}>{saving === s && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}Save</button>
     </div>
   );

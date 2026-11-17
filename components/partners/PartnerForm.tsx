@@ -13,6 +13,15 @@ import { categoryLabel, rolesFor, wibDate } from "@/lib/competitions";
 import { createCallSchema } from "@/lib/validation/teams";
 import { fieldErrors } from "@/lib/validation/auth";
 import { cn } from "@/lib/cn";
+import { z } from "zod";
+import { useDraftedForm } from "@/lib/hooks/useFormDraft";
+import SaveStatus from "@/components/motion/SaveStatus";
+
+const draftSchema = z.object({
+  title: z.string().max(200), competition: z.string().max(200), opportunityId: z.string().max(60), slots: z.string().max(3), currentTeamSize: z.string().max(3),
+  commitment: z.string().max(100), description: z.string().max(4000), deadline: z.string().max(40),
+  kind: z.enum(["team_needs_member", "looking_for_team"]), roles: z.array(z.string().max(60)).max(12), skills: z.array(z.string().max(60)).max(20),
+});
 
 interface Comp { id: string; slug: string; title: string; deadline: string; category: string | null }
 type Kind = "team_needs_member" | "looking_for_team";
@@ -35,6 +44,13 @@ export default function PartnerForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((p) => ({ ...p, [k]: v }));
+  const draft = useDraftedForm("partner-post", draftSchema, { ...f, kind, roles, skills }, (d) => {
+    const { kind: k, roles: r, skills: sk, ...rest } = d;
+    setF((p) => ({ ...p, ...rest }));
+    if (k) setKind(k);
+    if (r) setRoles(r);
+    if (sk) setSkills(sk);
+  }, { enabled: !!user });
 
   useEffect(() => {
     fetch("/api/opportunities?type=competition&pageSize=100").then((r) => (r.ok ? r.json() : null)).then((b) => {
@@ -73,7 +89,7 @@ export default function PartnerForm() {
     setBusy(true);
     const r = await callApi<{ id: string }>("/api/teams/calls", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     setBusy(false);
-    if (r.ok) { toast("success", "Your post is live."); return router.push(`/partners/${r.data.id}`); }
+    if (r.ok) { await draft.clear(); toast("success", "Your post is live."); return router.push(`/partners/${r.data.id}`); }
     setErrors({ ...(r.fieldErrors ?? {}), form: r.error });
   }
 
@@ -186,6 +202,7 @@ export default function PartnerForm() {
 
       <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-5">
         <Link href="/partners" className={btnSecondary}>Cancel</Link>
+        {user && <SaveStatus state={draft.status} className="mr-auto" />}
         <button type="submit" disabled={busy} className={btnPrimary}>{busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{busy ? "Posting" : "Publish post"}</button>
       </div>
     </form>
