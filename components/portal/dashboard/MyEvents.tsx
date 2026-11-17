@@ -6,7 +6,7 @@ import { apiFetch } from "@/lib/apiFetch";
 import { eventHref, eventWhen } from "@/lib/event-links";
 
 interface Reg {
-  id: string; preTestCompleted: boolean; details: { needsTeam?: boolean } | null;
+  id: string; nextTest?: { label: string; href: string; title: string } | null; preTestCompleted: boolean; details: { needsTeam?: boolean } | null;
   event: { slug: string | null; type: string; title: string; startDate: string; endDate: string; dateLabel: string | null; mode: string; meetingUrl: string | null; hasPreTest: boolean };
 }
 
@@ -43,7 +43,8 @@ export default function MyEvents() {
           const soon = new Date(e.startDate).getTime() - Date.now() < 864e5 && new Date(e.endDate).getTime() > Date.now();
           const action =
             e.meetingUrl && !e.dateLabel && soon ? { label: "Open the Zoom link", href: e.meetingUrl, external: true } :
-            e.hasPreTest && !r.preTestCompleted ? { label: "Take the pre-test", href: eventHref(e), external: false } :
+            r.nextTest ? { label: r.nextTest.label, href: r.nextTest.href, external: false } :
+            e.hasPreTest && !r.preTestCompleted && !r.nextTest ? { label: "Take the pre-test", href: eventHref(e), external: false } :
             r.details?.needsTeam ? { label: "Find teammates", href: `/teams?event=${e.slug ?? ""}&tab=open`, external: false } :
             { label: "View details", href: eventHref(e), external: false };
           return (
