@@ -102,6 +102,7 @@ enum Theme {
 
 model User {
   formDrafts FormDraft[]
+  testAttempts TestAttempt[]
   id             String   @id @default(cuid())
   htaId          String   @default("")
   email          String   @unique
@@ -321,6 +322,36 @@ model Test {
   durationMinutes Int
   passingScore    Int
   testResults     TestResult[]
+
+  key              String?   @unique // seed id, e.g. bootcamp-ep1-pre
+  pairKey          String?           // links a pre-test to its post-test
+  kind             String    @default("pre_test") // pre_test | post_test | survey (type is kept in step for old code)
+  episode          Int?              // PKM Bootcamp episode 1-4
+  code             String?   @unique // six characters, for the short link /a/[code]
+  opensAt          DateTime?
+  closesAt         DateTime?
+  access           String    @default("registered") // registered | signed_in
+  shuffleQuestions Boolean   @default(false)
+  shuffleOptions   Boolean   @default(false)
+  showAnswersAfter String    @default("submit") // submit | pair_closed | never
+  sections         Json?             // surveys: [{ title, questions }]
+  attempts         TestAttempt[]
+}
+
+/// An attempt in progress. The server owns the timer: time left is startedAt + duration - now.
+model TestAttempt {
+  id        String   @id @default(cuid())
+  testId    String
+  userId    String
+  answers   Json     @default("[]")
+  flagged   Json     @default("[]")
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, userId])
 }
 
 model Registration {
@@ -363,9 +394,13 @@ model TestResult {
   score       Int
   maxScore    Int
   completedAt DateTime @default(now())
+  startedAt   DateTime?
+  durationSec Int?
 
   user User @relation(fields: [userId], references: [id])
   test Test @relation(fields: [testId], references: [id])
+
+  @@unique([testId, userId])
 }
 
 model Document {

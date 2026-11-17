@@ -55,6 +55,7 @@ import {
   deleteOpportunity,
 } from "@/services/opportunities";
 import { getCurated, createCurated, deleteCurated } from "@/services/curated";
+import AssessmentsPanel from "@/components/admin/AssessmentsPanel";
 import MarkCompleted from "@/components/admin/MarkCompleted";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
@@ -926,55 +927,7 @@ export default function AdminDashboard() {
 
         {activeTab === "tabTests" && (
           <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            <div className="glass rounded-2xl p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Award className="w-4 h-4 text-mint" /> Tests ({tests.length})
-              </h3>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <select
-                  value={builderEventId}
-                  onChange={(e) => setBuilderEventId(e.target.value)}
-                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
-                >
-                  <option value="">Select event…</option>
-                  {events.map((ev) => (
-                    <option key={ev.id} value={ev.id}>{ev.title}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => {
-                    if (!builderEventId) {
-                      setToast({ msg: "Select an event first", type: "error" });
-                      return;
-                    }
-                    setTestBuilderOpen(true);
-                  }}
-                  className="flex items-center gap-1 text-sm bg-brand-600 text-white hover:bg-brand-700 text-white px-4 py-2 rounded-full font-medium transition"
-                >
-                  <Plus className="w-4 h-4" /> New Test
-                </button>
-              </div>
-              <div className="space-y-2">
-                {tests.length === 0 ? (
-                  <div className="text-center py-8 text-white/30">No tests yet. Tests are created automatically when you create an event with pre/post test enabled.</div>
-                ) : (
-                  tests.map((test) => (
-                    <div key={test.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
-                      <div className="truncate">
-                        <span className="text-sm font-medium block truncate">{test.title}</span>
-                        <span className="text-[10px] text-white/30">{test.type} · {test.eventId} · {test.questions.length} questions</span>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <span className="text-xs bg-white/10 px-2 py-1 rounded">{test.type === "pre" ? "Pre" : "Post"}</span>
-                        <button onClick={async () => { await deleteTest(test.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            <AssessmentsPanel events={events} tests={tests} reload={loadData} />
           </m.div>
         )}
 
@@ -1044,19 +997,6 @@ export default function AdminDashboard() {
           await loadData();
         }}
       />
-
-      {/* Test Builder Modal */}
-      {testBuilderOpen && builderEventId && (
-        <TestBuilder
-          eventId={builderEventId}
-          onClose={() => setTestBuilderOpen(false)}
-          onSaved={async () => {
-            setTestBuilderOpen(false);
-            setToast({ msg: "Test saved!", type: "success" });
-            await loadData();
-          }}
-        />
-      )}
 
       {editingEvent && (
         <EventEditor

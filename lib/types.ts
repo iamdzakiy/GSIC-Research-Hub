@@ -314,11 +314,18 @@ export interface GSICEvent {
 export interface TestQuestion {
   id: string;
   text: string;
-  type: "multiple_choice" | "essay";
+  type: "multiple_choice" | "essay" | "likert" | "nps" | "single_choice" | "multi_select" | "short_text" | "long_text";
   options?: string[];
   correctAnswer?: string;
   points: number;
+  explanation?: string;
+  required?: boolean;
+  scale?: number;
+  lowLabel?: string;
+  highLabel?: string;
+  maxLength?: number;
 }
+export interface TestSection { title: string; questions: TestQuestion[] }
 
 export interface Test {
   id: string;
@@ -329,6 +336,18 @@ export interface Test {
   questions: TestQuestion[];
   durationMinutes: number;
   passingScore: number;
+  key?: string | null;
+  pairKey?: string | null;
+  kind?: "pre_test" | "post_test" | "survey";
+  episode?: number | null;
+  code?: string | null;
+  opensAt?: string | null;
+  closesAt?: string | null;
+  access?: "registered" | "signed_in";
+  shuffleQuestions?: boolean;
+  shuffleOptions?: boolean;
+  showAnswersAfter?: "submit" | "pair_closed" | "never";
+  sections?: TestSection[] | null;
 }
 
 export interface TestAnswer {
