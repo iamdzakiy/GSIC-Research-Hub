@@ -30,3 +30,19 @@ export default function MarkCompleted({ slug, status, onDone }: { slug: string; 
     </div>
   );
 }
+
+/** Certificates on or off for one event. */
+export function CertificateToggle({ slug, enabled, onDone }: { slug: string; enabled: boolean; onDone: (v: boolean) => void }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <label className="flex items-center gap-1.5 text-xs text-white/70">
+      <input type="checkbox" checked={enabled} disabled={busy} onChange={async (e) => {
+        setBusy(true);
+        const res = await apiFetch(`/api/events/${encodeURIComponent(slug)}/certificate`, { method: "POST", body: JSON.stringify({ enabled: e.target.checked }) });
+        if (res.ok) onDone(e.target.checked);
+        setBusy(false);
+      }} />
+      Certificates
+    </label>
+  );
+}

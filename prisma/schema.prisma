@@ -101,6 +101,7 @@ enum Theme {
 }
 
 model User {
+  certificates Certificate[]
   formDrafts FormDraft[]
   testAttempts TestAttempt[]
   id             String   @id @default(cuid())
@@ -580,6 +581,7 @@ enum OutboxKind {
   email
   sheet_upsert
   sheet_clear
+  results_sheet
 }
 
 /// Durable queue for e-mail and sheet writes. Drained right after enqueue (waitUntil) and by the daily cron.
@@ -616,4 +618,17 @@ model NimChange {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, at])
+}
+
+/// Certificate of participation. Off by default per event (Event.certificateEnabled). The code is what /verify/[code] checks.
+model Certificate {
+  id       String   @id @default(cuid())
+  code     String   @unique
+  userId   String
+  eventId  String
+  issuedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
 }

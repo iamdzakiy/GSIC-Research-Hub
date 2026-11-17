@@ -55,8 +55,9 @@ import {
   deleteOpportunity,
 } from "@/services/opportunities";
 import { getCurated, createCurated, deleteCurated } from "@/services/curated";
+import ResultsPanel from "@/components/admin/ResultsPanel";
 import AssessmentsPanel from "@/components/admin/AssessmentsPanel";
-import MarkCompleted from "@/components/admin/MarkCompleted";
+import MarkCompleted, { CertificateToggle } from "@/components/admin/MarkCompleted";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
@@ -382,6 +383,7 @@ export default function AdminDashboard() {
             { id: "tabSpeakers", label: "Speakers" },
             { id: "tabUsers", label: "Users" },
             { id: "tabTests", label: "Tests" },
+            { id: "tabResults", label: "Results" },
             { id: "tabDocs", label: "Documents" },
             { id: "tabLinks", label: "Links" },
             { id: "tabGallery", label: "Gallery" },
@@ -516,6 +518,7 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
+                        {evt.slug && <CertificateToggle slug={evt.slug} enabled={!!(evt as { certificateEnabled?: boolean }).certificateEnabled} onDone={(v) => setEvents((list) => list.map((x) => (x.id === evt.id ? ({ ...x, certificateEnabled: v } as GSICEvent) : x)))} />}
                         {evt.slug && <MarkCompleted slug={evt.slug} status={evt.status} onDone={(st) => setEvents((list) => list.map((x) => (x.id === evt.id ? { ...x, status: st as GSICEvent["status"] } : x)))} />}
                         <button onClick={() => setEditingEvent(evt)} className="text-xs text-mint hover:underline">Edit</button>
                         <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
@@ -928,6 +931,12 @@ export default function AdminDashboard() {
         {activeTab === "tabTests" && (
           <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <AssessmentsPanel events={events} tests={tests} reload={loadData} />
+          </m.div>
+        )}
+
+        {activeTab === "tabResults" && (
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <ResultsPanel events={events} />
           </m.div>
         )}
 
