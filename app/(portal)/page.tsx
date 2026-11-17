@@ -8,11 +8,14 @@ import { COMPETITION_CATEGORIES } from "@/lib/competitions";
 import CompetitionCard from "@/components/hub/CompetitionCard";
 import PartnerCard from "@/components/hub/PartnerCard";
 import CampusSilhouette from "@/components/hub/CampusSilhouette";
+import { HeroMark, HeroWords } from "@/components/hub/HeroIntro";
 import CampusLinks from "@/components/hub/CampusLinks";
 import DeadlineTicker from "@/components/hub/DeadlineTicker";
 import DayPlate from "@/components/hub/DayPlate";
 import { categoryLabel } from "@/lib/competitions";
 import Blank from "@/components/hub/Blank";
+import CountUp from "@/components/portal/CountUp";
+import Reveal from "@/components/portal/Reveal";
 import { btnPrimary, btnSecondary } from "@/components/hub/buttons";
 
 export const dynamic = "force-dynamic";
@@ -49,21 +52,22 @@ export default async function HomePage() {
   return (
     <>
       {/* HERO: navy, blueprint, one huge statement */}
-      <section className="relative overflow-hidden bg-navy text-white">
+      <section className="hero relative overflow-hidden bg-navy text-white">
         <div className="bp-grid-dark absolute inset-0" aria-hidden="true" />
-        <CampusSilhouette draw className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto w-full max-w-[1500px] text-brand-400/50" strokeWidth={1.2} />
-        <div className="relative mx-auto max-w-7xl px-4 pb-28 pt-16 sm:px-6 sm:pb-36 lg:px-8 lg:pt-24">
-          <div className="rise flex items-center gap-3">
-            <span className="h-px w-10 bg-mint" aria-hidden="true" />
-            <p className="label-mono text-mint">GSIC Research Hub · Institut Teknologi Bandung</p>
+        <CampusSilhouette draw className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto w-full max-w-[1500px] text-brand-400/50 [--draw-delay:1.5s]" strokeWidth={1.2} />
+        <div className="relative mx-auto max-w-7xl px-4 pb-28 pt-14 sm:px-6 sm:pb-36 lg:px-8 lg:pt-20">
+          <div className="flex items-center gap-4">
+            <HeroMark size={64} />
+            <p className="label-mono hero-late text-mint">GSIC Research Hub<br />Institut Teknologi Bandung</p>
           </div>
-          <h1 className="rise mt-6 max-w-5xl font-display text-[2.9rem] font-bold leading-[0.95] tracking-[-0.03em] sm:text-7xl lg:text-[6.5rem]">
-            Find the <span className="text-mint">competition.</span><br />Find the <span className="outline-cream">team.</span>
+          <h1 className="mt-7 max-w-5xl font-display text-[2.9rem] font-bold leading-[0.95] tracking-[-0.03em] sm:text-7xl lg:text-[6.5rem]">
+            <HeroWords text="Find the" /><HeroWords text="competition." startIndex={2} className="text-mint" /><br /><HeroWords text="Find the" startIndex={3} /><HeroWords text="team." startIndex={5} className="outline-cream" />
           </h1>
-          <p className="rise mt-7 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">Every BCC, BPC, case competition, hackathon and PKM that ITB students can enter, sorted by the hour registration closes. Then meet the analyst, designer or engineer your team is missing.</p>
-          <div className="rise mt-9 flex flex-wrap items-center gap-3">
-            <Link href="/competitions" className="inline-flex h-12 items-center gap-2 rounded-lg bg-mint px-6 text-sm font-semibold text-navy transition-colors hover:bg-mint-300">Browse competitions <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
-            <Link href="/partners" className="inline-flex h-12 items-center gap-2 rounded-lg border border-white/25 px-6 text-sm font-semibold text-white transition-colors hover:border-mint hover:text-mint">Find a partner</Link>
+          <div className="logo-line hero-line mt-8 w-40" aria-hidden="true" />
+          <p className="hero-late mt-7 max-w-xl text-base leading-7 text-slate-300 sm:text-lg">Every BCC, BPC, case competition, hackathon and PKM that ITB students can enter, sorted by the hour registration closes. Then meet the analyst, designer or engineer your team is missing.</p>
+          <div className="hero-late mt-9 flex flex-wrap items-center gap-3">
+            <Link href="/competitions" className="press inline-flex h-12 items-center gap-2 rounded-lg bg-mint px-6 text-sm font-semibold text-navy hover:bg-mint-300">Browse competitions <ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Link href="/partners" className="press inline-flex h-12 items-center gap-2 rounded-lg border border-white/25 px-6 text-sm font-semibold text-white hover:border-mint hover:text-mint">Find a partner</Link>
           </div>
         </div>
       </section>
@@ -74,7 +78,7 @@ export default async function HomePage() {
         <dl className="mx-auto grid max-w-7xl grid-cols-3 divide-x divide-slate-200 px-0 sm:px-6 lg:px-8">
           {[[openComps, "competitions open"], [openPosts, "partner posts"], [members, "members"]].map(([n, l]) => (
             <div key={l as string} className="px-4 py-6 sm:px-8 sm:py-9">
-              <dd className="tnum font-display text-4xl font-bold tracking-tight text-ink sm:text-6xl">{n}</dd>
+              <dd className="font-display text-4xl font-bold tracking-tight text-ink sm:text-6xl"><CountUp value={n as number} /></dd>
               <dt className="label-mono mt-2 text-ink-3">{l}</dt>
             </div>
           ))}
@@ -126,7 +130,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <Head kicker="Seeking Partner" title="People looking for teammates" href="/partners" />
         {posts.length ? (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{posts.map((p) => <li key={p.id}><PartnerCard p={p} /></li>)}</ul>
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{posts.map((p, i) => <li key={p.id}><Reveal index={i}><PartnerCard p={p} /></Reveal></li>)}</ul>
         ) : (
           <Blank title="No partner posts yet" hint="Need a financial modeler or a UI designer? Say which competition and which role."><Link href="/partners/new" className={btnSecondary}>Post what you need</Link></Blank>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Plus, Trash2, X, Save, Settings2 } from "lucide-react";
 import { Test, TestQuestion, TestType } from "@/lib/types";
 import { createTest, updateTest } from "@/services/tests";
@@ -137,14 +137,14 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
 
   return (
     <div className="fixed inset-0 z-[105] flex items-start justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-      <motion.div
+      <m.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         className="relative w-full max-w-2xl glass-strong rounded-2xl border border-white/10 shadow-2xl my-6"
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <div className="flex items-center gap-2">
-            <Settings2 className="w-5 h-5 text-[#5CE3B6]" />
+            <Settings2 className="w-5 h-5 text-mint" />
             <h3 className="font-bold text-white font-heading">
               {initial ? "Edit Test" : "Create Test"}
             </h3>
@@ -161,7 +161,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#3352CD]/60 focus:outline-none focus:ring-2 focus:ring-[#3352CD]/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-600/60 focus:outline-none focus:ring-2 focus:ring-brand-600/20"
                 placeholder="e.g. PKM Bootcamp Pre-Test"
               />
             </div>
@@ -170,7 +170,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
               <input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#3352CD]/60 focus:outline-none focus:ring-2 focus:ring-[#3352CD]/20"
+                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-600/60 focus:outline-none focus:ring-2 focus:ring-brand-600/20"
                 placeholder="Short description shown to participants"
               />
             </div>
@@ -185,7 +185,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm font-medium border transition",
                       type === t
-                        ? "bg-[#3352CD]/40 border-[#3352CD] text-white"
+                        ? "bg-brand-600/40 border-brand-600 text-white"
                         : "bg-white/5 border-white/10 text-white/50 hover:text-white"
                     )}
                   >
@@ -202,7 +202,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                   min={1}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(Number(e.target.value) || 1)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#3352CD]/60 focus:outline-none focus:ring-2 focus:ring-[#3352CD]/20"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-600/60 focus:outline-none focus:ring-2 focus:ring-brand-600/20"
                 />
               </div>
               <div>
@@ -213,7 +213,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                   max={100}
                   value={passingScore}
                   onChange={(e) => setPassingScore(Number(e.target.value) || 0)}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-[#3352CD]/60 focus:outline-none focus:ring-2 focus:ring-[#3352CD]/20"
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:border-brand-600/60 focus:outline-none focus:ring-2 focus:ring-brand-600/20"
                 />
               </div>
             </div>
@@ -228,7 +228,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                 setQuestions((qs) => [...qs, q]);
                 setExpanded(q.id);
               }}
-              className="flex items-center gap-1 text-xs bg-[#3352CD]/40 hover:bg-[#3352CD]/60 text-white px-3 py-1.5 rounded-full transition"
+              className="flex items-center gap-1 text-xs bg-brand-600/40 hover:bg-brand-600/60 text-white px-3 py-1.5 rounded-full transition"
             >
               <Plus className="w-3.5 h-3.5" /> Add Question
             </button>
@@ -242,7 +242,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                     value={q.text}
                     onChange={(e) => updateQuestion(q.id, { text: e.target.value })}
                     placeholder={`Question ${qi + 1}`}
-                    className="flex-1 bg-transparent border-b border-white/10 focus:border-[#5CE3B6]/60 px-1 py-1 text-sm text-white focus:outline-none"
+                    className="flex-1 bg-transparent border-b border-white/10 focus:border-mint/60 px-1 py-1 text-sm text-white focus:outline-none"
                   />
                   <button
                     type="button"
@@ -264,7 +264,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                     className={cn(
                       "text-xs px-3 py-1 rounded-full border transition",
                       q.type === "multiple_choice"
-                        ? "bg-[#5CE3B6]/20 border-[#5CE3B6]/40 text-[#5CE3B6]"
+                        ? "bg-mint/20 border-mint/40 text-mint"
                         : "bg-white/5 border-white/10 text-white/50"
                     )}
                   >
@@ -276,7 +276,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                     className={cn(
                       "text-xs px-3 py-1 rounded-full border transition",
                       q.type === "essay"
-                        ? "bg-[#8B5CF6]/20 border-[#8B5CF6]/40 text-[#A78BFA]"
+                        ? "bg-brand-400/20 border-brand-400/40 text-brand-300"
                         : "bg-white/5 border-white/10 text-white/50"
                     )}
                   >
@@ -289,7 +289,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                       min={0}
                       value={q.points}
                       onChange={(e) => updateQuestion(q.id, { points: Number(e.target.value) || 0 })}
-                      className="w-16 bg-white/5 border border-white/10 rounded-md px-2 py-1 text-center text-xs text-white focus:outline-none focus:border-[#3352CD]/60"
+                      className="w-16 bg-white/5 border border-white/10 rounded-md px-2 py-1 text-center text-xs text-white focus:outline-none focus:border-brand-600/60"
                     />
                   </label>
                 </div>
@@ -304,18 +304,18 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                           className={cn(
                             "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition",
                             q.correctAnswer === opt
-                              ? "border-[#5CE3B6] bg-[#5CE3B6]/30"
+                              ? "border-mint bg-mint/30"
                               : "border-white/25 hover:border-white/50"
                           )}
                           title="Mark as correct"
                         >
-                          {q.correctAnswer === opt && <span className="w-1.5 h-1.5 rounded-full bg-[#5CE3B6]" />}
+                          {q.correctAnswer === opt && <span className="w-1.5 h-1.5 rounded-full bg-mint" />}
                         </button>
                         <input
                           value={opt}
                           onChange={(e) => setOption(q.id, oi, e.target.value)}
                           placeholder={`Option ${oi + 1}`}
-                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#3352CD]/50"
+                          className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-brand-600/50"
                         />
                         {q.options.length > 2 && (
                           <button
@@ -332,7 +332,7 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
                     <button
                       type="button"
                       onClick={() => updateQuestion(q.id, { options: [...q.options, ""] })}
-                      className="text-xs text-[#5CE3B6] hover:text-[#7ff0cc] transition flex items-center gap-1"
+                      className="text-xs text-mint hover:text-mint-300 transition flex items-center gap-1"
                     >
                       <Plus className="w-3 h-3" /> Add option
                     </button>
@@ -361,13 +361,13 @@ export default function TestBuilder({ eventId, initial, onClose, onSaved }: Test
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-5 py-2 rounded-full font-medium shadow-lg shadow-[#3352CD]/30 disabled:opacity-50 transition"
+            className="flex items-center gap-2 text-sm bg-brand-600 text-white hover:bg-brand-700 text-white px-5 py-2 rounded-full font-medium shadow-lg shadow-brand-600/30 disabled:opacity-50 transition"
           >
             <Save className="w-4 h-4" />
             {saving ? "Saving…" : initial ? "Save Changes" : "Create Test"}
           </button>
         </div>
-      </motion.div>
+      </m.div>
     </div>
   );
 }

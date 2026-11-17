@@ -63,7 +63,7 @@ export default function CompetitionFilters({ counts }: { counts: Record<string, 
         <button type="button" aria-pressed={team === "solo"} onClick={() => setOne("team", team === "solo" ? "any" : "solo", "any")} className={chip(team === "solo")}>Individual</button>
         <button type="button" aria-pressed={!!sp.get("free")} onClick={() => setOne("free", sp.get("free") ? "" : "1", "")} className={chip(!!sp.get("free"))}>Free to enter</button>
         <button type="button" aria-expanded={more} onClick={() => setMore((m) => !m)} className={chip(false)}><SlidersHorizontal className="h-3.5 w-3.5" aria-hidden="true" /> Level and format</button>
-        <label className="ml-auto inline-flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={!!sp.get("closed")} onChange={(e) => setOne("closed", e.target.checked ? "1" : "", "")} className="h-4 w-4 accent-[#3352CD]" /> Show closed</label>
+        <label className="ml-auto inline-flex items-center gap-2 text-sm text-ink-2"><input type="checkbox" checked={!!sp.get("closed")} onChange={(e) => setOne("closed", e.target.checked ? "1" : "", "")} className="h-4 w-4 accent-brand-600" /> Show closed</label>
         {active > 0 && <button type="button" onClick={() => { setQ(""); start(() => router.replace(pathname, { scroll: false })); }} className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:text-brand-800"><X className="h-3.5 w-3.5" aria-hidden="true" /> Clear {active}</button>}
       </div>
 

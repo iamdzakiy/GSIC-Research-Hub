@@ -1,201 +1,116 @@
+@import "./tokens.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Offline-safe fallbacks for --font-inter / --font-jakarta
-       (previously provided by next/font/google). */
     --font-inter: var(--font-jakarta);
     --font-jakarta: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   }
 
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html {
-    scroll-behavior: smooth;
-  }
+  html { scroll-behavior: smooth; }
 
   body {
-    font-family: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, #0B1120 0%, #0F172A 30%, #111C33 60%, #0B1120 100%);
-    color: #E2E8F0;
+    font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+    background: rgb(var(--paper-1));
+    color: rgb(var(--ink-1));
     overflow-x: hidden;
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif;
-  }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-display), var(--font-jakarta), system-ui, sans-serif; }
+
+  /* Focus rings animate in: the offset eases from 0 so the ring appears to settle around the control. */
+  :focus-visible { outline: 2px solid rgb(var(--brand-600)); outline-offset: 2px; transition: outline-offset var(--dur-fast) var(--ease-out); }
+  :focus:not(:focus-visible) { outline: none; }
 }
 
 @layer components {
-  /* Glassmorphism - Premium */
-  .glass {
-    background: rgba(255, 255, 255, 0.04);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
-  }
+  /* Legacy admin surfaces. The (legacy) layout re-maps these to flat white panels in legacy-bridge.css. */
+  .glass, .glass-strong { background: #fff; border: 1px solid rgb(226 232 240); }
 
-  .glass:hover {
-    border-color: rgba(37, 99, 235, 0.3);
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 99, 235, 0.08);
-  }
+  /* Buttons press in. Applied through components/hub/buttons.ts. */
+  .press { transition: transform var(--dur-fast) var(--ease-out), background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease; }
+  .press:active:not(:disabled) { transform: scale(0.98); }
 
-  .glass-strong {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
+  /* Logo gradient, used only for the brand mark, progress indicators and the hero accent line. */
+  .logo-line { height: 2px; background: var(--logo-gradient); transform-origin: left; }
+  .progress-track { height: 4px; overflow: hidden; border-radius: 999px; background: rgb(var(--ink-1) / 0.08); }
+  .progress-fill { height: 100%; width: 100%; border-radius: 999px; background: var(--logo-gradient); transform-origin: left; transition: transform var(--dur-slow) var(--ease-out); }
 
-  .card-hover {
-    transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-
-  .card-hover:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35), 0 0 30px rgba(6, 182, 212, 0.06);
-  }
-
-  .gradient-text {
-    background: linear-gradient(135deg, #F2F8C9 0%, #5CE3B6 45%, #3352CD 130%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-text-accent {
-    background: linear-gradient(135deg, #3352CD 0%, #5CE3B6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .glow-blue {
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.25), 0 0 60px rgba(37, 99, 235, 0.1);
-  }
-
-  .glow-cyan {
-    box-shadow: 0 0 30px rgba(6, 182, 212, 0.25), 0 0 60px rgba(6, 182, 212, 0.1);
-  }
-
-  .glow-violet {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.25), 0 0 60px rgba(139, 92, 246, 0.1);
-  }
-
-  .glow-emerald {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), 0 0 60px rgba(16, 185, 129, 0.1);
-  }
-
-  .nav-underline {
-    position: relative;
-  }
-
-  .nav-underline::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #2563EB, #06B6D4);
-    transition: width 0.3s ease;
-    border-radius: 2px;
-  }
-
-  .nav-underline:hover::after,
-  .nav-underline.active::after {
-    width: 80%;
-  }
-
-  .progress-bar {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-    overflow: hidden;
-  }
-
-  .progress-bar .fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-  }
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-  }
-
-  .modal-overlay.hidden {
-    display: none;
-  }
-
-  .modal-content {
-    max-width: 600px;
-    width: 100%;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: 10px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #2563EB;
-    border-radius: 10px;
-  }
-
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: #06B6D4;
-  }
-
-  .filter-btn {
-    cursor: pointer;
-  }
-
-  .filter-btn.active {
-    background: #2563EB !important;
-    color: #fff !important;
-    border-color: #2563EB !important;
-  }
-
+  /* Skeletons take the shape of the content they stand in for. The shimmer is slow and transform-only. */
+  .skeleton { position: relative; overflow: hidden; border-radius: var(--radius-md); background: rgb(var(--ink-1) / 0.06); }
+  .skeleton::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent); animation: shimmer 1.8s var(--ease-out) infinite; }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  
-  
-}
-/* Light, short motion. Sign-up steps and panels ease in; nothing moves for people who ask it not to. */
-@keyframes step-in {
-  from { opacity: 0; transform: translateX(8px); }
-  to { opacity: 1; transform: none; }
-}
-.step-in { animation: step-in 200ms ease-out both; }
+@keyframes shimmer { to { transform: translateX(100%); } }
 
+/* Sign-up and form steps slide in the direction of travel (data-dir is set by the form). */
+@keyframes step-fwd { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes step-back { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+.step-in { animation: step-fwd var(--dur-base) var(--ease-out) both; }
+.step-in[data-dir="back"] { animation-name: step-back; }
+
+/* Errors fade in inside a slot that is already there, so nothing below them moves. */
+.err-slot { min-height: 1.25rem; margin-top: 0.375rem; font-size: 0.75rem; line-height: 1.25rem; color: rgb(var(--danger-700)); }
+.err-slot:not(:empty) { animation: fade var(--dur-base) ease-out both; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fade var(--dur-base) ease-out both; }
+
+/* ============================================================
+   Signature: blueprint grid, campus silhouette, quiet motion.
+   Motion is transform and opacity only, and off under prefers-reduced-motion.
+   ============================================================ */
+.bp-grid {
+  background-image:
+    linear-gradient(to right, rgb(var(--brand-600) / 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--brand-600) / 0.07) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-grid-dark {
+  background-image:
+    linear-gradient(to right, rgb(var(--mint-400) / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--mint-400) / 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+.bp-fade { -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
+
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+.silhouette-draw path { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw-line 2.4s cubic-bezier(.65,0,.35,1) var(--draw-delay, .2s) forwards; }
+.silhouette-still path { stroke-dasharray: none; stroke-dashoffset: 0; animation: none; }
+
+.lift { transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out), border-color var(--dur-base) ease; }
+.lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
+.pop { animation: pop var(--dur-base) ease-out both; }
+
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise var(--dur-slow) var(--ease-out) both; }
+
+.tnum { font-variant-numeric: tabular-nums; }
+.label-mono { font-family: var(--font-mono), ui-monospace, monospace; font-size: var(--text-label); letter-spacing: .06em; text-transform: uppercase; }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee { display: flex; width: max-content; animation: marquee 48s linear infinite; }
+.marquee:hover { animation-play-state: paused; }
+.outline-cream { -webkit-text-stroke: 1.5px rgb(var(--cream-100)); color: transparent; }
+.corner { position: relative; }
+.corner::before, .corner::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: currentColor; opacity: .5; }
+.corner::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+.corner::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+.tile { transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease; }
+.tile:hover { background-color: rgb(var(--navy-900)); color: #fff; border-color: rgb(var(--navy-900)); }
+.tile:hover .tile-n { color: rgb(var(--mint-400)); }
+
+/* Shared-element navigation (View Transitions API). Browsers without it get the page cross-fade in template.tsx. */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--dur-base); }
+::view-transition-group(*) { animation-duration: var(--dur-slow); animation-timing-function: var(--ease-out); }
+
+/* Everything becomes a short fade, or nothing, for people who ask for less motion. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -203,58 +118,32 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* ============================================================
-   GSIC Hub v2 signature: blueprint grid, campus silhouette, quiet motion.
-   Motion is transform/opacity only, 150-250 ms, and off under prefers-reduced-motion.
-   ============================================================ */
-.bp-grid {
-  background-image:
-    linear-gradient(to right, rgb(51 82 205 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(51 82 205 / 0.07) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-.bp-grid-dark {
-  background-image:
-    linear-gradient(to right, rgb(92 227 182 / 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(92 227 182 / 0.08) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-.bp-fade { -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent); mask-image: linear-gradient(to bottom, #000 40%, transparent); }
-
-@keyframes draw-line { to { stroke-dashoffset: 0; } }
-.silhouette-draw path { stroke-dasharray: 2400; stroke-dashoffset: 2400; animation: draw-line 2.4s cubic-bezier(.65,0,.35,1) .2s forwards; }
-
-.lift { transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease; }
-.lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -14px rgb(11 17 32 / 0.35); }
-
-@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); } }
-.pop { animation: pop 220ms ease-out both; }
-
-@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.rise { animation: rise 220ms ease-out both; }
-
-.tnum { font-variant-numeric: tabular-nums; }
-.label-mono { font-family: var(--font-mono), ui-monospace, monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
-
-@media (prefers-reduced-motion: reduce) {
   .silhouette-draw path { animation: none; stroke-dashoffset: 0; }
-  .lift, .lift:hover { transition: none; transform: none; }
-  .pop, .rise { animation: none; }
+  .lift:hover, .press:active:not(:disabled) { transform: none; }
+  .rise, .step-in, .pop { animation: fade 150ms ease-out both !important; animation-duration: 150ms !important; }
+  .skeleton::after, .marquee { animation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
 
-/* ---- v2.1 surface vocabulary ---- */
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.marquee { display: flex; width: max-content; animation: marquee 48s linear infinite; }
-.marquee:hover { animation-play-state: paused; }
-.outline-cream { -webkit-text-stroke: 1.5px #F2F8C9; color: transparent; }
-.outline-brand { -webkit-text-stroke: 1.5px #3352CD; color: transparent; }
-.corner { position: relative; }
-.corner::before, .corner::after { content: ""; position: absolute; width: 10px; height: 10px; border-color: currentColor; opacity: .5; }
-.corner::before { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
-.corner::after { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
-.tile { transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease; }
-.tile:hover { background-color: #0B1120; color: #fff; border-color: #0B1120; }
-.tile:hover .tile-n { color: #5CE3B6; }
-@media (prefers-reduced-motion: reduce) { .marquee { animation: none; } .tile { transition: none; } }
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}
+
+/* ---- Hero set piece. Plays once per session: the inline script in app/layout.tsx sets data-hero-played on <html>. ---- */
+.hero-mark { position: relative; }
+.hero-mark svg { position: absolute; inset: 0; }
+.hero-mark circle { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-line var(--dur-set-piece) var(--ease-out) 80ms forwards, fade-out var(--dur-slow) ease-out 900ms forwards; }
+.hero-mark img { animation: fade var(--dur-slow) ease-out 700ms both; }
+.hero-word { display: inline-block; animation: rise var(--dur-slow) var(--ease-out) both; animation-delay: calc(var(--i) * 70ms + 650ms); }
+.hero-line { animation: grow-x var(--dur-set-piece) var(--ease-out) 1150ms both; }
+.hero-late { animation: fade var(--dur-slow) ease-out 1250ms both; }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes grow-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+[data-hero-played] .hero-mark circle { animation: none; opacity: 0; }
+[data-hero-played] .hero-mark img, [data-hero-played] .hero-word, [data-hero-played] .hero-line, [data-hero-played] .hero-late { animation: none; }
+[data-hero-played] .hero .silhouette-draw path { animation: none; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-mark circle { animation: none; opacity: 0; }
+  .hero-word, .hero-line, .hero-late, .hero-mark img { animation: fade 150ms ease-out both !important; }
+}

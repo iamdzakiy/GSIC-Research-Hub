@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { GalleryEntry } from "@/components/portal/GalleryMarquee";
@@ -35,10 +35,10 @@ export default function GalleryGrid({ items }: { items: GalleryEntry[] }) {
           ))}
         </div>
       )}
-      <motion.ul layout={!reduce} className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>li]:mb-4">
+      <m.ul layout={!reduce} className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>li]:mb-4">
         <AnimatePresence>
           {shown.map((g, i) => (
-            <motion.li key={g.id} layout={!reduce} initial={reduce ? false : { opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.25, delay: Math.min(i, 8) * 0.03 }} className="break-inside-avoid">
+            <m.li key={g.id} layout={!reduce} initial={reduce ? false : { opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.25, delay: Math.min(i, 8) * 0.03 }} className="break-inside-avoid">
               <button type="button" onClick={() => setIdx(i)} className="group relative block w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={g.imageUrl} alt={g.title} loading="lazy" className="w-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -47,10 +47,10 @@ export default function GalleryGrid({ items }: { items: GalleryEntry[] }) {
                   {g.eventLabel && <span className="block truncate text-xs text-mint">{g.eventLabel}</span>}
                 </span>
               </button>
-            </motion.li>
+            </m.li>
           ))}
         </AnimatePresence>
-      </motion.ul>
+      </m.ul>
       {cur && (
         <div role="dialog" aria-modal="true" aria-label={cur.title} className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/95 p-4" onClick={() => setIdx(null)}>
           <figure className="max-h-full max-w-4xl" onClick={(e) => e.stopPropagation()}>

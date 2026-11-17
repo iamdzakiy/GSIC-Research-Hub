@@ -156,7 +156,7 @@ export default function EventRegister({ event, closedReason }: Props) {
             <Err k="scheme" />
           </fieldset>
           <div>
-            <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={needsTeam} onChange={(e) => setNeedsTeam(e.target.checked)} className="h-4 w-4 accent-[#3352CD]" /> Saya butuh tim</label>
+            <label className="flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" checked={needsTeam} onChange={(e) => setNeedsTeam(e.target.checked)} className="h-4 w-4 accent-brand-600" /> Saya butuh tim</label>
             {needsTeam && <p className="mt-2 text-sm text-slate-600">Setelah mendaftar, <Link href={teamsHref} className="font-medium text-brand-700 underline">cari teman satu tim</Link>.</p>}
           </div>
           {!needsTeam && (

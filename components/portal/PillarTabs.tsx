@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/cn";
 import { PILLARS } from "@/lib/pkm-content";
 
@@ -22,7 +22,7 @@ export default function PillarTabs() {
       </div>
       <div role="tabpanel" className="rounded-xl border border-slate-200 bg-white p-6">
         <AnimatePresence mode="wait">
-          <motion.div key={cur.id} initial={reduce ? false : { opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.2 }}>
+          <m.div key={cur.id} initial={reduce ? false : { opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={reduce ? undefined : { opacity: 0 }} transition={{ duration: 0.2 }}>
             <h3 className="text-lg font-bold font-heading text-slate-900">{cur.name}</h3>
             <p className="mt-1 text-sm text-slate-600">{cur.line}</p>
             <ul className="mt-4 space-y-2.5">
@@ -30,7 +30,7 @@ export default function PillarTabs() {
                 <li key={t} className="flex gap-3 text-sm leading-6 text-slate-700"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-mint-600" aria-hidden="true" />{t}</li>
               ))}
             </ul>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Timer, Send, AlertTriangle, CheckCircle2, Save } from "lucide-react";
 import { Test, TestAnswer, TestResult } from "@/lib/types";
 import { submitTest } from "@/services/tests";
@@ -119,7 +119,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
     const pct = result.maxScore ? Math.round((result.score / result.maxScore) * 100) : 0;
     const passed = pct >= passing;
     return (
-      <motion.div
+      <m.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         className="glass rounded-2xl p-8 border border-white/10 text-center"
@@ -128,7 +128,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
           className={cn(
             "mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-4",
             passed
-              ? "bg-[#5CE3B6]/15 text-[#5CE3B6] border border-[#5CE3B6]/40"
+              ? "bg-mint/15 text-mint border border-mint/40"
               : "bg-red-500/15 text-red-400 border border-red-500/40"
           )}
         >
@@ -137,7 +137,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
         <h3 className="text-2xl font-bold text-white font-heading">
           {passed ? "Test Completed!" : "Time's Up"}
         </h3>
-        <p className="mt-3 text-5xl font-bold font-heading text-transparent bg-clip-text bg-gradient-to-r from-[#3352CD] to-[#5CE3B6]">
+        <p className="mt-3 text-5xl font-bold font-heading text-transparent bg-clip-text bg-gradient-to-r from-brand-600 to-mint">
           {pct}%
         </p>
         <p className="mt-2 text-sm text-white/60">
@@ -145,12 +145,12 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
         </p>
         <p className={cn("mt-4 inline-flex text-xs font-medium px-3 py-1 rounded-full border",
           passed
-            ? "text-[#5CE3B6] border-[#5CE3B6]/40 bg-[#5CE3B6]/10"
+            ? "text-mint border-mint/40 bg-mint/10"
             : "text-red-400 border-red-500/40 bg-red-500/10"
         )}>
           {passed ? "Congratulations — you passed!" : "You did not reach the passing score."}
         </p>
-      </motion.div>
+      </m.div>
     );
   }
 
@@ -160,7 +160,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
       {/* Timer / progress bar */}
       <div className="glass rounded-xl p-4 border border-white/10 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-sm">
-          <Timer className="w-4 h-4 text-[#5CE3B6]" />
+          <Timer className="w-4 h-4 text-mint" />
           <span className={cn("font-mono font-semibold", secondsLeft <= 60 ? "text-red-400" : "text-white")}>
             {fmt(secondsLeft)}
           </span>
@@ -180,7 +180,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
         <div key={q.id} className="glass rounded-2xl p-5 border border-white/10">
           <div className="flex items-start justify-between gap-3">
             <h4 className="font-semibold text-white font-heading leading-snug">
-              <span className="text-[#5CE3B6] mr-2">{qi + 1}.</span>
+              <span className="text-mint mr-2">{qi + 1}.</span>
               {q.text}
             </h4>
             <span className="shrink-0 text-xs text-white/40 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full">
@@ -200,17 +200,17 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
                     className={cn(
                       "w-full text-left text-sm px-4 py-2.5 rounded-xl border transition flex items-center gap-3",
                       selected
-                        ? "bg-[#3352CD]/30 border-[#3352CD] text-white"
+                        ? "bg-brand-600/30 border-brand-600 text-white"
                         : "bg-white/[0.03] border-white/10 text-white/70 hover:border-white/25"
                     )}
                   >
                     <span
                       className={cn(
                         "w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
-                        selected ? "border-[#5CE3B6] bg-[#5CE3B6]/30" : "border-white/25"
+                        selected ? "border-mint bg-mint/30" : "border-white/25"
                       )}
                     >
-                      {selected && <span className="w-1.5 h-1.5 rounded-full bg-[#5CE3B6]" />}
+                      {selected && <span className="w-1.5 h-1.5 rounded-full bg-mint" />}
                     </span>
                     {opt}
                   </button>
@@ -225,7 +225,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
               onChange={(e) => setAnswers((a) => ({ ...a, [q.id]: e.target.value }))}
               placeholder="Type your answer…"
               rows={4}
-              className="mt-4 w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60 resize-y"
+              className="mt-4 w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-white/30 focus:outline-none focus:border-brand-600/60 resize-y"
             />
           )}
         </div>
@@ -238,7 +238,7 @@ export default function TestRunner({ test, onFinish }: TestRunnerProps) {
         <button
           onClick={() => handleSubmit(true)}
           disabled={submitting}
-          className="flex items-center gap-2 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-6 py-2.5 rounded-full font-medium shadow-lg shadow-[#3352CD]/30 disabled:opacity-50 transition"
+          className="flex items-center gap-2 text-sm bg-brand-600 text-white hover:bg-brand-700 text-white px-6 py-2.5 rounded-full font-medium shadow-lg shadow-brand-600/30 disabled:opacity-50 transition"
         >
           <Send className="w-4 h-4" />
           {submitting ? "Submitting…" : "Submit Test"}
