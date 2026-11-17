@@ -58,7 +58,7 @@ export default function SettingsClient() {
     if (!userProfile) return;
     const u = userProfile;
     setName(u.name ?? ""); setBio(u.bio ?? "");
-    setValues({ faculty: u.faculty ?? "", major: u.major ?? "", year: u.year ?? new Date().getFullYear(), whatsapp: u.whatsapp ?? "", skills: u.skills ?? [], softSkills: u.softSkills ?? [],
+    setValues({ nim: u.nim ?? "", faculty: u.faculty ?? "", major: u.major ?? "", year: u.year ?? new Date().getFullYear(), whatsapp: u.whatsapp ?? "", skills: u.skills ?? [], softSkills: u.softSkills ?? [],
       interests: u.interests ?? [], linkedinUrl: u.linkedinUrl ?? "", preferredRole: u.preferredRole ?? "", pkmRole: u.pkmRole ?? "", fields: u.fields ?? [], institution: u.institution ?? "ITB" });
     setHub({ username: u.username ?? "", headline: u.headline ?? "", portfolioUrl: u.portfolioUrl ?? "", githubUrl: u.githubUrl ?? "", openToTeam: u.openToTeam ?? true, directoryVisible: u.directoryVisible ?? true, competitionInterests: u.competitionInterests ?? [] });
     setAch(u.achievements ?? []);

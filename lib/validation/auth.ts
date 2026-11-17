@@ -1,6 +1,6 @@
 // Shared by the client forms AND the API routes (single source of truth).
 import { z } from "zod";
-import { linkedinSchema, profileFields, refineFacultyMajor } from "@/lib/validation/profile";
+import { linkedinSchema, profileFields, refineFacultyMajor, refineNim } from "@/lib/validation/profile";
 
 export const emailSchema = z
   .string({ required_error: "Email is required" })
@@ -33,14 +33,19 @@ export const accountSchema = accountFields.superRefine(refineConfirm);
 
 /** Step 2 of sign-up (profile). Faculty, major and LinkedIn are required here; everything else is optional. */
 export const signupProfileSchema = profileFields
-  .pick({ faculty: true, major: true, year: true, whatsapp: true, skills: true, softSkills: true, interests: true, preferredRole: true, pkmRole: true, fields: true, institution: true })
+  .pick({ faculty: true, major: true, year: true, nim: true, whatsapp: true, skills: true, softSkills: true, interests: true, preferredRole: true, pkmRole: true, fields: true, institution: true })
   .extend({
     faculty: z.string({ required_error: "Choose your faculty or school" }).trim().min(1, "Choose your faculty or school"),
     major: z.string({ required_error: "Choose your major" }).trim().min(1, "Choose your major"),
+    institution: z.string({ required_error: "Enter your university" }).trim().min(2, "Enter your university").max(80),
+    nim: z.string({ required_error: "Enter your NIM" }).trim().min(1, "Enter your NIM").max(30),
     linkedinUrl: linkedinSchema,
   });
 
-export const registerSchema = accountFields.merge(signupProfileSchema).superRefine((d, ctx) => { refineConfirm(d, ctx); refineFacultyMajor(d, ctx); });
+/** Step 2 on its own (profile). Used while the account step may hold no password, for example after a draft is restored. */
+export const profileStepSchema = signupProfileSchema.superRefine((d, ctx) => { refineFacultyMajor(d, ctx); refineNim(d, ctx, true); });
+
+export const registerSchema = accountFields.merge(signupProfileSchema).superRefine((d, ctx) => { refineConfirm(d, ctx); refineFacultyMajor(d, ctx); refineNim(d, ctx, true); });
 export const signInSchema = z.object({ email: emailSchema, password: z.string().min(1, "Password is required") });
 export const emailOnlySchema = z.object({ email: emailSchema });
 export const resetPasswordSchema = z

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Check, ExternalLink, Loader2 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
+import { useNimGate } from "@/components/portal/NimGate";
 import { useToast } from "@/components/ui/Toast";
 import { apiFetch } from "@/lib/apiFetch";
 import { cn } from "@/lib/cn";
@@ -21,6 +22,7 @@ const field = (err?: string) => cn("w-full rounded-lg border bg-white px-3.5 tex
 export default function EventRegister({ event, closedReason }: Props) {
   const { user, userProfile, loading } = useAuth();
   const { toast } = useToast();
+  const nimGate = useNimGate();
   const [access, setAccess] = useState<Access | null>(null);
   const [busy, setBusy] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -48,6 +50,7 @@ export default function EventRegister({ event, closedReason }: Props) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
+    if (!(await nimGate.ensureNim())) return;
     const teamMembers = members.split(/[\s,;]+/).map((x) => x.trim().toLowerCase()).filter(Boolean);
     const answers = bootcamp ? { scheme, needsTeam, teamMembers: needsTeam ? [] : teamMembers, lecturer: lecturer || undefined } : { hope: hope || undefined };
     const parsed = (bootcamp ? bootcampAnswers : sandboxAnswers).safeParse(answers);
@@ -141,6 +144,7 @@ export default function EventRegister({ event, closedReason }: Props) {
 
   return (
     <form onSubmit={submit} noValidate className={card}>
+      {nimGate.sheet}
       <p className="font-semibold text-slate-900">Daftar</p>
       {errors.form && <p role="alert" className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{errors.form}</p>}
 

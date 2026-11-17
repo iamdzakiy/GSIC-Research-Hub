@@ -8,6 +8,7 @@ import { sendViaOutbox } from "@/lib/notify";
 import { prisma } from "@/lib/prisma";
 import { syncProfileToSheet } from "@/lib/matchmaking-sheet";
 import { uniqueUsername } from "@/lib/username";
+import { NIM_TAKEN } from "@/lib/nim";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,8 @@ export async function POST(req: Request) {
   const { name, email, password, confirm, ...profile } = g.data;
   const admin = supabaseAdmin();
   try {
+    const nim = profileToData(profile).nim as string | undefined;
+    if (nim && (await prisma.user.findUnique({ where: { nim }, select: { id: true } }))) return fail(409, NIM_TAKEN, { fieldErrors: { nim: NIM_TAKEN } });
     const { data, error } = await admin.auth.admin.createUser({
       email,
       password,

@@ -20,7 +20,7 @@ const DEFAULT_SHEET_ID = "13pRyUeItGva-t-2cmJmQsydK5j1jo0NZQa6eoYoQG_s";
 const TAB = "Database";
 const HEADER_IDX = 2; // row 3
 const FIRST_FREE_IDX = 5; // row 6; row 5 is the example
-const OWN_HEADERS = ["Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At", "Headline", "Competition Interests", "Open to Team", "Portfolio", "GitHub", "Profile URL"] as const;
+const OWN_HEADERS = ["NIM", "Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At", "Headline", "Competition Interests", "Open to Team", "Portfolio", "GitHub", "Profile URL"] as const;
 
 export const sheetConfigured = () => !!(process.env.GOOGLE_SHEETS_CLIENT_EMAIL && process.env.GOOGLE_SHEETS_PRIVATE_KEY);
 const sheetId = () => process.env.MATCHMAKING_SHEET_ID || DEFAULT_SHEET_ID;
@@ -87,6 +87,7 @@ export interface SheetUser {
   email: string; name: string | null; preferredRole: string | null; pkmRole: string | null; interests: string[]; fields: string[];
   major: string | null; majorCode: string | null; institution: string; faculty: string | null; linkedinUrl: string | null;
   whatsapp: string | null; skills: string[]; softSkills: string[]; cvPath: string | null; updatedAt: Date;
+  nim?: string | null;
   headline: string | null; competitionInterests: string[]; openToTeam: boolean; portfolioUrl: string | null; githubUrl: string | null; username: string | null;
 }
 
@@ -103,6 +104,7 @@ export function userCells(u: SheetUser): Record<string, string> {
     "Institution": u.institution,
     "Faculty": sheetFaculty(u.faculty, u.majorCode),
     "LinkedIn": u.linkedinUrl ?? "",
+    "NIM": u.nim ?? "",
     "Email": u.email,
     "WhatsApp": u.whatsapp ?? "",
     "Hard Skills": u.skills.join(", "),
@@ -205,7 +207,7 @@ export function upsertUsers(users: SheetUser[]): Promise<{ updated: number; adde
   });
 }
 
-const USER_SELECT = { email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true, headline: true, competitionInterests: true, openToTeam: true, portfolioUrl: true, githubUrl: true, username: true } as const;
+const USER_SELECT = { nim: true, email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true, headline: true, competitionInterests: true, openToTeam: true, portfolioUrl: true, githubUrl: true, username: true } as const;
 
 /** Called by the outbox: upserts these users' rows with their current DB data (deleted accounts are skipped). */
 export async function syncUsersToSheet(userIds: string[]) {

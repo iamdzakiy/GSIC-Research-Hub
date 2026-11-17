@@ -137,6 +137,8 @@ export interface UserProfile {
   pkmRole?: string | null;
   fields?: string[];
   institution?: string;
+  /** Own profile and admin views only. Never in another user's data. */
+  nim?: string | null;
   linkedinUrl?: string | null;
   hasCv?: boolean;
   username?: string | null;

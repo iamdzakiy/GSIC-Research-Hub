@@ -31,6 +31,7 @@ export function mapPrismaUserToProfile(u: any): UserProfile {
     pkmRole: u.pkmRole || null,
     fields: u.fields || [],
     institution: u.institution || "ITB",
+    nim: u.nim || null,
     linkedinUrl: u.linkedinUrl || null,
     hasCv: !!(u.cvPath || u.hasCv),
     username: u.username || null,

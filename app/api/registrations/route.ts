@@ -31,6 +31,8 @@ export const POST = withErrorHandler(async (request: Request) => {
   const missing = [!user.name && "name", !user.faculty && "faculty", !user.major && "major", !user.linkedinUrl && "LinkedIn"].filter(Boolean);
   if (missing.length) throw new HttpError(403, `Complete your profile first (${missing.join(", ")}).`);
 
+  if (!user.nim) throw new HttpError(403, "Add your NIM to your profile first.", { nim: "Add your NIM first" });
+
   const event = await prisma.event.findFirst({ where: { OR: [{ id: eventId }, { slug: eventId }] } });
   if (!event) throw new HttpError(404, "Event not found.");
 

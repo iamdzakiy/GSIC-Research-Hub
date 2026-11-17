@@ -860,9 +860,9 @@ export default function AdminDashboard() {
                       return true;
                     });
                     const csv = [
-                      ["Name", "Email", "Faculty", "Major", "Major Code", "Verified", "Role", "Created"],
-                      ...filtered.map(u => [u.name, u.email, u.faculty, u.major, u.majorCode || "", u.isVerified ? "Yes" : "No", u.role, u.createdAt])
-                    ].map(row => row.join(",")).join("\n");
+                      ["NIM", "Name", "Email", "Faculty", "Major", "Major Code", "Verified", "Role", "Created"],
+                      ...filtered.map(u => [u.nim || "", u.name, u.email, u.faculty, u.major, u.majorCode || "", u.isVerified ? "Yes" : "No", u.role, u.createdAt])
+                    ].map(row => row.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
                     const blob = new Blob([csv], { type: "text/csv" });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
@@ -882,6 +882,7 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="text-white/40 border-b border-white/10">
+                      <th className="py-2">NIM</th>
                       <th className="py-2">Name</th>
                       <th className="py-2">Email</th>
                       <th className="py-2">Faculty</th>
@@ -900,6 +901,7 @@ export default function AdminDashboard() {
                       return true;
                     }).map((u) => (
                       <tr key={u.uid} className="border-b border-white/5">
+                        <td className="py-2 tnum">{u.nim || "—"}</td>
                         <td className="py-2 font-medium">{u.name || "—"}</td>
                         <td className="py-2 text-white/60">{u.email}</td>
                         <td className="py-2">{u.faculty || "—"}</td>

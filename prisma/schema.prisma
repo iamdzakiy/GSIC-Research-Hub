@@ -118,6 +118,7 @@ model User {
   pkmRole        String?
   fields         String[]
   institution    String   @default("ITB")
+  nim            String?  @unique // student ID; ITB format is 8 digits, see lib/nim.ts
   linkedinUrl    String?
   cvPath         String?
   username       String?  @unique
@@ -149,6 +150,7 @@ model User {
   notifications    Notification[]
   eventInterests   EventInterest[]
   reports          PostReport[]
+  nimChanges       NimChange[]
 }
 
 model Speaker {
@@ -547,4 +549,17 @@ model JobLease {
   name      String   @id
   expiresAt DateTime
   value     String?
+}
+
+/// One row per NIM change after it was first set (first-year students get a new NIM when they enter a major). Admin-only.
+model NimChange {
+  id     String   @id @default(cuid())
+  userId String
+  from   String?
+  to     String
+  at     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, at])
 }

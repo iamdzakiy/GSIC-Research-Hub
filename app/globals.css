@@ -53,6 +53,8 @@
 @keyframes step-back { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
 .step-in { animation: step-fwd var(--dur-base) var(--ease-out) both; }
 .step-in[data-dir="back"] { animation-name: step-back; }
+@keyframes sheet-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+.sheet-in { animation: sheet-up var(--dur-base) var(--ease-out) both; }
 
 /* Errors fade in inside a slot that is already there, so nothing below them moves. */
 .err-slot { min-height: 1.25rem; margin-top: 0.375rem; font-size: 0.75rem; line-height: 1.25rem; color: rgb(var(--danger-700)); }
@@ -120,7 +122,7 @@
   }
   .silhouette-draw path { animation: none; stroke-dashoffset: 0; }
   .lift:hover, .press:active:not(:disabled) { transform: none; }
-  .rise, .step-in, .pop { animation: fade 150ms ease-out both !important; animation-duration: 150ms !important; }
+  .rise, .step-in, .pop, .sheet-in { animation: fade 150ms ease-out both !important; animation-duration: 150ms !important; }
   .skeleton::after, .marquee { animation: none; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
