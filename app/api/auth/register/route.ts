@@ -15,7 +15,6 @@ const ALREADY = "This email is already registered. Sign in or reset your passwor
 export async function POST(req: Request) {
   const g = await guard(req, "register", registerSchema);
   if (!g.ok) return g.res;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { name, email, password, confirm, ...profile } = g.data;
   const admin = supabaseAdmin();
   try {

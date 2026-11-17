@@ -1,0 +1,2348 @@
+{
+  "version": 1,
+  "language": "id",
+  "notes": "Pre and post of the same pair share question ids, so item-level gain can be computed. Options are shuffled per attempt; scoring compares option text, never position. Likert, NPS and text items have 0 points and never affect the score.",
+  "assessments": [
+    {
+      "key": "sandbox-s1-pre",
+      "pairKey": "sandbox-s1",
+      "eventSlug": "sandbox-sesi-1",
+      "episode": null,
+      "kind": "pre_test",
+      "title": "Pre-test · Sandbox Sesi 1: Makanan Masa Depan 2050",
+      "description": "10 soal pilihan ganda, sekitar 8 menit. Tidak ada nilai lulus: ini untuk melihat perubahan pemahamanmu sebelum dan sesudah sesi.",
+      "durationMinutes": 10,
+      "passingScore": 0,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "s1q1",
+          "type": "multiple_choice",
+          "text": "Daging kultur (cultivated meat) dibuat dengan cara...",
+          "options": [
+            "Menumbuhkan sel hewan di dalam bioreaktor",
+            "Mencampur protein kedelai dengan pewarna dan perisa",
+            "Memfermentasi jamur hingga membentuk miselium",
+            "Mengawetkan daging segar dengan iradiasi"
+          ],
+          "correctAnswer": "Menumbuhkan sel hewan di dalam bioreaktor",
+          "points": 10,
+          "explanation": "Daging kultur berasal dari sel hewan yang diperbanyak dalam media tumbuh di bioreaktor, tanpa menyembelih hewan. Protein kedelai dan miselium jamur termasuk alternatif nabati/mikoprotein, bukan daging kultur."
+        },
+        {
+          "id": "s1q2",
+          "type": "multiple_choice",
+          "text": "Fermentasi presisi (precision fermentation) adalah...",
+          "options": [
+            "Memakai mikroorganisme yang direkayasa untuk menghasilkan bahan pangan tertentu, misalnya protein susu",
+            "Fermentasi tradisional seperti pembuatan tempe dan oncom",
+            "Mengatur suhu fermentasi dengan sensor digital",
+            "Mengeringkan bahan pangan secara bertahap"
+          ],
+          "correctAnswer": "Memakai mikroorganisme yang direkayasa untuk menghasilkan bahan pangan tertentu, misalnya protein susu",
+          "points": 10,
+          "explanation": "Pada fermentasi presisi, mikroba (ragi, bakteri, jamur) diprogram untuk memproduksi satu molekul spesifik, misalnya protein whey atau heme, yang lalu dimurnikan."
+        },
+        {
+          "id": "s1q3",
+          "type": "multiple_choice",
+          "text": "Alasan yang paling sering dikutip mengapa serangga dianggap sumber protein yang efisien dibanding sapi adalah...",
+          "options": [
+            "Konversi pakan menjadi protein lebih efisien dan kebutuhan lahannya jauh lebih kecil",
+            "Serangga tidak membutuhkan pakan sama sekali",
+            "Protein serangga otomatis halal untuk semua jenis",
+            "Rasanya sudah diterima luas di seluruh Indonesia"
+          ],
+          "correctAnswer": "Konversi pakan menjadi protein lebih efisien dan kebutuhan lahannya jauh lebih kecil",
+          "points": 10,
+          "explanation": "Laporan FAO tentang serangga pangan (2013) menekankan efisiensi pakan dan lahan. Kehalalan dan penerimaan rasa justru masih menjadi pertanyaan terbuka."
+        },
+        {
+          "id": "s1q4",
+          "type": "multiple_choice",
+          "text": "Mikroalga seperti Spirulina terutama dikenal sebagai sumber...",
+          "options": [
+            "Protein",
+            "Lemak jenuh",
+            "Gula sederhana",
+            "Serat kasar"
+          ],
+          "correctAnswer": "Protein",
+          "points": 10,
+          "explanation": "Spirulina kaya protein (lebih dari separuh berat keringnya), sehingga sering dibahas sebagai sumber protein masa depan."
+        },
+        {
+          "id": "s1q5",
+          "type": "multiple_choice",
+          "text": "Perbedaan food loss dan food waste menurut FAO adalah...",
+          "options": [
+            "Food loss terjadi di rantai pasok sebelum ritel, food waste terjadi di ritel dan konsumen",
+            "Food loss hanya untuk sayur, food waste hanya untuk daging",
+            "Keduanya sama persis, hanya beda bahasa",
+            "Food waste terjadi saat panen, food loss terjadi di rumah tangga"
+          ],
+          "correctAnswer": "Food loss terjadi di rantai pasok sebelum ritel, food waste terjadi di ritel dan konsumen",
+          "points": 10,
+          "explanation": "Pembedaan ini penting karena solusinya berbeda: food loss ditekan lewat penanganan pascapanen, penyimpanan dan distribusi; food waste lewat perilaku ritel dan konsumen."
+        },
+        {
+          "id": "s1q6",
+          "type": "multiple_choice",
+          "text": "Cara paling langsung menekan susut sayur dan buah setelah panen adalah...",
+          "options": [
+            "Penanganan, pengemasan dan rantai dingin yang tepat dari kebun sampai pasar",
+            "Menambah luas lahan tanam",
+            "Menaikkan harga jual di pasar",
+            "Memperbanyak iklan konsumsi sayur"
+          ],
+          "correctAnswer": "Penanganan, pengemasan dan rantai dingin yang tepat dari kebun sampai pasar",
+          "points": 10,
+          "explanation": "Susut pascapanen terjadi karena kerusakan fisik, respirasi dan mikroba. Suhu rendah dan kemasan yang sesuai memperlambat ketiganya."
+        },
+        {
+          "id": "s1q7",
+          "type": "multiple_choice",
+          "text": "HACCP dalam industri pangan adalah...",
+          "options": [
+            "Sistem untuk mengidentifikasi bahaya dan mengendalikannya di titik kritis proses produksi",
+            "Label gizi pada kemasan",
+            "Sertifikat halal",
+            "Metode uji rasa oleh panelis"
+          ],
+          "correctAnswer": "Sistem untuk mengidentifikasi bahaya dan mengendalikannya di titik kritis proses produksi",
+          "points": 10,
+          "explanation": "HACCP (Hazard Analysis and Critical Control Points) mencegah bahaya biologis, kimia dan fisik dengan mengontrol titik kritis, bukan hanya memeriksa produk akhir."
+        },
+        {
+          "id": "s1q8",
+          "type": "multiple_choice",
+          "text": "Agar daging kultur bisa diterima konsumen Indonesia, pertanyaan yang perlu dijawab selain keamanan pangan adalah...",
+          "options": [
+            "Status kehalalan, rasa, harga dan kebiasaan makan",
+            "Warna kemasan saja",
+            "Jumlah pengikut media sosial produsennya",
+            "Tidak ada, keamanan sudah cukup"
+          ],
+          "correctAnswer": "Status kehalalan, rasa, harga dan kebiasaan makan",
+          "points": 10,
+          "explanation": "Penerimaan pangan baru ditentukan oleh rasa, harga, budaya dan kehalalan. Ini sebabnya Sandbox mempertemukan biologi, teknik pangan, pascapanen dan perencanaan wilayah."
+        },
+        {
+          "id": "s1q9",
+          "type": "multiple_choice",
+          "text": "Peran urban farming yang paling realistis dalam sistem pangan kota adalah...",
+          "options": [
+            "Memperpendek rantai distribusi dan menambah ketahanan pangan lokal untuk komoditas tertentu",
+            "Menggantikan seluruh pasokan pangan kota",
+            "Menghapus kebutuhan akan petani di desa",
+            "Hanya berfungsi sebagai dekorasi kota"
+          ],
+          "correctAnswer": "Memperpendek rantai distribusi dan menambah ketahanan pangan lokal untuk komoditas tertentu",
+          "points": 10,
+          "explanation": "Urban farming cocok untuk sayur daun dan komoditas cepat panen, tetapi kota tetap bergantung pada wilayah produsen. Perencanaan wilayah melihat keduanya sebagai satu sistem."
+        },
+        {
+          "id": "s1q10",
+          "type": "multiple_choice",
+          "text": "Kolaborasi co-disciplinary berarti...",
+          "options": [
+            "Beberapa disiplin merumuskan masalah dan solusi bersama sejak awal",
+            "Setiap jurusan bekerja sendiri lalu hasilnya digabung di akhir",
+            "Satu jurusan memimpin, jurusan lain hanya membantu teknis",
+            "Mengundang banyak jurusan ke satu seminar"
+          ],
+          "correctAnswer": "Beberapa disiplin merumuskan masalah dan solusi bersama sejak awal",
+          "points": 10,
+          "explanation": "Inti Sandbox: masalah dirumuskan bersama, sehingga solusi pangan 2050 mempertimbangkan sains, proses, gizi, pasar dan aturan sekaligus."
+        }
+      ]
+    },
+    {
+      "key": "sandbox-s1-post",
+      "pairKey": "sandbox-s1",
+      "eventSlug": "sandbox-sesi-1",
+      "episode": null,
+      "kind": "post_test",
+      "title": "Post-test · Sandbox Sesi 1: Makanan Masa Depan 2050",
+      "description": "10 soal pilihan ganda, sekitar 8 menit. Tidak ada nilai lulus: ini untuk melihat perubahan pemahamanmu sebelum dan sesudah sesi.",
+      "durationMinutes": 10,
+      "passingScore": 0,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "s1q1",
+          "type": "multiple_choice",
+          "text": "Daging kultur (cultivated meat) dibuat dengan cara...",
+          "options": [
+            "Menumbuhkan sel hewan di dalam bioreaktor",
+            "Mencampur protein kedelai dengan pewarna dan perisa",
+            "Memfermentasi jamur hingga membentuk miselium",
+            "Mengawetkan daging segar dengan iradiasi"
+          ],
+          "correctAnswer": "Menumbuhkan sel hewan di dalam bioreaktor",
+          "points": 10,
+          "explanation": "Daging kultur berasal dari sel hewan yang diperbanyak dalam media tumbuh di bioreaktor, tanpa menyembelih hewan. Protein kedelai dan miselium jamur termasuk alternatif nabati/mikoprotein, bukan daging kultur."
+        },
+        {
+          "id": "s1q2",
+          "type": "multiple_choice",
+          "text": "Fermentasi presisi (precision fermentation) adalah...",
+          "options": [
+            "Memakai mikroorganisme yang direkayasa untuk menghasilkan bahan pangan tertentu, misalnya protein susu",
+            "Fermentasi tradisional seperti pembuatan tempe dan oncom",
+            "Mengatur suhu fermentasi dengan sensor digital",
+            "Mengeringkan bahan pangan secara bertahap"
+          ],
+          "correctAnswer": "Memakai mikroorganisme yang direkayasa untuk menghasilkan bahan pangan tertentu, misalnya protein susu",
+          "points": 10,
+          "explanation": "Pada fermentasi presisi, mikroba (ragi, bakteri, jamur) diprogram untuk memproduksi satu molekul spesifik, misalnya protein whey atau heme, yang lalu dimurnikan."
+        },
+        {
+          "id": "s1q3",
+          "type": "multiple_choice",
+          "text": "Alasan yang paling sering dikutip mengapa serangga dianggap sumber protein yang efisien dibanding sapi adalah...",
+          "options": [
+            "Konversi pakan menjadi protein lebih efisien dan kebutuhan lahannya jauh lebih kecil",
+            "Serangga tidak membutuhkan pakan sama sekali",
+            "Protein serangga otomatis halal untuk semua jenis",
+            "Rasanya sudah diterima luas di seluruh Indonesia"
+          ],
+          "correctAnswer": "Konversi pakan menjadi protein lebih efisien dan kebutuhan lahannya jauh lebih kecil",
+          "points": 10,
+          "explanation": "Laporan FAO tentang serangga pangan (2013) menekankan efisiensi pakan dan lahan. Kehalalan dan penerimaan rasa justru masih menjadi pertanyaan terbuka."
+        },
+        {
+          "id": "s1q4",
+          "type": "multiple_choice",
+          "text": "Mikroalga seperti Spirulina terutama dikenal sebagai sumber...",
+          "options": [
+            "Protein",
+            "Lemak jenuh",
+            "Gula sederhana",
+            "Serat kasar"
+          ],
+          "correctAnswer": "Protein",
+          "points": 10,
+          "explanation": "Spirulina kaya protein (lebih dari separuh berat keringnya), sehingga sering dibahas sebagai sumber protein masa depan."
+        },
+        {
+          "id": "s1q5",
+          "type": "multiple_choice",
+          "text": "Perbedaan food loss dan food waste menurut FAO adalah...",
+          "options": [
+            "Food loss terjadi di rantai pasok sebelum ritel, food waste terjadi di ritel dan konsumen",
+            "Food loss hanya untuk sayur, food waste hanya untuk daging",
+            "Keduanya sama persis, hanya beda bahasa",
+            "Food waste terjadi saat panen, food loss terjadi di rumah tangga"
+          ],
+          "correctAnswer": "Food loss terjadi di rantai pasok sebelum ritel, food waste terjadi di ritel dan konsumen",
+          "points": 10,
+          "explanation": "Pembedaan ini penting karena solusinya berbeda: food loss ditekan lewat penanganan pascapanen, penyimpanan dan distribusi; food waste lewat perilaku ritel dan konsumen."
+        },
+        {
+          "id": "s1q6",
+          "type": "multiple_choice",
+          "text": "Cara paling langsung menekan susut sayur dan buah setelah panen adalah...",
+          "options": [
+            "Penanganan, pengemasan dan rantai dingin yang tepat dari kebun sampai pasar",
+            "Menambah luas lahan tanam",
+            "Menaikkan harga jual di pasar",
+            "Memperbanyak iklan konsumsi sayur"
+          ],
+          "correctAnswer": "Penanganan, pengemasan dan rantai dingin yang tepat dari kebun sampai pasar",
+          "points": 10,
+          "explanation": "Susut pascapanen terjadi karena kerusakan fisik, respirasi dan mikroba. Suhu rendah dan kemasan yang sesuai memperlambat ketiganya."
+        },
+        {
+          "id": "s1q7",
+          "type": "multiple_choice",
+          "text": "HACCP dalam industri pangan adalah...",
+          "options": [
+            "Sistem untuk mengidentifikasi bahaya dan mengendalikannya di titik kritis proses produksi",
+            "Label gizi pada kemasan",
+            "Sertifikat halal",
+            "Metode uji rasa oleh panelis"
+          ],
+          "correctAnswer": "Sistem untuk mengidentifikasi bahaya dan mengendalikannya di titik kritis proses produksi",
+          "points": 10,
+          "explanation": "HACCP (Hazard Analysis and Critical Control Points) mencegah bahaya biologis, kimia dan fisik dengan mengontrol titik kritis, bukan hanya memeriksa produk akhir."
+        },
+        {
+          "id": "s1q8",
+          "type": "multiple_choice",
+          "text": "Agar daging kultur bisa diterima konsumen Indonesia, pertanyaan yang perlu dijawab selain keamanan pangan adalah...",
+          "options": [
+            "Status kehalalan, rasa, harga dan kebiasaan makan",
+            "Warna kemasan saja",
+            "Jumlah pengikut media sosial produsennya",
+            "Tidak ada, keamanan sudah cukup"
+          ],
+          "correctAnswer": "Status kehalalan, rasa, harga dan kebiasaan makan",
+          "points": 10,
+          "explanation": "Penerimaan pangan baru ditentukan oleh rasa, harga, budaya dan kehalalan. Ini sebabnya Sandbox mempertemukan biologi, teknik pangan, pascapanen dan perencanaan wilayah."
+        },
+        {
+          "id": "s1q9",
+          "type": "multiple_choice",
+          "text": "Peran urban farming yang paling realistis dalam sistem pangan kota adalah...",
+          "options": [
+            "Memperpendek rantai distribusi dan menambah ketahanan pangan lokal untuk komoditas tertentu",
+            "Menggantikan seluruh pasokan pangan kota",
+            "Menghapus kebutuhan akan petani di desa",
+            "Hanya berfungsi sebagai dekorasi kota"
+          ],
+          "correctAnswer": "Memperpendek rantai distribusi dan menambah ketahanan pangan lokal untuk komoditas tertentu",
+          "points": 10,
+          "explanation": "Urban farming cocok untuk sayur daun dan komoditas cepat panen, tetapi kota tetap bergantung pada wilayah produsen. Perencanaan wilayah melihat keduanya sebagai satu sistem."
+        },
+        {
+          "id": "s1q10",
+          "type": "multiple_choice",
+          "text": "Kolaborasi co-disciplinary berarti...",
+          "options": [
+            "Beberapa disiplin merumuskan masalah dan solusi bersama sejak awal",
+            "Setiap jurusan bekerja sendiri lalu hasilnya digabung di akhir",
+            "Satu jurusan memimpin, jurusan lain hanya membantu teknis",
+            "Mengundang banyak jurusan ke satu seminar"
+          ],
+          "correctAnswer": "Beberapa disiplin merumuskan masalah dan solusi bersama sejak awal",
+          "points": 10,
+          "explanation": "Inti Sandbox: masalah dirumuskan bersama, sehingga solusi pangan 2050 mempertimbangkan sains, proses, gizi, pasar dan aturan sekaligus."
+        }
+      ]
+    },
+    {
+      "key": "sandbox-s2-pre",
+      "pairKey": "sandbox-s2",
+      "eventSlug": "sandbox-sesi-2",
+      "episode": null,
+      "kind": "pre_test",
+      "title": "Pre-test · Sandbox Sesi 2: Pulau Energi Terbarukan",
+      "description": "10 soal pilihan ganda, sekitar 8 menit. Tidak ada nilai lulus: ini untuk melihat perubahan pemahamanmu sebelum dan sesudah sesi.",
+      "durationMinutes": 10,
+      "passingScore": 0,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "s2q1",
+          "type": "multiple_choice",
+          "text": "Tantangan utama listrik dari surya dan angin untuk pulau kecil adalah...",
+          "options": [
+            "Produksinya berubah-ubah mengikuti cuaca dan waktu (intermiten)",
+            "Bahan bakunya harus diimpor setiap hari",
+            "Menghasilkan emisi tinggi",
+            "Tidak bisa dipasang di daerah tropis"
+          ],
+          "correctAnswer": "Produksinya berubah-ubah mengikuti cuaca dan waktu (intermiten)",
+          "points": 10,
+          "explanation": "Surya tidak berproduksi malam hari dan angin tidak selalu bertiup, sehingga perlu penyimpanan, cadangan, atau pengaturan beban."
+        },
+        {
+          "id": "s2q2",
+          "type": "multiple_choice",
+          "text": "Fungsi utama penyimpanan energi (misalnya baterai) dalam sistem terbarukan adalah...",
+          "options": [
+            "Menggeser energi dari saat berlebih ke saat kurang",
+            "Menambah total energi yang dihasilkan panel",
+            "Menggantikan kebutuhan jaringan listrik",
+            "Menurunkan tegangan listrik rumah"
+          ],
+          "correctAnswer": "Menggeser energi dari saat berlebih ke saat kurang",
+          "points": 10,
+          "explanation": "Baterai tidak menciptakan energi; ia memindahkan energi surya siang hari ke malam hari, dengan sedikit rugi-rugi."
+        },
+        {
+          "id": "s2q3",
+          "type": "multiple_choice",
+          "text": "Baterai 100 kWh secara ideal dapat menyuplai beban tetap 20 kW selama sekitar...",
+          "options": [
+            "5 jam",
+            "20 jam",
+            "100 jam",
+            "2.000 jam"
+          ],
+          "correctAnswer": "5 jam",
+          "points": 10,
+          "explanation": "Energi (kWh) dibagi daya (kW) = waktu (jam). 100 / 20 = 5 jam, sebelum memperhitungkan efisiensi dan batas kedalaman pengosongan."
+        },
+        {
+          "id": "s2q4",
+          "type": "multiple_choice",
+          "text": "Microgrid adalah...",
+          "options": [
+            "Jaringan listrik lokal yang bisa beroperasi tersambung atau terpisah dari jaringan utama",
+            "Kabel listrik berukuran sangat kecil",
+            "Panel surya di atap satu rumah",
+            "Aplikasi untuk memantau tagihan listrik"
+          ],
+          "correctAnswer": "Jaringan listrik lokal yang bisa beroperasi tersambung atau terpisah dari jaringan utama",
+          "points": 10,
+          "explanation": "Pulau terpencil umumnya mengandalkan microgrid yang mengatur pembangkit, penyimpanan dan beban di satu wilayah."
+        },
+        {
+          "id": "s2q5",
+          "type": "multiple_choice",
+          "text": "Capacity factor sebuah pembangkit adalah...",
+          "options": [
+            "Perbandingan energi yang benar-benar dihasilkan dengan energi maksimum jika beroperasi penuh sepanjang waktu",
+            "Kapasitas terpasang dalam kW",
+            "Jumlah pelanggan yang dilayani",
+            "Umur pakai pembangkit"
+          ],
+          "correctAnswer": "Perbandingan energi yang benar-benar dihasilkan dengan energi maksimum jika beroperasi penuh sepanjang waktu",
+          "points": 10,
+          "explanation": "Karena itu panel surya 1 MW tidak menghasilkan 24 MWh per hari. Capacity factor surya jauh lebih rendah dibanding panas bumi."
+        },
+        {
+          "id": "s2q6",
+          "type": "multiple_choice",
+          "text": "Jika tersedia di pulau tersebut, sumber terbarukan yang paling cocok sebagai beban dasar (stabil siang dan malam) adalah...",
+          "options": [
+            "Panas bumi",
+            "Surya tanpa baterai",
+            "Angin",
+            "Pasang surut tanpa penyimpanan"
+          ],
+          "correctAnswer": "Panas bumi",
+          "points": 10,
+          "explanation": "Panas bumi berproduksi relatif stabil sepanjang hari, sehingga cocok untuk beban dasar. Indonesia termasuk negara dengan potensi panas bumi terbesar di dunia."
+        },
+        {
+          "id": "s2q7",
+          "type": "multiple_choice",
+          "text": "LCOE (Levelized Cost of Energy) digunakan untuk...",
+          "options": [
+            "Membandingkan biaya rata-rata per kWh sepanjang umur pembangkit",
+            "Menghitung tarif listrik bulanan satu rumah",
+            "Mengukur emisi karbon",
+            "Menentukan lokasi pembangkit"
+          ],
+          "correctAnswer": "Membandingkan biaya rata-rata per kWh sepanjang umur pembangkit",
+          "points": 10,
+          "explanation": "LCOE memasukkan biaya investasi, operasi, perawatan dan bahan bakar, dibagi total energi selama umur pembangkit."
+        },
+        {
+          "id": "s2q8",
+          "type": "multiple_choice",
+          "text": "Contoh demand-side management di pulau berpenghuni adalah...",
+          "options": [
+            "Menjadwalkan pompa air dan pendingin ikan pada siang hari saat surya melimpah",
+            "Membangun pembangkit diesel baru",
+            "Menaikkan kapasitas kabel",
+            "Membeli lebih banyak bahan bakar"
+          ],
+          "correctAnswer": "Menjadwalkan pompa air dan pendingin ikan pada siang hari saat surya melimpah",
+          "points": 10,
+          "explanation": "Mengatur kapan warga memakai listrik bisa lebih murah daripada menambah baterai. Ini menyentuh aspek perilaku warga."
+        },
+        {
+          "id": "s2q9",
+          "type": "multiple_choice",
+          "text": "Pumped hydro storage bekerja dengan cara...",
+          "options": [
+            "Memompa air ke tempat tinggi saat surplus, lalu mengalirkannya lewat turbin saat dibutuhkan",
+            "Menyimpan listrik di dalam air laut",
+            "Mendinginkan baterai dengan air",
+            "Mengubah air menjadi hidrogen"
+          ],
+          "correctAnswer": "Memompa air ke tempat tinggi saat surplus, lalu mengalirkannya lewat turbin saat dibutuhkan",
+          "points": 10,
+          "explanation": "Ini teknologi penyimpanan skala besar yang paling banyak dipakai di dunia, tetapi butuh beda ketinggian dan lahan."
+        },
+        {
+          "id": "s2q10",
+          "type": "multiple_choice",
+          "text": "Model kepemilikan yang sering meningkatkan penerimaan dan perawatan sistem energi oleh warga adalah...",
+          "options": [
+            "Koperasi atau kepemilikan komunitas, sehingga warga ikut memiliki dan berbagi manfaat",
+            "Seluruhnya dimiliki investor dari luar pulau tanpa keterlibatan warga",
+            "Sistem gratis tanpa iuran perawatan",
+            "Kepemilikan perorangan oleh satu keluarga"
+          ],
+          "correctAnswer": "Koperasi atau kepemilikan komunitas, sehingga warga ikut memiliki dan berbagi manfaat",
+          "points": 10,
+          "explanation": "Pembiayaan dan kepemilikan menentukan siapa merawat sistem setelah proyek selesai. Ini tantangan 'uang dan kepemilikan' di Sesi 2."
+        }
+      ]
+    },
+    {
+      "key": "sandbox-s2-post",
+      "pairKey": "sandbox-s2",
+      "eventSlug": "sandbox-sesi-2",
+      "episode": null,
+      "kind": "post_test",
+      "title": "Post-test · Sandbox Sesi 2: Pulau Energi Terbarukan",
+      "description": "10 soal pilihan ganda, sekitar 8 menit. Tidak ada nilai lulus: ini untuk melihat perubahan pemahamanmu sebelum dan sesudah sesi.",
+      "durationMinutes": 10,
+      "passingScore": 0,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "s2q1",
+          "type": "multiple_choice",
+          "text": "Tantangan utama listrik dari surya dan angin untuk pulau kecil adalah...",
+          "options": [
+            "Produksinya berubah-ubah mengikuti cuaca dan waktu (intermiten)",
+            "Bahan bakunya harus diimpor setiap hari",
+            "Menghasilkan emisi tinggi",
+            "Tidak bisa dipasang di daerah tropis"
+          ],
+          "correctAnswer": "Produksinya berubah-ubah mengikuti cuaca dan waktu (intermiten)",
+          "points": 10,
+          "explanation": "Surya tidak berproduksi malam hari dan angin tidak selalu bertiup, sehingga perlu penyimpanan, cadangan, atau pengaturan beban."
+        },
+        {
+          "id": "s2q2",
+          "type": "multiple_choice",
+          "text": "Fungsi utama penyimpanan energi (misalnya baterai) dalam sistem terbarukan adalah...",
+          "options": [
+            "Menggeser energi dari saat berlebih ke saat kurang",
+            "Menambah total energi yang dihasilkan panel",
+            "Menggantikan kebutuhan jaringan listrik",
+            "Menurunkan tegangan listrik rumah"
+          ],
+          "correctAnswer": "Menggeser energi dari saat berlebih ke saat kurang",
+          "points": 10,
+          "explanation": "Baterai tidak menciptakan energi; ia memindahkan energi surya siang hari ke malam hari, dengan sedikit rugi-rugi."
+        },
+        {
+          "id": "s2q3",
+          "type": "multiple_choice",
+          "text": "Baterai 100 kWh secara ideal dapat menyuplai beban tetap 20 kW selama sekitar...",
+          "options": [
+            "5 jam",
+            "20 jam",
+            "100 jam",
+            "2.000 jam"
+          ],
+          "correctAnswer": "5 jam",
+          "points": 10,
+          "explanation": "Energi (kWh) dibagi daya (kW) = waktu (jam). 100 / 20 = 5 jam, sebelum memperhitungkan efisiensi dan batas kedalaman pengosongan."
+        },
+        {
+          "id": "s2q4",
+          "type": "multiple_choice",
+          "text": "Microgrid adalah...",
+          "options": [
+            "Jaringan listrik lokal yang bisa beroperasi tersambung atau terpisah dari jaringan utama",
+            "Kabel listrik berukuran sangat kecil",
+            "Panel surya di atap satu rumah",
+            "Aplikasi untuk memantau tagihan listrik"
+          ],
+          "correctAnswer": "Jaringan listrik lokal yang bisa beroperasi tersambung atau terpisah dari jaringan utama",
+          "points": 10,
+          "explanation": "Pulau terpencil umumnya mengandalkan microgrid yang mengatur pembangkit, penyimpanan dan beban di satu wilayah."
+        },
+        {
+          "id": "s2q5",
+          "type": "multiple_choice",
+          "text": "Capacity factor sebuah pembangkit adalah...",
+          "options": [
+            "Perbandingan energi yang benar-benar dihasilkan dengan energi maksimum jika beroperasi penuh sepanjang waktu",
+            "Kapasitas terpasang dalam kW",
+            "Jumlah pelanggan yang dilayani",
+            "Umur pakai pembangkit"
+          ],
+          "correctAnswer": "Perbandingan energi yang benar-benar dihasilkan dengan energi maksimum jika beroperasi penuh sepanjang waktu",
+          "points": 10,
+          "explanation": "Karena itu panel surya 1 MW tidak menghasilkan 24 MWh per hari. Capacity factor surya jauh lebih rendah dibanding panas bumi."
+        },
+        {
+          "id": "s2q6",
+          "type": "multiple_choice",
+          "text": "Jika tersedia di pulau tersebut, sumber terbarukan yang paling cocok sebagai beban dasar (stabil siang dan malam) adalah...",
+          "options": [
+            "Panas bumi",
+            "Surya tanpa baterai",
+            "Angin",
+            "Pasang surut tanpa penyimpanan"
+          ],
+          "correctAnswer": "Panas bumi",
+          "points": 10,
+          "explanation": "Panas bumi berproduksi relatif stabil sepanjang hari, sehingga cocok untuk beban dasar. Indonesia termasuk negara dengan potensi panas bumi terbesar di dunia."
+        },
+        {
+          "id": "s2q7",
+          "type": "multiple_choice",
+          "text": "LCOE (Levelized Cost of Energy) digunakan untuk...",
+          "options": [
+            "Membandingkan biaya rata-rata per kWh sepanjang umur pembangkit",
+            "Menghitung tarif listrik bulanan satu rumah",
+            "Mengukur emisi karbon",
+            "Menentukan lokasi pembangkit"
+          ],
+          "correctAnswer": "Membandingkan biaya rata-rata per kWh sepanjang umur pembangkit",
+          "points": 10,
+          "explanation": "LCOE memasukkan biaya investasi, operasi, perawatan dan bahan bakar, dibagi total energi selama umur pembangkit."
+        },
+        {
+          "id": "s2q8",
+          "type": "multiple_choice",
+          "text": "Contoh demand-side management di pulau berpenghuni adalah...",
+          "options": [
+            "Menjadwalkan pompa air dan pendingin ikan pada siang hari saat surya melimpah",
+            "Membangun pembangkit diesel baru",
+            "Menaikkan kapasitas kabel",
+            "Membeli lebih banyak bahan bakar"
+          ],
+          "correctAnswer": "Menjadwalkan pompa air dan pendingin ikan pada siang hari saat surya melimpah",
+          "points": 10,
+          "explanation": "Mengatur kapan warga memakai listrik bisa lebih murah daripada menambah baterai. Ini menyentuh aspek perilaku warga."
+        },
+        {
+          "id": "s2q9",
+          "type": "multiple_choice",
+          "text": "Pumped hydro storage bekerja dengan cara...",
+          "options": [
+            "Memompa air ke tempat tinggi saat surplus, lalu mengalirkannya lewat turbin saat dibutuhkan",
+            "Menyimpan listrik di dalam air laut",
+            "Mendinginkan baterai dengan air",
+            "Mengubah air menjadi hidrogen"
+          ],
+          "correctAnswer": "Memompa air ke tempat tinggi saat surplus, lalu mengalirkannya lewat turbin saat dibutuhkan",
+          "points": 10,
+          "explanation": "Ini teknologi penyimpanan skala besar yang paling banyak dipakai di dunia, tetapi butuh beda ketinggian dan lahan."
+        },
+        {
+          "id": "s2q10",
+          "type": "multiple_choice",
+          "text": "Model kepemilikan yang sering meningkatkan penerimaan dan perawatan sistem energi oleh warga adalah...",
+          "options": [
+            "Koperasi atau kepemilikan komunitas, sehingga warga ikut memiliki dan berbagi manfaat",
+            "Seluruhnya dimiliki investor dari luar pulau tanpa keterlibatan warga",
+            "Sistem gratis tanpa iuran perawatan",
+            "Kepemilikan perorangan oleh satu keluarga"
+          ],
+          "correctAnswer": "Koperasi atau kepemilikan komunitas, sehingga warga ikut memiliki dan berbagi manfaat",
+          "points": 10,
+          "explanation": "Pembiayaan dan kepemilikan menentukan siapa merawat sistem setelah proyek selesai. Ini tantangan 'uang dan kepemilikan' di Sesi 2."
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep1-pre",
+      "pairKey": "bootcamp-ep1",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 1,
+      "kind": "pre_test",
+      "title": "Pre-test · PKM Bootcamp Episode 1: Dari Keresahan ke Masalah Riset",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "e1q1",
+          "type": "multiple_choice",
+          "text": "Problem statement yang kuat sebaiknya memuat...",
+          "options": [
+            "Siapa yang terdampak, apa masalahnya, seberapa besar (dengan data), dan mengapa penting sekarang",
+            "Judul yang menarik dan nama anggota tim",
+            "Solusi yang paling canggih",
+            "Daftar pustaka minimal 20 sumber"
+          ],
+          "correctAnswer": "Siapa yang terdampak, apa masalahnya, seberapa besar (dengan data), dan mengapa penting sekarang",
+          "points": 10,
+          "explanation": "Problem statement bukan solusi. Ia menjawab siapa, apa, seberapa besar dan mengapa sekarang, sehingga reviewer langsung paham urgensinya."
+        },
+        {
+          "id": "e1q2",
+          "type": "multiple_choice",
+          "text": "Teknik 5 Whys dipakai untuk...",
+          "options": [
+            "Menelusuri akar penyebab dengan bertanya 'mengapa' berulang kali",
+            "Membuat lima judul alternatif",
+            "Mencari lima anggota tim",
+            "Menulis lima tujuan penelitian"
+          ],
+          "correctAnswer": "Menelusuri akar penyebab dengan bertanya 'mengapa' berulang kali",
+          "points": 10,
+          "explanation": "Setiap jawaban 'mengapa' menjadi bahan pertanyaan berikutnya, sampai ketemu penyebab yang bisa kamu intervensi."
+        },
+        {
+          "id": "e1q3",
+          "type": "multiple_choice",
+          "text": "Diagram fishbone (Ishikawa) membantu tim untuk...",
+          "options": [
+            "Memetakan berbagai kategori penyebab yang mengarah ke satu masalah",
+            "Menyusun jadwal kegiatan",
+            "Menghitung anggaran",
+            "Membandingkan dua solusi secara statistik"
+          ],
+          "correctAnswer": "Memetakan berbagai kategori penyebab yang mengarah ke satu masalah",
+          "points": 10,
+          "explanation": "Kepala ikan adalah masalah, tulangnya kategori penyebab (manusia, metode, alat, material, lingkungan, dan lain-lain)."
+        },
+        {
+          "id": "e1q4",
+          "type": "multiple_choice",
+          "text": "Dari pernyataan berikut, mana yang paling tepat disebut akar masalah, bukan gejala?",
+          "options": [
+            "Pedagang kecil tidak punya akses ke penyimpanan dingin yang terjangkau",
+            "Banyak cabai busuk di pasar",
+            "Harga cabai naik turun",
+            "Pembeli mengeluh cabai cepat layu"
+          ],
+          "correctAnswer": "Pedagang kecil tidak punya akses ke penyimpanan dingin yang terjangkau",
+          "points": 10,
+          "explanation": "Cabai busuk, harga naik turun dan keluhan pembeli adalah gejala. Akses penyimpanan adalah penyebab yang bisa diintervensi."
+        },
+        {
+          "id": "e1q5",
+          "type": "multiple_choice",
+          "text": "Kalimat 'Indonesia membutuhkan inovasi pangan' lemah sebagai rumusan masalah karena...",
+          "options": [
+            "Terlalu luas, tidak menyebut siapa terdampak, dan tidak terukur",
+            "Terlalu pendek",
+            "Tidak memakai bahasa Inggris",
+            "Tidak menyebut nama dosen"
+          ],
+          "correctAnswer": "Terlalu luas, tidak menyebut siapa terdampak, dan tidak terukur",
+          "points": 10,
+          "explanation": "Persempit ke kelompok, lokasi dan ukuran yang jelas, misalnya susut cabai rawit pada pedagang pasar tradisional di satu kota."
+        },
+        {
+          "id": "e1q6",
+          "type": "multiple_choice",
+          "text": "Systems thinking dalam merumuskan masalah berarti...",
+          "options": [
+            "Melihat hubungan dan umpan balik antarbagian sistem, bukan satu penyebab tunggal",
+            "Memakai software untuk semua analisis",
+            "Hanya fokus pada aspek teknis",
+            "Menyalin sistem dari negara lain"
+          ],
+          "correctAnswer": "Melihat hubungan dan umpan balik antarbagian sistem, bukan satu penyebab tunggal",
+          "points": 10,
+          "explanation": "Contoh: harga cabai memengaruhi keputusan petani menanam, yang memengaruhi pasokan musim berikutnya. Solusi yang baik memperhitungkan lingkaran ini."
+        },
+        {
+          "id": "e1q7",
+          "type": "multiple_choice",
+          "text": "Tim ingin menguji di laboratorium apakah ekstrak daun tertentu mampu menghambat bakteri penyebab busuk. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-RE",
+            "PKM-K",
+            "PKM-GFT",
+            "PKM-PM"
+          ],
+          "correctAnswer": "PKM-RE",
+          "points": 10,
+          "explanation": "PKM-RE (Riset Eksakta) cocok untuk penelitian eksperimen di bidang sains dan teknologi."
+        },
+        {
+          "id": "e1q8",
+          "type": "multiple_choice",
+          "text": "Tim ingin membuat purwarupa alat baru yang belum ada di pasaran. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-KC",
+            "PKM-RE",
+            "PKM-AI",
+            "PKM-RSH"
+          ],
+          "correctAnswer": "PKM-KC",
+          "points": 10,
+          "explanation": "PKM-KC (Karya Cipta) menghasilkan karya teknologi/purwarupa yang berfungsi."
+        },
+        {
+          "id": "e1q9",
+          "type": "multiple_choice",
+          "text": "Tim punya gagasan solusi jangka panjang yang disajikan dalam bentuk tulisan tanpa eksperimen. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-GFT",
+            "PKM-KC",
+            "PKM-RE",
+            "PKM-K"
+          ],
+          "correctAnswer": "PKM-GFT",
+          "points": 10,
+          "explanation": "PKM-GFT (Gagasan Futuristik Tertulis) menuangkan gagasan solusi masa depan yang didukung literatur."
+        },
+        {
+          "id": "e1q10",
+          "type": "multiple_choice",
+          "text": "Bukti terbaik untuk menunjukkan besarnya masalah di proposal adalah...",
+          "options": [
+            "Data dari sumber kredibel (BPS, jurnal, laporan resmi, survei sendiri) yang dikutip dengan benar",
+            "Opini di media sosial",
+            "Perkiraan tim tanpa sumber",
+            "Kutipan motivasi tokoh terkenal"
+          ],
+          "correctAnswer": "Data dari sumber kredibel (BPS, jurnal, laporan resmi, survei sendiri) yang dikutip dengan benar",
+          "points": 10,
+          "explanation": "Reviewer menilai urgensi dari bukti. Satu angka yang kredibel lebih kuat dari tiga paragraf opini."
+        },
+        {
+          "id": "e1pre-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e1pre-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep1-post",
+      "pairKey": "bootcamp-ep1",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 1,
+      "kind": "post_test",
+      "title": "Post-test · PKM Bootcamp Episode 1: Dari Keresahan ke Masalah Riset",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "e1q1",
+          "type": "multiple_choice",
+          "text": "Problem statement yang kuat sebaiknya memuat...",
+          "options": [
+            "Siapa yang terdampak, apa masalahnya, seberapa besar (dengan data), dan mengapa penting sekarang",
+            "Judul yang menarik dan nama anggota tim",
+            "Solusi yang paling canggih",
+            "Daftar pustaka minimal 20 sumber"
+          ],
+          "correctAnswer": "Siapa yang terdampak, apa masalahnya, seberapa besar (dengan data), dan mengapa penting sekarang",
+          "points": 10,
+          "explanation": "Problem statement bukan solusi. Ia menjawab siapa, apa, seberapa besar dan mengapa sekarang, sehingga reviewer langsung paham urgensinya."
+        },
+        {
+          "id": "e1q2",
+          "type": "multiple_choice",
+          "text": "Teknik 5 Whys dipakai untuk...",
+          "options": [
+            "Menelusuri akar penyebab dengan bertanya 'mengapa' berulang kali",
+            "Membuat lima judul alternatif",
+            "Mencari lima anggota tim",
+            "Menulis lima tujuan penelitian"
+          ],
+          "correctAnswer": "Menelusuri akar penyebab dengan bertanya 'mengapa' berulang kali",
+          "points": 10,
+          "explanation": "Setiap jawaban 'mengapa' menjadi bahan pertanyaan berikutnya, sampai ketemu penyebab yang bisa kamu intervensi."
+        },
+        {
+          "id": "e1q3",
+          "type": "multiple_choice",
+          "text": "Diagram fishbone (Ishikawa) membantu tim untuk...",
+          "options": [
+            "Memetakan berbagai kategori penyebab yang mengarah ke satu masalah",
+            "Menyusun jadwal kegiatan",
+            "Menghitung anggaran",
+            "Membandingkan dua solusi secara statistik"
+          ],
+          "correctAnswer": "Memetakan berbagai kategori penyebab yang mengarah ke satu masalah",
+          "points": 10,
+          "explanation": "Kepala ikan adalah masalah, tulangnya kategori penyebab (manusia, metode, alat, material, lingkungan, dan lain-lain)."
+        },
+        {
+          "id": "e1q4",
+          "type": "multiple_choice",
+          "text": "Dari pernyataan berikut, mana yang paling tepat disebut akar masalah, bukan gejala?",
+          "options": [
+            "Pedagang kecil tidak punya akses ke penyimpanan dingin yang terjangkau",
+            "Banyak cabai busuk di pasar",
+            "Harga cabai naik turun",
+            "Pembeli mengeluh cabai cepat layu"
+          ],
+          "correctAnswer": "Pedagang kecil tidak punya akses ke penyimpanan dingin yang terjangkau",
+          "points": 10,
+          "explanation": "Cabai busuk, harga naik turun dan keluhan pembeli adalah gejala. Akses penyimpanan adalah penyebab yang bisa diintervensi."
+        },
+        {
+          "id": "e1q5",
+          "type": "multiple_choice",
+          "text": "Kalimat 'Indonesia membutuhkan inovasi pangan' lemah sebagai rumusan masalah karena...",
+          "options": [
+            "Terlalu luas, tidak menyebut siapa terdampak, dan tidak terukur",
+            "Terlalu pendek",
+            "Tidak memakai bahasa Inggris",
+            "Tidak menyebut nama dosen"
+          ],
+          "correctAnswer": "Terlalu luas, tidak menyebut siapa terdampak, dan tidak terukur",
+          "points": 10,
+          "explanation": "Persempit ke kelompok, lokasi dan ukuran yang jelas, misalnya susut cabai rawit pada pedagang pasar tradisional di satu kota."
+        },
+        {
+          "id": "e1q6",
+          "type": "multiple_choice",
+          "text": "Systems thinking dalam merumuskan masalah berarti...",
+          "options": [
+            "Melihat hubungan dan umpan balik antarbagian sistem, bukan satu penyebab tunggal",
+            "Memakai software untuk semua analisis",
+            "Hanya fokus pada aspek teknis",
+            "Menyalin sistem dari negara lain"
+          ],
+          "correctAnswer": "Melihat hubungan dan umpan balik antarbagian sistem, bukan satu penyebab tunggal",
+          "points": 10,
+          "explanation": "Contoh: harga cabai memengaruhi keputusan petani menanam, yang memengaruhi pasokan musim berikutnya. Solusi yang baik memperhitungkan lingkaran ini."
+        },
+        {
+          "id": "e1q7",
+          "type": "multiple_choice",
+          "text": "Tim ingin menguji di laboratorium apakah ekstrak daun tertentu mampu menghambat bakteri penyebab busuk. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-RE",
+            "PKM-K",
+            "PKM-GFT",
+            "PKM-PM"
+          ],
+          "correctAnswer": "PKM-RE",
+          "points": 10,
+          "explanation": "PKM-RE (Riset Eksakta) cocok untuk penelitian eksperimen di bidang sains dan teknologi."
+        },
+        {
+          "id": "e1q8",
+          "type": "multiple_choice",
+          "text": "Tim ingin membuat purwarupa alat baru yang belum ada di pasaran. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-KC",
+            "PKM-RE",
+            "PKM-AI",
+            "PKM-RSH"
+          ],
+          "correctAnswer": "PKM-KC",
+          "points": 10,
+          "explanation": "PKM-KC (Karya Cipta) menghasilkan karya teknologi/purwarupa yang berfungsi."
+        },
+        {
+          "id": "e1q9",
+          "type": "multiple_choice",
+          "text": "Tim punya gagasan solusi jangka panjang yang disajikan dalam bentuk tulisan tanpa eksperimen. Skema yang paling sesuai adalah...",
+          "options": [
+            "PKM-GFT",
+            "PKM-KC",
+            "PKM-RE",
+            "PKM-K"
+          ],
+          "correctAnswer": "PKM-GFT",
+          "points": 10,
+          "explanation": "PKM-GFT (Gagasan Futuristik Tertulis) menuangkan gagasan solusi masa depan yang didukung literatur."
+        },
+        {
+          "id": "e1q10",
+          "type": "multiple_choice",
+          "text": "Bukti terbaik untuk menunjukkan besarnya masalah di proposal adalah...",
+          "options": [
+            "Data dari sumber kredibel (BPS, jurnal, laporan resmi, survei sendiri) yang dikutip dengan benar",
+            "Opini di media sosial",
+            "Perkiraan tim tanpa sumber",
+            "Kutipan motivasi tokoh terkenal"
+          ],
+          "correctAnswer": "Data dari sumber kredibel (BPS, jurnal, laporan resmi, survei sendiri) yang dikutip dengan benar",
+          "points": 10,
+          "explanation": "Reviewer menilai urgensi dari bukti. Satu angka yang kredibel lebih kuat dari tiga paragraf opini."
+        },
+        {
+          "id": "e1post-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e1post-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e1refl",
+          "type": "long_text",
+          "text": "Satu hal dari episode ini yang akan langsung kamu terapkan di proposal timmu.",
+          "points": 0,
+          "required": false,
+          "maxLength": 1500
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep2-pre",
+      "pairKey": "bootcamp-ep2",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 2,
+      "kind": "pre_test",
+      "title": "Pre-test · PKM Bootcamp Episode 2: Merancang Riset yang Bisa Dikerjakan",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "e2q1",
+          "type": "multiple_choice",
+          "text": "Saat 'speedrun literatur' (3 paper dalam 15 menit), bagian yang dibaca pertama sebaiknya...",
+          "options": [
+            "Abstrak, gambar/tabel utama, lalu kesimpulan",
+            "Daftar pustaka",
+            "Ucapan terima kasih",
+            "Seluruh metode kata per kata"
+          ],
+          "correctAnswer": "Abstrak, gambar/tabel utama, lalu kesimpulan",
+          "points": 10,
+          "explanation": "Tujuannya menangkap pertanyaan, metode, temuan dan keterbatasan dengan cepat. Baca detail metode hanya untuk paper yang relevan."
+        },
+        {
+          "id": "e2q2",
+          "type": "multiple_choice",
+          "text": "Research gap adalah...",
+          "options": [
+            "Hal yang belum dijawab penelitian sebelumnya dan relevan dengan masalahmu",
+            "Jarak waktu antara dua penelitian",
+            "Kekurangan anggaran penelitian",
+            "Perbedaan pendapat antaranggota tim"
+          ],
+          "correctAnswer": "Hal yang belum dijawab penelitian sebelumnya dan relevan dengan masalahmu",
+          "points": 10,
+          "explanation": "Gap biasanya terlihat di bagian keterbatasan atau saran penelitian lanjutan pada paper yang kamu baca."
+        },
+        {
+          "id": "e2q3",
+          "type": "multiple_choice",
+          "text": "Tujuan penelitian mana yang paling memenuhi kaidah SMART?",
+          "options": [
+            "Menguji pengaruh konsentrasi kitosan 0,5%, 1% dan 1,5% terhadap umur simpan cabai rawit pada suhu ruang selama 14 hari",
+            "Meneliti cabai agar lebih awet",
+            "Membuat inovasi pangan yang bermanfaat bagi masyarakat",
+            "Mengembangkan teknologi terbaik untuk petani"
+          ],
+          "correctAnswer": "Menguji pengaruh konsentrasi kitosan 0,5%, 1% dan 1,5% terhadap umur simpan cabai rawit pada suhu ruang selama 14 hari",
+          "points": 10,
+          "explanation": "Tujuan SMART spesifik, terukur, dapat dicapai, relevan dan berbatas waktu. Tiga pilihan lain tidak bisa diukur keberhasilannya."
+        },
+        {
+          "id": "e2q4",
+          "type": "multiple_choice",
+          "text": "Pada percobaan di soal sebelumnya, variabel bebasnya adalah...",
+          "options": [
+            "Konsentrasi kitosan",
+            "Umur simpan cabai",
+            "Suhu ruang",
+            "Jenis cabai"
+          ],
+          "correctAnswer": "Konsentrasi kitosan",
+          "points": 10,
+          "explanation": "Variabel bebas sengaja diubah peneliti. Umur simpan adalah variabel terikat; suhu dan jenis cabai dijaga tetap (variabel kontrol)."
+        },
+        {
+          "id": "e2q5",
+          "type": "multiple_choice",
+          "text": "Fungsi kelompok kontrol (misalnya cabai tanpa pelapis) adalah...",
+          "options": [
+            "Menjadi pembanding agar efek perlakuan bisa ditafsirkan",
+            "Menghemat bahan",
+            "Memperbanyak data agar terlihat besar",
+            "Formalitas agar proposal lebih panjang"
+          ],
+          "correctAnswer": "Menjadi pembanding agar efek perlakuan bisa ditafsirkan",
+          "points": 10,
+          "explanation": "Tanpa kontrol, kamu tidak tahu apakah cabai awet karena pelapis atau karena faktor lain."
+        },
+        {
+          "id": "e2q6",
+          "type": "multiple_choice",
+          "text": "Gantt chart di proposal berfungsi untuk menunjukkan...",
+          "options": [
+            "Urutan, durasi dan tumpang tindih kegiatan terhadap waktu",
+            "Struktur organisasi tim",
+            "Rincian anggaran per item",
+            "Hasil penelitian"
+          ],
+          "correctAnswer": "Urutan, durasi dan tumpang tindih kegiatan terhadap waktu",
+          "points": 10,
+          "explanation": "Gantt yang baik membuat reviewer yakin rencanamu bisa selesai dalam masa pelaksanaan PKM."
+        },
+        {
+          "id": "e2q7",
+          "type": "multiple_choice",
+          "text": "Prinsip paling penting dalam menyusun anggaran proposal adalah...",
+          "options": [
+            "Setiap pos anggaran bisa ditelusuri ke kegiatan di metode dan jadwal",
+            "Mengisi sampai batas maksimal dana",
+            "Memasukkan semua barang yang mungkin berguna",
+            "Menyamakan dengan anggaran tim tahun lalu"
+          ],
+          "correctAnswer": "Setiap pos anggaran bisa ditelusuri ke kegiatan di metode dan jadwal",
+          "points": 10,
+          "explanation": "Reviewer mencocokkan metode, jadwal dan anggaran. Pos yang tidak punya kegiatan terlihat sebagai pemborosan."
+        },
+        {
+          "id": "e2q8",
+          "type": "multiple_choice",
+          "text": "Manfaat utama reference manager seperti Zotero atau Mendeley adalah...",
+          "options": [
+            "Sitasi dan daftar pustaka konsisten dalam satu gaya secara otomatis",
+            "Menulis isi proposal otomatis",
+            "Memeriksa plagiarisme",
+            "Menerjemahkan paper"
+          ],
+          "correctAnswer": "Sitasi dan daftar pustaka konsisten dalam satu gaya secara otomatis",
+          "points": 10,
+          "explanation": "Sitasi yang berantakan adalah kesalahan format yang mudah dicegah."
+        },
+        {
+          "id": "e2q9",
+          "type": "multiple_choice",
+          "text": "Jika penelitianmu melibatkan responden manusia (misalnya survei pedagang), yang wajib kamu siapkan adalah...",
+          "options": [
+            "Persetujuan partisipan (informed consent) dan perlindungan kerahasiaan data",
+            "Hadiah untuk setiap responden",
+            "Foto setiap responden untuk lampiran",
+            "Izin dari semua anggota keluarga responden"
+          ],
+          "correctAnswer": "Persetujuan partisipan (informed consent) dan perlindungan kerahasiaan data",
+          "points": 10,
+          "explanation": "Etika penelitian melindungi responden. Jelaskan tujuan, minta persetujuan, dan simpan data secara aman."
+        },
+        {
+          "id": "e2q10",
+          "type": "multiple_choice",
+          "text": "Metode penelitian sebaiknya dipilih berdasarkan...",
+          "options": [
+            "Pertanyaan penelitian, ketersediaan alat, waktu dan dana",
+            "Metode yang paling terlihat canggih",
+            "Metode yang dipakai tim pemenang tahun lalu",
+            "Metode yang paling sedikit langkahnya"
+          ],
+          "correctAnswer": "Pertanyaan penelitian, ketersediaan alat, waktu dan dana",
+          "points": 10,
+          "explanation": "Metode yang bisa dikerjakan lebih meyakinkan daripada metode canggih yang tidak realistis."
+        },
+        {
+          "id": "e2pre-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e2pre-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep2-post",
+      "pairKey": "bootcamp-ep2",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 2,
+      "kind": "post_test",
+      "title": "Post-test · PKM Bootcamp Episode 2: Merancang Riset yang Bisa Dikerjakan",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "e2q1",
+          "type": "multiple_choice",
+          "text": "Saat 'speedrun literatur' (3 paper dalam 15 menit), bagian yang dibaca pertama sebaiknya...",
+          "options": [
+            "Abstrak, gambar/tabel utama, lalu kesimpulan",
+            "Daftar pustaka",
+            "Ucapan terima kasih",
+            "Seluruh metode kata per kata"
+          ],
+          "correctAnswer": "Abstrak, gambar/tabel utama, lalu kesimpulan",
+          "points": 10,
+          "explanation": "Tujuannya menangkap pertanyaan, metode, temuan dan keterbatasan dengan cepat. Baca detail metode hanya untuk paper yang relevan."
+        },
+        {
+          "id": "e2q2",
+          "type": "multiple_choice",
+          "text": "Research gap adalah...",
+          "options": [
+            "Hal yang belum dijawab penelitian sebelumnya dan relevan dengan masalahmu",
+            "Jarak waktu antara dua penelitian",
+            "Kekurangan anggaran penelitian",
+            "Perbedaan pendapat antaranggota tim"
+          ],
+          "correctAnswer": "Hal yang belum dijawab penelitian sebelumnya dan relevan dengan masalahmu",
+          "points": 10,
+          "explanation": "Gap biasanya terlihat di bagian keterbatasan atau saran penelitian lanjutan pada paper yang kamu baca."
+        },
+        {
+          "id": "e2q3",
+          "type": "multiple_choice",
+          "text": "Tujuan penelitian mana yang paling memenuhi kaidah SMART?",
+          "options": [
+            "Menguji pengaruh konsentrasi kitosan 0,5%, 1% dan 1,5% terhadap umur simpan cabai rawit pada suhu ruang selama 14 hari",
+            "Meneliti cabai agar lebih awet",
+            "Membuat inovasi pangan yang bermanfaat bagi masyarakat",
+            "Mengembangkan teknologi terbaik untuk petani"
+          ],
+          "correctAnswer": "Menguji pengaruh konsentrasi kitosan 0,5%, 1% dan 1,5% terhadap umur simpan cabai rawit pada suhu ruang selama 14 hari",
+          "points": 10,
+          "explanation": "Tujuan SMART spesifik, terukur, dapat dicapai, relevan dan berbatas waktu. Tiga pilihan lain tidak bisa diukur keberhasilannya."
+        },
+        {
+          "id": "e2q4",
+          "type": "multiple_choice",
+          "text": "Pada percobaan di soal sebelumnya, variabel bebasnya adalah...",
+          "options": [
+            "Konsentrasi kitosan",
+            "Umur simpan cabai",
+            "Suhu ruang",
+            "Jenis cabai"
+          ],
+          "correctAnswer": "Konsentrasi kitosan",
+          "points": 10,
+          "explanation": "Variabel bebas sengaja diubah peneliti. Umur simpan adalah variabel terikat; suhu dan jenis cabai dijaga tetap (variabel kontrol)."
+        },
+        {
+          "id": "e2q5",
+          "type": "multiple_choice",
+          "text": "Fungsi kelompok kontrol (misalnya cabai tanpa pelapis) adalah...",
+          "options": [
+            "Menjadi pembanding agar efek perlakuan bisa ditafsirkan",
+            "Menghemat bahan",
+            "Memperbanyak data agar terlihat besar",
+            "Formalitas agar proposal lebih panjang"
+          ],
+          "correctAnswer": "Menjadi pembanding agar efek perlakuan bisa ditafsirkan",
+          "points": 10,
+          "explanation": "Tanpa kontrol, kamu tidak tahu apakah cabai awet karena pelapis atau karena faktor lain."
+        },
+        {
+          "id": "e2q6",
+          "type": "multiple_choice",
+          "text": "Gantt chart di proposal berfungsi untuk menunjukkan...",
+          "options": [
+            "Urutan, durasi dan tumpang tindih kegiatan terhadap waktu",
+            "Struktur organisasi tim",
+            "Rincian anggaran per item",
+            "Hasil penelitian"
+          ],
+          "correctAnswer": "Urutan, durasi dan tumpang tindih kegiatan terhadap waktu",
+          "points": 10,
+          "explanation": "Gantt yang baik membuat reviewer yakin rencanamu bisa selesai dalam masa pelaksanaan PKM."
+        },
+        {
+          "id": "e2q7",
+          "type": "multiple_choice",
+          "text": "Prinsip paling penting dalam menyusun anggaran proposal adalah...",
+          "options": [
+            "Setiap pos anggaran bisa ditelusuri ke kegiatan di metode dan jadwal",
+            "Mengisi sampai batas maksimal dana",
+            "Memasukkan semua barang yang mungkin berguna",
+            "Menyamakan dengan anggaran tim tahun lalu"
+          ],
+          "correctAnswer": "Setiap pos anggaran bisa ditelusuri ke kegiatan di metode dan jadwal",
+          "points": 10,
+          "explanation": "Reviewer mencocokkan metode, jadwal dan anggaran. Pos yang tidak punya kegiatan terlihat sebagai pemborosan."
+        },
+        {
+          "id": "e2q8",
+          "type": "multiple_choice",
+          "text": "Manfaat utama reference manager seperti Zotero atau Mendeley adalah...",
+          "options": [
+            "Sitasi dan daftar pustaka konsisten dalam satu gaya secara otomatis",
+            "Menulis isi proposal otomatis",
+            "Memeriksa plagiarisme",
+            "Menerjemahkan paper"
+          ],
+          "correctAnswer": "Sitasi dan daftar pustaka konsisten dalam satu gaya secara otomatis",
+          "points": 10,
+          "explanation": "Sitasi yang berantakan adalah kesalahan format yang mudah dicegah."
+        },
+        {
+          "id": "e2q9",
+          "type": "multiple_choice",
+          "text": "Jika penelitianmu melibatkan responden manusia (misalnya survei pedagang), yang wajib kamu siapkan adalah...",
+          "options": [
+            "Persetujuan partisipan (informed consent) dan perlindungan kerahasiaan data",
+            "Hadiah untuk setiap responden",
+            "Foto setiap responden untuk lampiran",
+            "Izin dari semua anggota keluarga responden"
+          ],
+          "correctAnswer": "Persetujuan partisipan (informed consent) dan perlindungan kerahasiaan data",
+          "points": 10,
+          "explanation": "Etika penelitian melindungi responden. Jelaskan tujuan, minta persetujuan, dan simpan data secara aman."
+        },
+        {
+          "id": "e2q10",
+          "type": "multiple_choice",
+          "text": "Metode penelitian sebaiknya dipilih berdasarkan...",
+          "options": [
+            "Pertanyaan penelitian, ketersediaan alat, waktu dan dana",
+            "Metode yang paling terlihat canggih",
+            "Metode yang dipakai tim pemenang tahun lalu",
+            "Metode yang paling sedikit langkahnya"
+          ],
+          "correctAnswer": "Pertanyaan penelitian, ketersediaan alat, waktu dan dana",
+          "points": 10,
+          "explanation": "Metode yang bisa dikerjakan lebih meyakinkan daripada metode canggih yang tidak realistis."
+        },
+        {
+          "id": "e2post-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e2post-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e2refl",
+          "type": "long_text",
+          "text": "Satu hal dari episode ini yang akan langsung kamu terapkan di proposal timmu.",
+          "points": 0,
+          "required": false,
+          "maxLength": 1500
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep3-pre",
+      "pairKey": "bootcamp-ep3",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 3,
+      "kind": "pre_test",
+      "title": "Pre-test · PKM Bootcamp Episode 3: Menulis Proposal yang Lolos Format",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "e3q1",
+          "type": "multiple_choice",
+          "text": "Acuan format proposal yang wajib diikuti adalah...",
+          "options": [
+            "Pedoman PKM tahun berjalan beserta templat resminya",
+            "Proposal kakak tingkat yang pernah lolos",
+            "Format laporan praktikum jurusan",
+            "Format bebas asal rapi"
+          ],
+          "correctAnswer": "Pedoman PKM tahun berjalan beserta templat resminya",
+          "points": 10,
+          "explanation": "Aturan format bisa berubah tiap tahun. Proposal lama boleh jadi inspirasi isi, tetapi formatnya harus mengikuti pedoman terbaru."
+        },
+        {
+          "id": "e3q2",
+          "type": "multiple_choice",
+          "text": "Alur pendahuluan yang meyakinkan reviewer adalah...",
+          "options": [
+            "Konteks luas, masalah spesifik dengan data, celah solusi saat ini, lalu tujuan dan gagasanmu",
+            "Sejarah lengkap topik sejak abad ke-19",
+            "Profil anggota tim, lalu rencana anggaran",
+            "Langsung ke hasil yang diharapkan"
+          ],
+          "correctAnswer": "Konteks luas, masalah spesifik dengan data, celah solusi saat ini, lalu tujuan dan gagasanmu",
+          "points": 10,
+          "explanation": "Bentuk corong: dari luas ke spesifik, berakhir di tujuan yang menjawab celah."
+        },
+        {
+          "id": "e3q3",
+          "type": "multiple_choice",
+          "text": "Ringkasan/abstrak proposal yang baik berisi...",
+          "options": [
+            "Masalah, tujuan, metode singkat, hasil yang diharapkan dan luaran",
+            "Kutipan panjang dari literatur",
+            "Ucapan terima kasih kepada dosen",
+            "Daftar anggota dan jurusannya"
+          ],
+          "correctAnswer": "Masalah, tujuan, metode singkat, hasil yang diharapkan dan luaran",
+          "points": 10,
+          "explanation": "Banyak reviewer membentuk kesan pertama dari ringkasan. Satu kalimat untuk setiap unsur sudah cukup."
+        },
+        {
+          "id": "e3q4",
+          "type": "multiple_choice",
+          "text": "Aturan sitasi yang benar adalah...",
+          "options": [
+            "Setiap data atau klaim dari sumber lain diberi rujukan dengan satu gaya yang konsisten",
+            "Rujukan hanya ditaruh di daftar pustaka",
+            "Boleh mencampur beberapa gaya sitasi",
+            "Sumber dari internet tidak perlu dirujuk"
+          ],
+          "correctAnswer": "Setiap data atau klaim dari sumber lain diberi rujukan dengan satu gaya yang konsisten",
+          "points": 10,
+          "explanation": "Ikuti gaya sitasi yang ditentukan pedoman. Konsistensi menunjukkan ketelitian."
+        },
+        {
+          "id": "e3q5",
+          "type": "multiple_choice",
+          "text": "Gambar dan tabel di proposal harus...",
+          "options": [
+            "Bernomor, berjudul, dirujuk di teks, dan tetap terbaca saat dicetak",
+            "Sebanyak mungkin agar proposal menarik",
+            "Diletakkan di lampiran semua",
+            "Berwarna cerah tanpa keterangan"
+          ],
+          "correctAnswer": "Bernomor, berjudul, dirujuk di teks, dan tetap terbaca saat dicetak",
+          "points": 10,
+          "explanation": "Gambar yang tidak dirujuk di teks hanya menghabiskan halaman."
+        },
+        {
+          "id": "e3q6",
+          "type": "multiple_choice",
+          "text": "Penyebab umum proposal gugur di tahap administrasi adalah...",
+          "options": [
+            "Format atau kelengkapan tidak sesuai pedoman, misalnya batas halaman, lampiran atau pengesahan",
+            "Judul terlalu pendek",
+            "Topik terlalu sederhana",
+            "Anggota tim berasal dari jurusan berbeda"
+          ],
+          "correctAnswer": "Format atau kelengkapan tidak sesuai pedoman, misalnya batas halaman, lampiran atau pengesahan",
+          "points": 10,
+          "explanation": "Inilah alasan Bootcamp punya Format Checker dan checklist akhir: gugur karena format adalah kekalahan yang bisa dicegah."
+        },
+        {
+          "id": "e3q7",
+          "type": "multiple_choice",
+          "text": "Luaran yang dijanjikan di proposal harus...",
+          "options": [
+            "Sesuai ketentuan skema di pedoman dan realistis dicapai tim",
+            "Sebanyak mungkin agar terlihat ambisius",
+            "Sama untuk semua skema",
+            "Boleh diubah bebas setelah didanai"
+          ],
+          "correctAnswer": "Sesuai ketentuan skema di pedoman dan realistis dicapai tim",
+          "points": 10,
+          "explanation": "Luaran akan ditagih di laporan kemajuan dan akhir. Janjikan yang bisa kamu buktikan."
+        },
+        {
+          "id": "e3q8",
+          "type": "multiple_choice",
+          "text": "Kalimat mana yang paling efektif untuk proposal?",
+          "options": [
+            "Kitosan 1% memperpanjang umur simpan cabai rawit dari 5 menjadi 9 hari pada suhu ruang (Nama, 2024).",
+            "Sebagaimana yang telah kita ketahui bersama, cabai merupakan salah satu komoditas yang sangat penting sekali.",
+            "Cabai itu penting banget dan sering busuk, jadi perlu diteliti.",
+            "Dengan ini kami ingin menyampaikan bahwa penelitian ini sangat bermanfaat."
+          ],
+          "correctAnswer": "Kitosan 1% memperpanjang umur simpan cabai rawit dari 5 menjadi 9 hari pada suhu ruang (Nama, 2024).",
+          "points": 10,
+          "explanation": "Kalimat ilmiah yang efektif padat, spesifik, berdata dan bersumber. (Angka di contoh ini ilustrasi.)"
+        },
+        {
+          "id": "e3q9",
+          "type": "multiple_choice",
+          "text": "Waktu terbaik meminta masukan dosen pendamping adalah...",
+          "options": [
+            "Bertahap sejak rumusan masalah dan draf awal",
+            "Sehari sebelum tenggat unggah",
+            "Setelah proposal diunggah",
+            "Tidak perlu, cukup reviewer internal"
+          ],
+          "correctAnswer": "Bertahap sejak rumusan masalah dan draf awal",
+          "points": 10,
+          "explanation": "Masukan di awal murah diperbaiki. Masukan di H-1 sering tidak sempat dijalankan."
+        },
+        {
+          "id": "e3q10",
+          "type": "multiple_choice",
+          "text": "Memparafrasekan kalimat dari paper tanpa mencantumkan sumber termasuk...",
+          "options": [
+            "Plagiarisme",
+            "Diperbolehkan asal kata-katanya diubah",
+            "Hanya masalah jika lebih dari satu halaman",
+            "Teknik menulis yang dianjurkan"
+          ],
+          "correctAnswer": "Plagiarisme",
+          "points": 10,
+          "explanation": "Ide orang lain tetap milik mereka meski kata-katanya kamu ubah. Selalu beri rujukan."
+        },
+        {
+          "id": "e3pre-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e3pre-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep3-post",
+      "pairKey": "bootcamp-ep3",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 3,
+      "kind": "post_test",
+      "title": "Post-test · PKM Bootcamp Episode 3: Menulis Proposal yang Lolos Format",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "e3q1",
+          "type": "multiple_choice",
+          "text": "Acuan format proposal yang wajib diikuti adalah...",
+          "options": [
+            "Pedoman PKM tahun berjalan beserta templat resminya",
+            "Proposal kakak tingkat yang pernah lolos",
+            "Format laporan praktikum jurusan",
+            "Format bebas asal rapi"
+          ],
+          "correctAnswer": "Pedoman PKM tahun berjalan beserta templat resminya",
+          "points": 10,
+          "explanation": "Aturan format bisa berubah tiap tahun. Proposal lama boleh jadi inspirasi isi, tetapi formatnya harus mengikuti pedoman terbaru."
+        },
+        {
+          "id": "e3q2",
+          "type": "multiple_choice",
+          "text": "Alur pendahuluan yang meyakinkan reviewer adalah...",
+          "options": [
+            "Konteks luas, masalah spesifik dengan data, celah solusi saat ini, lalu tujuan dan gagasanmu",
+            "Sejarah lengkap topik sejak abad ke-19",
+            "Profil anggota tim, lalu rencana anggaran",
+            "Langsung ke hasil yang diharapkan"
+          ],
+          "correctAnswer": "Konteks luas, masalah spesifik dengan data, celah solusi saat ini, lalu tujuan dan gagasanmu",
+          "points": 10,
+          "explanation": "Bentuk corong: dari luas ke spesifik, berakhir di tujuan yang menjawab celah."
+        },
+        {
+          "id": "e3q3",
+          "type": "multiple_choice",
+          "text": "Ringkasan/abstrak proposal yang baik berisi...",
+          "options": [
+            "Masalah, tujuan, metode singkat, hasil yang diharapkan dan luaran",
+            "Kutipan panjang dari literatur",
+            "Ucapan terima kasih kepada dosen",
+            "Daftar anggota dan jurusannya"
+          ],
+          "correctAnswer": "Masalah, tujuan, metode singkat, hasil yang diharapkan dan luaran",
+          "points": 10,
+          "explanation": "Banyak reviewer membentuk kesan pertama dari ringkasan. Satu kalimat untuk setiap unsur sudah cukup."
+        },
+        {
+          "id": "e3q4",
+          "type": "multiple_choice",
+          "text": "Aturan sitasi yang benar adalah...",
+          "options": [
+            "Setiap data atau klaim dari sumber lain diberi rujukan dengan satu gaya yang konsisten",
+            "Rujukan hanya ditaruh di daftar pustaka",
+            "Boleh mencampur beberapa gaya sitasi",
+            "Sumber dari internet tidak perlu dirujuk"
+          ],
+          "correctAnswer": "Setiap data atau klaim dari sumber lain diberi rujukan dengan satu gaya yang konsisten",
+          "points": 10,
+          "explanation": "Ikuti gaya sitasi yang ditentukan pedoman. Konsistensi menunjukkan ketelitian."
+        },
+        {
+          "id": "e3q5",
+          "type": "multiple_choice",
+          "text": "Gambar dan tabel di proposal harus...",
+          "options": [
+            "Bernomor, berjudul, dirujuk di teks, dan tetap terbaca saat dicetak",
+            "Sebanyak mungkin agar proposal menarik",
+            "Diletakkan di lampiran semua",
+            "Berwarna cerah tanpa keterangan"
+          ],
+          "correctAnswer": "Bernomor, berjudul, dirujuk di teks, dan tetap terbaca saat dicetak",
+          "points": 10,
+          "explanation": "Gambar yang tidak dirujuk di teks hanya menghabiskan halaman."
+        },
+        {
+          "id": "e3q6",
+          "type": "multiple_choice",
+          "text": "Penyebab umum proposal gugur di tahap administrasi adalah...",
+          "options": [
+            "Format atau kelengkapan tidak sesuai pedoman, misalnya batas halaman, lampiran atau pengesahan",
+            "Judul terlalu pendek",
+            "Topik terlalu sederhana",
+            "Anggota tim berasal dari jurusan berbeda"
+          ],
+          "correctAnswer": "Format atau kelengkapan tidak sesuai pedoman, misalnya batas halaman, lampiran atau pengesahan",
+          "points": 10,
+          "explanation": "Inilah alasan Bootcamp punya Format Checker dan checklist akhir: gugur karena format adalah kekalahan yang bisa dicegah."
+        },
+        {
+          "id": "e3q7",
+          "type": "multiple_choice",
+          "text": "Luaran yang dijanjikan di proposal harus...",
+          "options": [
+            "Sesuai ketentuan skema di pedoman dan realistis dicapai tim",
+            "Sebanyak mungkin agar terlihat ambisius",
+            "Sama untuk semua skema",
+            "Boleh diubah bebas setelah didanai"
+          ],
+          "correctAnswer": "Sesuai ketentuan skema di pedoman dan realistis dicapai tim",
+          "points": 10,
+          "explanation": "Luaran akan ditagih di laporan kemajuan dan akhir. Janjikan yang bisa kamu buktikan."
+        },
+        {
+          "id": "e3q8",
+          "type": "multiple_choice",
+          "text": "Kalimat mana yang paling efektif untuk proposal?",
+          "options": [
+            "Kitosan 1% memperpanjang umur simpan cabai rawit dari 5 menjadi 9 hari pada suhu ruang (Nama, 2024).",
+            "Sebagaimana yang telah kita ketahui bersama, cabai merupakan salah satu komoditas yang sangat penting sekali.",
+            "Cabai itu penting banget dan sering busuk, jadi perlu diteliti.",
+            "Dengan ini kami ingin menyampaikan bahwa penelitian ini sangat bermanfaat."
+          ],
+          "correctAnswer": "Kitosan 1% memperpanjang umur simpan cabai rawit dari 5 menjadi 9 hari pada suhu ruang (Nama, 2024).",
+          "points": 10,
+          "explanation": "Kalimat ilmiah yang efektif padat, spesifik, berdata dan bersumber. (Angka di contoh ini ilustrasi.)"
+        },
+        {
+          "id": "e3q9",
+          "type": "multiple_choice",
+          "text": "Waktu terbaik meminta masukan dosen pendamping adalah...",
+          "options": [
+            "Bertahap sejak rumusan masalah dan draf awal",
+            "Sehari sebelum tenggat unggah",
+            "Setelah proposal diunggah",
+            "Tidak perlu, cukup reviewer internal"
+          ],
+          "correctAnswer": "Bertahap sejak rumusan masalah dan draf awal",
+          "points": 10,
+          "explanation": "Masukan di awal murah diperbaiki. Masukan di H-1 sering tidak sempat dijalankan."
+        },
+        {
+          "id": "e3q10",
+          "type": "multiple_choice",
+          "text": "Memparafrasekan kalimat dari paper tanpa mencantumkan sumber termasuk...",
+          "options": [
+            "Plagiarisme",
+            "Diperbolehkan asal kata-katanya diubah",
+            "Hanya masalah jika lebih dari satu halaman",
+            "Teknik menulis yang dianjurkan"
+          ],
+          "correctAnswer": "Plagiarisme",
+          "points": 10,
+          "explanation": "Ide orang lain tetap milik mereka meski kata-katanya kamu ubah. Selalu beri rujukan."
+        },
+        {
+          "id": "e3post-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e3post-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e3refl",
+          "type": "long_text",
+          "text": "Satu hal dari episode ini yang akan langsung kamu terapkan di proposal timmu.",
+          "points": 0,
+          "required": false,
+          "maxLength": 1500
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep4-pre",
+      "pairKey": "bootcamp-ep4",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 4,
+      "kind": "pre_test",
+      "title": "Pre-test · PKM Bootcamp Episode 4: Siap Submit, Siap Tampil",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "pair_closed",
+      "questions": [
+        {
+          "id": "e4q1",
+          "type": "multiple_choice",
+          "text": "Struktur pitch 3 menit yang paling efektif adalah...",
+          "options": [
+            "Masalah, solusi, bukti/metode, dampak, lalu ajakan atau penutup",
+            "Profil tim, sejarah topik, lalu daftar pustaka",
+            "Langsung membaca isi proposal",
+            "Demo panjang tanpa konteks"
+          ],
+          "correctAnswer": "Masalah, solusi, bukti/metode, dampak, lalu ajakan atau penutup",
+          "points": 10,
+          "explanation": "Juri harus paham mengapa masalahnya penting sebelum mendengar solusinya."
+        },
+        {
+          "id": "e4q2",
+          "type": "multiple_choice",
+          "text": "Pembuka pitch yang paling kuat adalah...",
+          "options": [
+            "Fakta atau cerita konkret tentang masalah",
+            "Ucapan terima kasih panjang",
+            "Perkenalan nama lengkap setiap anggota",
+            "Permintaan maaf karena gugup"
+          ],
+          "correctAnswer": "Fakta atau cerita konkret tentang masalah",
+          "points": 10,
+          "explanation": "Sepuluh detik pertama menentukan apakah juri memperhatikan."
+        },
+        {
+          "id": "e4q3",
+          "type": "multiple_choice",
+          "text": "Prinsip slide pitch yang baik adalah...",
+          "options": [
+            "Satu pesan per slide, sedikit teks, visual yang mendukung",
+            "Seluruh isi proposal dipindah ke slide",
+            "Animasi di setiap elemen",
+            "Font kecil agar muat banyak"
+          ],
+          "correctAnswer": "Satu pesan per slide, sedikit teks, visual yang mendukung",
+          "points": 10,
+          "explanation": "Slide membantu juri mengikuti ceritamu, bukan menggantikan suaramu."
+        },
+        {
+          "id": "e4q4",
+          "type": "multiple_choice",
+          "text": "Jika juri bertanya sesuatu yang belum kamu ketahui, respons terbaik adalah...",
+          "options": [
+            "Mengakui dengan jujur dan menjelaskan bagaimana tim akan mencari jawabannya",
+            "Mengarang jawaban agar terlihat yakin",
+            "Mengalihkan ke topik lain",
+            "Diam sampai juri bertanya hal lain"
+          ],
+          "correctAnswer": "Mengakui dengan jujur dan menjelaskan bagaimana tim akan mencari jawabannya",
+          "points": 10,
+          "explanation": "Kejujuran dan rencana yang jelas lebih dihargai daripada jawaban yang dibuat-buat."
+        },
+        {
+          "id": "e4q5",
+          "type": "multiple_choice",
+          "text": "Manfaat utama peer editing antartim adalah...",
+          "options": [
+            "Pembaca baru menemukan bagian yang tidak jelas yang tidak terlihat oleh penulisnya",
+            "Mempercepat pengetikan",
+            "Menambah jumlah halaman",
+            "Menyalin ide tim lain"
+          ],
+          "correctAnswer": "Pembaca baru menemukan bagian yang tidak jelas yang tidak terlihat oleh penulisnya",
+          "points": 10,
+          "explanation": "Jika pembaca dari jurusan lain tidak bisa menyebut tujuanmu dalam satu kalimat, perbaiki pendahuluan."
+        },
+        {
+          "id": "e4q6",
+          "type": "multiple_choice",
+          "text": "Checklist akhir sebelum unggah sebaiknya dicocokkan dengan...",
+          "options": [
+            "Pedoman PKM: format, batas halaman, lampiran, data anggota dan dosen",
+            "Selera tampilan anggota tim",
+            "Proposal tim lain",
+            "Template presentasi"
+          ],
+          "correctAnswer": "Pedoman PKM: format, batas halaman, lampiran, data anggota dan dosen",
+          "points": 10,
+          "explanation": "Checklist mencegah kesalahan kecil yang bisa menggugurkan proposal bagus."
+        },
+        {
+          "id": "e4q7",
+          "type": "multiple_choice",
+          "text": "Pada video pitch, hal yang paling penting dijaga adalah...",
+          "options": [
+            "Audio yang jernih dan pesan yang jelas",
+            "Efek transisi sinematik",
+            "Musik latar yang keras",
+            "Durasi sepanjang mungkin"
+          ],
+          "correctAnswer": "Audio yang jernih dan pesan yang jelas",
+          "points": 10,
+          "explanation": "Penonton memaafkan gambar sederhana, tetapi tidak memaafkan suara yang tidak terdengar."
+        },
+        {
+          "id": "e4q8",
+          "type": "multiple_choice",
+          "text": "Kapan sebaiknya proposal diunggah?",
+          "options": [
+            "Beberapa hari sebelum tenggat",
+            "Tiga jam sebelum tenggat",
+            "Tepat di menit terakhir",
+            "Setelah tenggat jika server sedang padat"
+          ],
+          "correctAnswer": "Beberapa hari sebelum tenggat",
+          "points": 10,
+          "explanation": "Di SRP GSIC 2025, 43 dari 69 entri masuk di tiga jam terakhir. Unggah lebih awal memberi ruang jika ada kendala teknis."
+        },
+        {
+          "id": "e4q9",
+          "type": "multiple_choice",
+          "text": "Syarat agar tim terbaik Pitching Day menerima apresiasi adalah...",
+          "options": [
+            "Mendaftar PKM nasional dengan judul dan anggota yang sama",
+            "Memiliki anggota dari minimal lima fakultas",
+            "Pernah menang lomba nasional",
+            "Mengunggah video lebih dari 10 menit"
+          ],
+          "correctAnswer": "Mendaftar PKM nasional dengan judul dan anggota yang sama",
+          "points": 10,
+          "explanation": "Apresiasi Bootcamp bersyarat: tujuannya tim benar-benar maju ke PKM, dibuktikan dengan bukti submit."
+        },
+        {
+          "id": "e4q10",
+          "type": "multiple_choice",
+          "text": "Membaca rubrik penilaian sebelum pitching bermanfaat karena...",
+          "options": [
+            "Kamu bisa memastikan setiap kriteria penilaian terjawab di pitch dan proposal",
+            "Rubrik berisi jawaban pertanyaan juri",
+            "Rubrik menentukan urutan tampil",
+            "Tidak bermanfaat, juri menilai bebas"
+          ],
+          "correctAnswer": "Kamu bisa memastikan setiap kriteria penilaian terjawab di pitch dan proposal",
+          "points": 10,
+          "explanation": "Juri menilai dengan rubrik. Susun ceritamu agar setiap kriteria punya bukti yang jelas."
+        },
+        {
+          "id": "e4pre-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e4pre-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        }
+      ]
+    },
+    {
+      "key": "bootcamp-ep4-post",
+      "pairKey": "bootcamp-ep4",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": 4,
+      "kind": "post_test",
+      "title": "Post-test · PKM Bootcamp Episode 4: Siap Submit, Siap Tampil",
+      "description": "10 soal pilihan ganda dan 2 pertanyaan keyakinan diri, sekitar 12 menit. Hasilnya masuk ke rapor peserta.",
+      "durationMinutes": 15,
+      "passingScore": 70,
+      "shuffleQuestions": true,
+      "shuffleOptions": true,
+      "showAnswersAfter": "submit",
+      "questions": [
+        {
+          "id": "e4q1",
+          "type": "multiple_choice",
+          "text": "Struktur pitch 3 menit yang paling efektif adalah...",
+          "options": [
+            "Masalah, solusi, bukti/metode, dampak, lalu ajakan atau penutup",
+            "Profil tim, sejarah topik, lalu daftar pustaka",
+            "Langsung membaca isi proposal",
+            "Demo panjang tanpa konteks"
+          ],
+          "correctAnswer": "Masalah, solusi, bukti/metode, dampak, lalu ajakan atau penutup",
+          "points": 10,
+          "explanation": "Juri harus paham mengapa masalahnya penting sebelum mendengar solusinya."
+        },
+        {
+          "id": "e4q2",
+          "type": "multiple_choice",
+          "text": "Pembuka pitch yang paling kuat adalah...",
+          "options": [
+            "Fakta atau cerita konkret tentang masalah",
+            "Ucapan terima kasih panjang",
+            "Perkenalan nama lengkap setiap anggota",
+            "Permintaan maaf karena gugup"
+          ],
+          "correctAnswer": "Fakta atau cerita konkret tentang masalah",
+          "points": 10,
+          "explanation": "Sepuluh detik pertama menentukan apakah juri memperhatikan."
+        },
+        {
+          "id": "e4q3",
+          "type": "multiple_choice",
+          "text": "Prinsip slide pitch yang baik adalah...",
+          "options": [
+            "Satu pesan per slide, sedikit teks, visual yang mendukung",
+            "Seluruh isi proposal dipindah ke slide",
+            "Animasi di setiap elemen",
+            "Font kecil agar muat banyak"
+          ],
+          "correctAnswer": "Satu pesan per slide, sedikit teks, visual yang mendukung",
+          "points": 10,
+          "explanation": "Slide membantu juri mengikuti ceritamu, bukan menggantikan suaramu."
+        },
+        {
+          "id": "e4q4",
+          "type": "multiple_choice",
+          "text": "Jika juri bertanya sesuatu yang belum kamu ketahui, respons terbaik adalah...",
+          "options": [
+            "Mengakui dengan jujur dan menjelaskan bagaimana tim akan mencari jawabannya",
+            "Mengarang jawaban agar terlihat yakin",
+            "Mengalihkan ke topik lain",
+            "Diam sampai juri bertanya hal lain"
+          ],
+          "correctAnswer": "Mengakui dengan jujur dan menjelaskan bagaimana tim akan mencari jawabannya",
+          "points": 10,
+          "explanation": "Kejujuran dan rencana yang jelas lebih dihargai daripada jawaban yang dibuat-buat."
+        },
+        {
+          "id": "e4q5",
+          "type": "multiple_choice",
+          "text": "Manfaat utama peer editing antartim adalah...",
+          "options": [
+            "Pembaca baru menemukan bagian yang tidak jelas yang tidak terlihat oleh penulisnya",
+            "Mempercepat pengetikan",
+            "Menambah jumlah halaman",
+            "Menyalin ide tim lain"
+          ],
+          "correctAnswer": "Pembaca baru menemukan bagian yang tidak jelas yang tidak terlihat oleh penulisnya",
+          "points": 10,
+          "explanation": "Jika pembaca dari jurusan lain tidak bisa menyebut tujuanmu dalam satu kalimat, perbaiki pendahuluan."
+        },
+        {
+          "id": "e4q6",
+          "type": "multiple_choice",
+          "text": "Checklist akhir sebelum unggah sebaiknya dicocokkan dengan...",
+          "options": [
+            "Pedoman PKM: format, batas halaman, lampiran, data anggota dan dosen",
+            "Selera tampilan anggota tim",
+            "Proposal tim lain",
+            "Template presentasi"
+          ],
+          "correctAnswer": "Pedoman PKM: format, batas halaman, lampiran, data anggota dan dosen",
+          "points": 10,
+          "explanation": "Checklist mencegah kesalahan kecil yang bisa menggugurkan proposal bagus."
+        },
+        {
+          "id": "e4q7",
+          "type": "multiple_choice",
+          "text": "Pada video pitch, hal yang paling penting dijaga adalah...",
+          "options": [
+            "Audio yang jernih dan pesan yang jelas",
+            "Efek transisi sinematik",
+            "Musik latar yang keras",
+            "Durasi sepanjang mungkin"
+          ],
+          "correctAnswer": "Audio yang jernih dan pesan yang jelas",
+          "points": 10,
+          "explanation": "Penonton memaafkan gambar sederhana, tetapi tidak memaafkan suara yang tidak terdengar."
+        },
+        {
+          "id": "e4q8",
+          "type": "multiple_choice",
+          "text": "Kapan sebaiknya proposal diunggah?",
+          "options": [
+            "Beberapa hari sebelum tenggat",
+            "Tiga jam sebelum tenggat",
+            "Tepat di menit terakhir",
+            "Setelah tenggat jika server sedang padat"
+          ],
+          "correctAnswer": "Beberapa hari sebelum tenggat",
+          "points": 10,
+          "explanation": "Di SRP GSIC 2025, 43 dari 69 entri masuk di tiga jam terakhir. Unggah lebih awal memberi ruang jika ada kendala teknis."
+        },
+        {
+          "id": "e4q9",
+          "type": "multiple_choice",
+          "text": "Syarat agar tim terbaik Pitching Day menerima apresiasi adalah...",
+          "options": [
+            "Mendaftar PKM nasional dengan judul dan anggota yang sama",
+            "Memiliki anggota dari minimal lima fakultas",
+            "Pernah menang lomba nasional",
+            "Mengunggah video lebih dari 10 menit"
+          ],
+          "correctAnswer": "Mendaftar PKM nasional dengan judul dan anggota yang sama",
+          "points": 10,
+          "explanation": "Apresiasi Bootcamp bersyarat: tujuannya tim benar-benar maju ke PKM, dibuktikan dengan bukti submit."
+        },
+        {
+          "id": "e4q10",
+          "type": "multiple_choice",
+          "text": "Membaca rubrik penilaian sebelum pitching bermanfaat karena...",
+          "options": [
+            "Kamu bisa memastikan setiap kriteria penilaian terjawab di pitch dan proposal",
+            "Rubrik berisi jawaban pertanyaan juri",
+            "Rubrik menentukan urutan tampil",
+            "Tidak bermanfaat, juri menilai bebas"
+          ],
+          "correctAnswer": "Kamu bisa memastikan setiap kriteria penilaian terjawab di pitch dan proposal",
+          "points": 10,
+          "explanation": "Juri menilai dengan rubrik. Susun ceritamu agar setiap kriteria punya bukti yang jelas."
+        },
+        {
+          "id": "e4post-c1",
+          "type": "likert",
+          "text": "Saya yakin bisa menjelaskan materi sesi ini ke teman satu tim.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e4post-c2",
+          "type": "likert",
+          "text": "Saya tahu langkah konkret berikutnya untuk proposal/ide saya.",
+          "scale": 5,
+          "lowLabel": "Sangat tidak setuju",
+          "highLabel": "Sangat setuju",
+          "points": 0,
+          "required": true
+        },
+        {
+          "id": "e4refl",
+          "type": "long_text",
+          "text": "Satu hal dari episode ini yang akan langsung kamu terapkan di proposal timmu.",
+          "points": 0,
+          "required": false,
+          "maxLength": 1500
+        }
+      ]
+    }
+  ],
+  "surveys": [
+    {
+      "key": "survey-sandbox",
+      "kind": "survey",
+      "eventSlug": "*sandbox*",
+      "episode": null,
+      "anonymous": false,
+      "title": "Survei Umpan Balik GSIC Research Sandbox",
+      "description": "Sekitar 3 menit. Jawabanmu membantu kami merancang sesi berikutnya. Panitia hanya melihat rekap, kecuali kamu mengizinkan kami menghubungimu.",
+      "sections": [
+        {
+          "title": "Pengalaman sesi",
+          "questions": [
+            {
+              "id": "sv1",
+              "type": "likert",
+              "text": "Secara keseluruhan, saya puas dengan sesi ini.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak puas",
+              "highLabel": "Sangat puas",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv2",
+              "type": "likert",
+              "text": "Pemaparan panelis mudah dipahami oleh mahasiswa dari jurusan lain.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv3",
+              "type": "likert",
+              "text": "Materi relevan dengan pertanyaan pemantik.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv4",
+              "type": "likert",
+              "text": "Breakout room membantu saya bertukar perspektif dengan jurusan lain.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv5",
+              "type": "likert",
+              "text": "Saya mendapat ide atau sudut pandang baru dari bidang di luar jurusan saya.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv6",
+              "type": "likert",
+              "text": "Teknis acara (Zoom, audio, pembagian room) berjalan lancar.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv7",
+              "type": "single_choice",
+              "text": "Bagaimana durasi acara?",
+              "options": [
+                "Terlalu singkat",
+                "Pas",
+                "Terlalu panjang"
+              ],
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv8",
+              "type": "single_choice",
+              "text": "Pemaparan mana yang paling berkesan untukmu?",
+              "options": [
+                "{{panelists}}"
+              ],
+              "points": 0,
+              "required": false
+            }
+          ]
+        },
+        {
+          "title": "Langkah berikutnya",
+          "questions": [
+            {
+              "id": "sv9",
+              "type": "nps",
+              "text": "Seberapa mungkin kamu merekomendasikan Sandbox kepada teman?",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "sv10",
+              "type": "multi_select",
+              "text": "Setelah ini, kamu tertarik untuk...",
+              "options": [
+                "Ikut Sandbox sesi berikutnya",
+                "Ikut PKM Bootcamp",
+                "Mencari tim lintas jurusan di Seeking Partner",
+                "Menulis artikel sains untuk blog GSIC",
+                "Belum tertarik dulu"
+              ],
+              "points": 0,
+              "required": false
+            },
+            {
+              "id": "sv11",
+              "type": "short_text",
+              "text": "Satu hal paling berharga dari sesi ini.",
+              "points": 0,
+              "required": false,
+              "maxLength": 200
+            },
+            {
+              "id": "sv12",
+              "type": "long_text",
+              "text": "Satu hal yang perlu kami perbaiki.",
+              "points": 0,
+              "required": false,
+              "maxLength": 1500
+            },
+            {
+              "id": "sv13",
+              "type": "short_text",
+              "text": "Topik Sandbox yang ingin kamu ikuti berikutnya.",
+              "points": 0,
+              "required": false,
+              "maxLength": 200
+            },
+            {
+              "id": "sv14",
+              "type": "single_choice",
+              "text": "Boleh panitia menghubungimu untuk diskusi lanjutan?",
+              "options": [
+                "Boleh",
+                "Tidak"
+              ],
+              "points": 0,
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "survey-bootcamp-episode",
+      "kind": "survey",
+      "eventSlug": "pkm-bootcamp-2027",
+      "episode": "*",
+      "anonymous": false,
+      "title": "Survei Umpan Balik Episode PKM Bootcamp",
+      "description": "Sekitar 3 menit, diisi setiap selesai episode. Mengisinya membuka pembahasan soal dan rapor episode.",
+      "sections": [
+        {
+          "title": "Episode ini",
+          "questions": [
+            {
+              "id": "bv1",
+              "type": "likert",
+              "text": "Secara keseluruhan, saya puas dengan episode ini.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak puas",
+              "highLabel": "Sangat puas",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv2",
+              "type": "likert",
+              "text": "Narasumber menjelaskan dengan jelas dan memberi contoh yang konkret.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv3",
+              "type": "likert",
+              "text": "Porsi praktik (workshop) cukup untuk benar-benar mencoba, bukan hanya mendengar.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv4",
+              "type": "likert",
+              "text": "Instruksi tugas episode ini jelas: apa yang dikumpulkan, formatnya, dan tenggatnya.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv5",
+              "type": "likert",
+              "text": "Mentor membantu saat tim saya bingung.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv6",
+              "type": "likert",
+              "text": "Saya siap mengerjakan tugas episode ini bersama tim.",
+              "scale": 5,
+              "lowLabel": "Sangat tidak setuju",
+              "highLabel": "Sangat setuju",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv7",
+              "type": "single_choice",
+              "text": "Bagaimana kecepatan materi?",
+              "options": [
+                "Terlalu lambat",
+                "Pas",
+                "Terlalu cepat"
+              ],
+              "points": 0,
+              "required": true
+            }
+          ]
+        },
+        {
+          "title": "Ke depan",
+          "questions": [
+            {
+              "id": "bv8",
+              "type": "nps",
+              "text": "Seberapa mungkin kamu merekomendasikan PKM Bootcamp kepada teman?",
+              "points": 0,
+              "required": true
+            },
+            {
+              "id": "bv9",
+              "type": "short_text",
+              "text": "Bagian yang masih membingungkan.",
+              "points": 0,
+              "required": false,
+              "maxLength": 200
+            },
+            {
+              "id": "bv10",
+              "type": "long_text",
+              "text": "Saran untuk episode berikutnya.",
+              "points": 0,
+              "required": false,
+              "maxLength": 1500
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -19,7 +19,6 @@ function createClient(): PrismaClient {
       new Error(
         'DATABASE_URL is not set. Add it in Vercel → Settings → Environment Variables and redeploy.'
       )
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modelProxy: any = new Proxy(() => {}, {
       get(_t, prop) {
         if (prop === 'then' || prop === 'catch' || prop === 'finally') {
@@ -27,7 +26,6 @@ function createClient(): PrismaClient {
           const rejected = Promise.reject(err())
           // Prevent unhandled rejection warnings when only `.catch` is chained.
           rejected.catch(() => {})
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return (rejected as any)[prop].bind(rejected)
         }
         return modelProxy
