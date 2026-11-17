@@ -17,6 +17,8 @@ import Blank from "@/components/hub/Blank";
 import CountUp from "@/components/portal/CountUp";
 import Reveal from "@/components/portal/Reveal";
 import { btnPrimary, btnSecondary } from "@/components/hub/buttons";
+import SeriesBand from "@/components/blog/SeriesBand";
+import { BOOTCAMP_SERIES, bootcampRunning, getSeriesParts } from "@/lib/blog-series";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +47,8 @@ export default async function HomePage() {
     ]).catch(() => [0, 0, 0]),
   ]);
   const [openComps, openPosts, members] = stats;
+  // The Bootcamp article series is shown only while the Bootcamp is running.
+  const seriesParts = (await bootcampRunning(now).catch(() => false)) ? await getSeriesParts(BOOTCAMP_SERIES).catch(() => []) : [];
 
   const ticker = closing.map((c) => ({ slug: c.slug, title: c.title, days: Math.ceil((c.deadline.getTime() - now.getTime()) / 86_400_000), cat: c.category ? categoryLabel(c.category) : undefined }));
   const cats = COMPETITION_CATEGORIES.filter((c) => c.id !== "other").slice(0, 12);
@@ -84,6 +88,12 @@ export default async function HomePage() {
           ))}
         </dl>
       </section>
+
+      {seriesParts.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-16 sm:px-6 lg:px-8">
+          <SeriesBand series={BOOTCAMP_SERIES} parts={seriesParts} heading="PKM Bootcamp reading list" />
+        </section>
+      )}
 
       {/* CATEGORIES */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

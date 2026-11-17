@@ -304,6 +304,10 @@ model BlogPost {
   author      User       @relation(fields: [authorId], references: [id])
   status      PostStatus @default(draft)
   tags        String[]
+  series      String?
+  seriesOrder Int?
+  lang        String     @default("en")
+  seedHash    String?    // hash of the seeded fields; a mismatch means an admin edited the post since the last seed
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -311,6 +315,7 @@ model BlogPost {
   @@index([slug])
   @@index([status])
   @@index([publishedAt])
+  @@index([series, seriesOrder])
 }
 
 model Test {

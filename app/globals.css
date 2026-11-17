@@ -149,3 +149,48 @@
   .hero-mark circle { animation: none; opacity: 0; }
   .hero-word, .hero-line, .hero-late, .hero-mark img { animation: fade 150ms ease-out both !important; }
 }
+
+/* ---------- Article extras (render-content.ts output) ---------- */
+.article-prose h2, .article-prose h3, .article-prose h4 { position: relative; scroll-margin-top: 6rem; }
+.article-prose .h-anchor { margin-left: .4em; font-weight: 500; text-decoration: none; opacity: 0; transition: opacity var(--dur-fast, 150ms); }
+.article-prose :is(h2, h3, h4):hover .h-anchor, .article-prose .h-anchor:focus-visible { opacity: 1; }
+@media (hover: none) { .article-prose .h-anchor { opacity: .45; } }
+.article-prose figure.fig { margin: 2rem 0; }
+.article-prose figure.fig img { width: 100%; height: auto; margin: 0; background: rgb(var(--paper-1)); }
+.article-prose figure.fig figcaption { margin-top: .6rem; text-align: center; font-size: .875rem; line-height: 1.4; color: rgb(var(--ink-3)); }
+.article-prose .table-wrap { margin: 1.5rem 0; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid rgb(226 232 240); border-radius: .75rem; }
+.article-prose .table-wrap table { margin: 0; min-width: 32rem; }
+.article-prose .callout { margin: 1.5rem 0; padding: 1rem 1.25rem; border-radius: .75rem; border: 1px solid; border-left-width: 4px; }
+.article-prose .callout > p { margin: 0; }
+.article-prose .callout > p + p { margin-top: .5rem; }
+.article-prose .callout .callout-title { font-family: var(--font-mono, ui-monospace, monospace); font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; margin-bottom: .35rem; }
+.article-prose .callout-tip { background: rgb(var(--mint-50)); border-color: rgb(var(--mint-600)); }
+.article-prose .callout-tip .callout-title { color: rgb(var(--mint-800)); }
+.article-prose .callout-note { background: rgb(var(--brand-50)); border-color: rgb(var(--brand-600)); }
+.article-prose .callout-note .callout-title { color: rgb(var(--brand-800)); }
+.article-prose .callout-warning { background: rgb(var(--warning-50)); border-color: rgb(var(--warning-500)); }
+.article-prose .callout-warning .callout-title { color: rgb(var(--warning-800)); }
+.article-prose ul.task-list { list-style: none; padding-left: 0; }
+.article-prose li.task { display: flex; gap: .75rem; align-items: flex-start; padding: .35rem .25rem; margin: 0; border-radius: .5rem; }
+.article-prose li.task[role="checkbox"] { cursor: pointer; }
+.article-prose li.task:focus-visible { outline: 2px solid rgb(var(--brand-600)); outline-offset: 2px; }
+.article-prose li.task .task-box { flex: none; width: 1.25rem; height: 1.25rem; margin-top: .2rem; border: 2px solid rgb(var(--brand-600)); border-radius: .3rem; background: #fff; position: relative; }
+.article-prose li.task.is-done .task-box { background: rgb(var(--brand-600)); }
+.article-prose li.task.is-done .task-box::after { content: ""; position: absolute; left: .32rem; top: .08rem; width: .35rem; height: .7rem; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.article-prose li.task.is-done .task-text { color: rgb(var(--ink-3)); text-decoration: line-through; }
+.article-prose li.task .task-text > p { margin: 0; }
+.lightbox { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 1rem; background: rgb(var(--navy-900) / .92); }
+.lightbox img { max-width: 100%; max-height: 80vh; width: auto; height: auto; background: rgb(var(--paper-1)); border-radius: .75rem; cursor: default; }
+.lightbox p { max-width: 40rem; text-align: center; color: rgb(var(--paper-2)); font-size: .9rem; }
+.lightbox-close { min-height: 2.75rem; padding: 0 1.25rem; border-radius: .5rem; border: 1px solid rgb(255 255 255 / .4); color: #fff; font-weight: 600; background: transparent; }
+.lightbox-close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media print {
+  body > div header.fixed, #main-content ~ footer, #main-content ~ nav, .sr-only { display: none !important; }
+  #main-content ~ * { display: none !important; }
+  body, body > div { background: #fff !important; padding: 0 !important; }
+  .article-prose { font-size: 11pt; }
+  .article-prose a { color: inherit; text-decoration: underline; }
+  .article-prose figure.fig, .article-prose .callout, .article-prose .table-wrap, .article-prose li.task { break-inside: avoid; }
+  .article-prose .h-anchor { display: none; }
+  .article-prose .callout { border-color: #999 !important; background: #fff !important; }
+}
