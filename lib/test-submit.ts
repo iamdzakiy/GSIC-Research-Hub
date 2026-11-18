@@ -1,26 +1,24 @@
 import "server-only";
+import { HttpError } from "@/lib/api-utils";
 import { prisma } from "@/lib/prisma";
-import { missingAnswers, scoreTest, type AnswerIn, type Question } from "@/lib/scoring";
+import { findTest, startAttempt, stateFor, submitAttempt } from "@/lib/assessments";
+import type { AnswerIn } from "@/lib/scoring";
 
 export class SubmitError extends Error { constructor(message: string, public status: number) { super(message); } }
 
-/** Single authoritative path for submitting a pre/post test (used by both API routes). */
+/**
+ * Old routes (`POST /api/tests/[id]/submit`, `POST /api/test-results`) go through the same rules as the new runner:
+ * opening times, registration, pre-test order, one attempt, the server clock and the NIM.
+ */
 export async function submitTestForUser(userId: string, testId: string, answers: AnswerIn[]) {
-  const test = await prisma.test.findUnique({ where: { id: testId } });
-  if (!test) throw new SubmitError("Test not found.", 404);
-  const reg = await prisma.registration.findFirst({ where: { userId, eventId: test.eventId } });
-  if (!reg) throw new SubmitError("You are not registered for this event.", 403);
-  if (test.type === "post" && !reg.preTestCompleted) throw new SubmitError("Complete the pre-test first.", 409);
-  if (await prisma.testResult.findFirst({ where: { userId, testId } })) throw new SubmitError("You have already submitted this test.", 409);
-
-  const questions = (Array.isArray(test.questions) ? test.questions : []) as unknown as Question[];
-  const missing = missingAnswers(questions, answers);
-  if (missing > 0) throw new SubmitError(`${missing} ${missing === 1 ? "question is" : "questions are"} still unanswered. Answer all questions and submit again.`, 400);
-
-  const scored = scoreTest(questions, answers);
-  const [result] = await prisma.$transaction([
-    prisma.testResult.create({ data: { testId, userId, answers: answers as never, score: scored.score, maxScore: scored.maxScore } }),
-    prisma.registration.update({ where: { id: reg.id }, data: test.type === "pre" ? { preTestCompleted: true } : { postTestCompleted: true } }),
-  ]);
-  return { ...result, percent: scored.percent, passingScore: test.passingScore, passed: scored.percent >= test.passingScore };
+  try {
+    const [user, test] = await Promise.all([prisma.user.findUnique({ where: { id: userId }, select: { id: true, nim: true } }), findTest(testId)]);
+    if (!user) throw new SubmitError("User not found.", 404);
+    if (!test) throw new SubmitError("Test not found.", 404);
+    if ((await stateFor(user, test)).state === "ready") await startAttempt(user, test);
+    return await submitAttempt(user, test, answers);
+  } catch (e) {
+    if (e instanceof HttpError) throw new SubmitError(e.message, e.status);
+    throw e;
+  }
 }

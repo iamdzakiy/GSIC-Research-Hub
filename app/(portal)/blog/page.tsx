@@ -7,7 +7,9 @@ import TagBadge from "@/components/portal/TagBadge";
 import SearchBox from "@/components/portal/SearchBox";
 import Pagination from "@/components/portal/Pagination";
 import EmptyState from "@/components/portal/EmptyState";
+import SeriesBand from "@/components/blog/SeriesBand";
 import { getTagCounts, listPosts, tagKey } from "@/lib/blog";
+import { BOOTCAMP_SERIES, getSeriesParts } from "@/lib/blog-series";
 
 export const metadata: Metadata = {
   title: "Blog: Scholarship, Research and Competition Guides · GSIC Hub",
@@ -27,6 +29,7 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
   const activeKey = tagParam ? tagKey(tagParam) : "";
   const { posts, total, page: cur, pageCount } = await listPosts({ q, tag: tagParam, page, variants }).catch(() => ({ posts: [], total: 0, page: 1, pageCount: 1 }));
 
+  const featured = !q && !tagParam && cur === 1 ? await getSeriesParts(BOOTCAMP_SERIES).catch(() => []) : [];
   const qs = new URLSearchParams();
   if (q) qs.set("q", q);
   if (tagParam) qs.set("tag", tagParam);
@@ -35,6 +38,8 @@ export default async function BlogIndexPage({ searchParams }: { searchParams: SP
     <>
       <PageHero compact kicker="Blog" title={<>Notes from the <span className="outline-cream">community</span></>}>Research tips, scholarship guides and competition preparation from the GSIC community.</PageHero>
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+
+      {featured.length > 0 && <div className="mb-10"><SeriesBand series={BOOTCAMP_SERIES} parts={featured} /></div>}
 
       <Suspense>
         <SearchBox label="Search articles" placeholder="Search articles or topics…" value={q} />

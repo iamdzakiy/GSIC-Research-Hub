@@ -11,7 +11,8 @@ import { prisma } from "@/lib/prisma";
 import { sendMail, type MailInput } from "@/lib/mailer";
 import type { Prisma } from "../generated/prisma/client";
 
-export type OutboxKind = "email" | "sheet_upsert" | "sheet_clear";
+export type OutboxKind = "email" | "sheet_upsert" | "sheet_clear" | "results_sheet";
+export interface ResultsSheetPayload { eventId: string }
 export interface SheetUpsertPayload { userId: string }
 export interface SheetClearPayload { email: string }
 
@@ -21,7 +22,7 @@ const BATCH = 25;
 const LEASE_MS = 60_000;
 
 /** Queues a job (inside `tx` when given) and starts a drain after the response. A duplicate `dedupeKey` is ignored. */
-export async function enqueue(kind: OutboxKind, payload: MailInput | SheetUpsertPayload | SheetClearPayload, opts: { dedupeKey?: string; runAfter?: Date; tx?: Tx } = {}) {
+export async function enqueue(kind: OutboxKind, payload: MailInput | SheetUpsertPayload | SheetClearPayload | ResultsSheetPayload, opts: { dedupeKey?: string; runAfter?: Date; tx?: Tx } = {}) {
   const db = opts.tx ?? prisma;
   await db.outboxJob.createMany({
     data: [{ kind, payload: payload as unknown as Prisma.InputJsonValue, dedupeKey: opts.dedupeKey ?? null, runAfter: opts.runAfter ?? new Date() }],
@@ -87,6 +88,14 @@ export async function drain(): Promise<{ done: number; failed: number; left: boo
           try { await clearSheetRows(emails); await ok(clears.map((j) => j.id)); } catch (e) { await bad(clears.map((j) => j.id), e); }
         }
       }
+    }
+
+    for (const j of jobs.filter((x) => x.kind === "results_sheet")) {
+      try {
+        const { syncResultsToSheet, resultsSheetConfigured } = await import("@/lib/results-sheet");
+        if (resultsSheetConfigured()) await syncResultsToSheet((j.payload as unknown as ResultsSheetPayload).eventId);
+        await ok([j.id]);
+      } catch (e) { await bad([j.id], e); }
     }
 
     for (const j of jobs.filter((x) => x.kind === "email")) {

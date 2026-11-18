@@ -88,6 +88,7 @@ enum RegistrationStatus {
   confirmed
   completed
   cancelled
+  waitlisted
 }
 
 enum Theme {
@@ -100,6 +101,9 @@ enum Theme {
 }
 
 model User {
+  certificates Certificate[]
+  formDrafts FormDraft[]
+  testAttempts TestAttempt[]
   id             String   @id @default(cuid())
   htaId          String   @default("")
   email          String   @unique
@@ -118,6 +122,7 @@ model User {
   pkmRole        String?
   fields         String[]
   institution    String   @default("ITB")
+  nim            String?  @unique // student ID; ITB format is 8 digits, see lib/nim.ts
   linkedinUrl    String?
   cvPath         String?
   username       String?  @unique
@@ -149,6 +154,7 @@ model User {
   notifications    Notification[]
   eventInterests   EventInterest[]
   reports          PostReport[]
+  nimChanges       NimChange[]
 }
 
 model Speaker {
@@ -256,6 +262,8 @@ model Event {
   meetingUrl           String?       // only ever shown to registered users
   registrationOpen     Boolean       @default(true)
   comingSoon           Boolean       @default(false)
+  recap                String?       // short recap shown once the event is marked completed
+  certificateEnabled   Boolean       @default(false)
   series               String?
   type                 EventType
   title                String
@@ -296,6 +304,10 @@ model BlogPost {
   author      User       @relation(fields: [authorId], references: [id])
   status      PostStatus @default(draft)
   tags        String[]
+  series      String?
+  seriesOrder Int?
+  lang        String     @default("en")
+  seedHash    String?    // hash of the seeded fields; a mismatch means an admin edited the post since the last seed
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -303,6 +315,7 @@ model BlogPost {
   @@index([slug])
   @@index([status])
   @@index([publishedAt])
+  @@index([series, seriesOrder])
 }
 
 model Test {
@@ -315,6 +328,36 @@ model Test {
   durationMinutes Int
   passingScore    Int
   testResults     TestResult[]
+
+  key              String?   @unique // seed id, e.g. bootcamp-ep1-pre
+  pairKey          String?           // links a pre-test to its post-test
+  kind             String    @default("pre_test") // pre_test | post_test | survey (type is kept in step for old code)
+  episode          Int?              // PKM Bootcamp episode 1-4
+  code             String?   @unique // six characters, for the short link /a/[code]
+  opensAt          DateTime?
+  closesAt         DateTime?
+  access           String    @default("registered") // registered | signed_in
+  shuffleQuestions Boolean   @default(false)
+  shuffleOptions   Boolean   @default(false)
+  showAnswersAfter String    @default("submit") // submit | pair_closed | never
+  sections         Json?             // surveys: [{ title, questions }]
+  attempts         TestAttempt[]
+}
+
+/// An attempt in progress. The server owns the timer: time left is startedAt + duration - now.
+model TestAttempt {
+  id        String   @id @default(cuid())
+  testId    String
+  userId    String
+  answers   Json     @default("[]")
+  flagged   Json     @default("[]")
+  startedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  test Test @relation(fields: [testId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, userId])
 }
 
 model Registration {
@@ -327,11 +370,26 @@ model Registration {
   preTestCompleted  Boolean            @default(false)
   postTestCompleted Boolean            @default(false)
   registeredAt      DateTime           @default(now())
+  updatedAt         DateTime?          @updatedAt
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
 
   @@unique([userId, eventId])
+}
+
+/// Unsent form progress, one per person and form. Never a submission.
+model FormDraft {
+  id        String   @id @default(cuid())
+  userId    String
+  formKey   String
+  data      Json
+  step      Int      @default(1)
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, formKey])
 }
 
 model TestResult {
@@ -342,9 +400,13 @@ model TestResult {
   score       Int
   maxScore    Int
   completedAt DateTime @default(now())
+  startedAt   DateTime?
+  durationSec Int?
 
   user User @relation(fields: [userId], references: [id])
   test Test @relation(fields: [testId], references: [id])
+
+  @@unique([testId, userId])
 }
 
 model Document {
@@ -524,6 +586,7 @@ enum OutboxKind {
   email
   sheet_upsert
   sheet_clear
+  results_sheet
 }
 
 /// Durable queue for e-mail and sheet writes. Drained right after enqueue (waitUntil) and by the daily cron.
@@ -547,4 +610,30 @@ model JobLease {
   name      String   @id
   expiresAt DateTime
   value     String?
+}
+
+/// One row per NIM change after it was first set (first-year students get a new NIM when they enter a major). Admin-only.
+model NimChange {
+  id     String   @id @default(cuid())
+  userId String
+  from   String?
+  to     String
+  at     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, at])
+}
+
+/// Certificate of participation. Off by default per event (Event.certificateEnabled). The code is what /verify/[code] checks.
+model Certificate {
+  id       String   @id @default(cuid())
+  code     String   @unique
+  userId   String
+  eventId  String
+  issuedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { PATH } from "@/lib/pkm-content";
@@ -35,12 +35,12 @@ export default function PathStepper({ dark = false }: { dark?: boolean }) {
       </div>
       <div role="tabpanel" className={cn("mt-5 min-h-[9.5rem] rounded-xl border p-5", dark ? "border-white/10 bg-white/5" : "border-slate-200 bg-white")}>
         <AnimatePresence mode="wait">
-          <motion.div key={cur.id} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? undefined : { opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+          <m.div key={cur.id} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? undefined : { opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
             <p className={cn("text-xs font-semibold uppercase tracking-wide", dark ? "text-mint" : "text-brand-700")}>{cur.when}{"planned" in cur && cur.planned ? " · planned for 2026/27" : ""}</p>
             <h3 className={cn("mt-1 text-lg font-bold font-heading", dark ? "text-white" : "text-slate-900")}>{cur.step}</h3>
             <p className={cn("mt-2 text-sm leading-6", dark ? "text-slate-300" : "text-slate-600")}>{cur.text}</p>
             <p className={cn("mt-3 text-xs", dark ? "text-slate-400" : "text-slate-500")}>You leave with: <span className={dark ? "text-cream" : "font-semibold text-slate-800"}>{cur.out}</span></p>
-          </motion.div>
+          </m.div>
         </AnimatePresence>
       </div>
     </div>

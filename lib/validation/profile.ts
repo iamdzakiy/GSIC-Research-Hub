@@ -1,6 +1,7 @@
 // Profile fields shared by sign-up (API + form) and the profile editor. English messages only.
 import { z } from "zod";
 import { FACULTY_MAJOR_MAP } from "@/lib/types";
+import { nimError, storedNim } from "@/lib/nim";
 import { CATEGORY_IDS } from "@/lib/competitions";
 import { FIELD_IDS, HARD_SKILLS, INTEREST_IDS, PKM_ROLE_IDS, PREFERRED_ROLE_IDS, SOFT_SKILLS, normalizeLinkedIn } from "@/lib/profile-options";
 
@@ -70,6 +71,7 @@ export const profileFields = z.object({
   pkmRole: z.string().nullish().refine((v) => !v || PKM_ROLE_IDS.includes(v), "Unknown PKM role"),
   fields: pick(FIELD_IDS, 7).optional(),
   institution: z.string().trim().min(1).max(80).optional(),
+  nim: z.string().trim().max(30, "That is too long").optional(),
   linkedinUrl: linkedinSchema.optional(),
   // sync fields written by AuthContext
   emailConfirmed: z.boolean().optional(),
@@ -86,7 +88,17 @@ export function refineFacultyMajor<T extends { faculty?: string; major?: string 
   } else if (d.major) ctx.addIssue({ code: "custom", path: ["faculty"], message: "Choose a faculty or school first" });
 }
 
-export const profileUpdateSchema = profileFields.superRefine(refineFacultyMajor);
+/** NIM (ITB) or student ID (other institutions), checked against the chosen institution. Empty is allowed unless `required`. */
+export function refineNim<T extends { nim?: string; institution?: string }>(d: T, ctx: z.RefinementCtx, required = false) {
+  if (d.nim === undefined || d.nim === "") {
+    if (required) ctx.addIssue({ code: "custom", path: ["nim"], message: nimError(d.institution, "") ?? "Enter your NIM" });
+    return;
+  }
+  const err = nimError(d.institution, d.nim);
+  if (err) ctx.addIssue({ code: "custom", path: ["nim"], message: err });
+}
+
+export const profileUpdateSchema = profileFields.superRefine((d, ctx) => { refineFacultyMajor(d, ctx); refineNim(d, ctx); });
 
 /** Prisma `data` object from a validated profile (undefined values are skipped). */
 export function profileToData(p: z.infer<typeof profileFields>): Record<string, unknown> {
@@ -96,6 +108,7 @@ export function profileToData(p: z.infer<typeof profileFields>): Record<string, 
   if (p.faculty && p.major) {
     set("majorCode", FACULTY_MAJOR_MAP[p.faculty]?.find((m) => m.name === p.major)?.code);
   }
+  if (p.nim) out.nim = storedNim(p.institution, p.nim);
   set("year", p.year); set("whatsapp", p.whatsapp); set("avatarUrl", p.avatarUrl); set("classcardTheme", p.classcardTheme);
   set("bio", p.bio); set("skills", p.skills); set("softSkills", p.softSkills); set("interests", p.interests);
   if (p.preferredRole !== undefined) out.preferredRole = p.preferredRole || null;

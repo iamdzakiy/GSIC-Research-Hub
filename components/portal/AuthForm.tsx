@@ -8,7 +8,12 @@ import { cn } from "@/lib/cn";
 import { supabase } from "@/lib/supabaseClient";
 import { useToast } from "@/components/ui/Toast";
 import { uploadCv } from "@/services/userService";
-import { accountSchema, emailOnlySchema, fieldErrors, registerSchema, resetPasswordSchema, signInSchema } from "@/lib/validation/auth";
+import { accountSchema, emailOnlySchema, fieldErrors, profileStepSchema, registerSchema, resetPasswordSchema, signInSchema } from "@/lib/validation/auth";
+import { NIM_TAKEN, nimLabel } from "@/lib/nim";
+import { ago, clearDraft, loadDraft, sanitize, saveDraft, type SignupDraft } from "@/lib/signup-draft";
+import type { NimAvailability } from "@/components/portal/NimField";
+import SaveStatus, { type SaveState } from "@/components/motion/SaveStatus";
+import { FIELDS, INTERESTS, PKM_ROLES, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import ProfileFields, { EMPTY_PROFILE, type ProfileValues } from "@/components/portal/ProfileFields";
 
 export type AuthMode = "signin" | "signup" | "magic" | "forgot" | "reset";
@@ -60,7 +65,14 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState<Sent | null>(null);
   const [cooldown, setCooldown] = useState(0);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStepRaw] = useState<1 | 2 | 3>(1);
+  const [dir, setDir] = useState<"fwd" | "back">("fwd");
+  const setStep = (n: 1 | 2 | 3) => { setDir(n < step ? "back" : "fwd"); setStepRaw(n); };
+  const [pending, setPending] = useState<SignupDraft | null>(null);
+  const [draftState, setDraftState] = useState<SaveState>("idle");
+  const [draftFailed, setDraftFailed] = useState(false);
+  const [nimAvail, setNimAvail] = useState<NimAvailability>("idle");
+  const [bannerChecked, setBannerChecked] = useState(false);
   const [profile, setProfile] = useState<ProfileValues>(EMPTY_PROFILE);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [touched, setTouched] = useState<Set<string>>(new Set());
@@ -74,13 +86,44 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     return () => clearTimeout(t);
   }, [cooldown]);
 
+  // Offer to continue a saved sign-up. Nothing is restored until the person says so, and nothing is written meanwhile.
+  useEffect(() => {
+    if (mode !== "signup") { setPending(null); return; }
+    setPending(loadDraft(window.localStorage));
+    setBannerChecked(true);
+  }, [mode]);
+
+  // Save as they type (debounced). Password fields are not part of the draft.
+  useEffect(() => {
+    if (mode !== "signup" || !bannerChecked || pending || done) return;
+    if (!name && !email && profile === EMPTY_PROFILE) return;
+    setDraftState("saving");
+    const t = setTimeout(() => {
+      const ok = saveDraft(window.localStorage, sanitize({ step, name, email, profile }));
+      setDraftFailed(!ok);
+      setDraftState(ok ? "saved" : "error");
+    }, 500);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, email, profile, step, mode, bannerChecked, pending]);
+
+  // Warn only about what the draft cannot hold: a browser that would not store it, or a CV file that is picked but not uploaded yet.
+  useEffect(() => {
+    if (mode !== "signup" || done) return;
+    const dirty = draftFailed || !!cvFile;
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [mode, draftFailed, cvFile, done]);
+
   const copy = TITLES[mode];
   const touch = (k: string) => setTouched((t) => (t.has(k) ? t : new Set(t).add(k)));
 
   // Inline validation: once a field has been visited, re-check it as the user types.
   useEffect(() => {
     if (!touched.size && !profile.linkedinUrl) return;
-    const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
+    const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : step === 2 ? profileStepSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
     const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     const fe = parsed.success ? {} : fieldErrors(parsed.error);
@@ -126,17 +169,23 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
     setErrors({});
 
     // 1) client-side validation (same zod schemas as the server)
-    const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
+    const schema = { signin: signInSchema, signup: step === 1 ? accountSchema : step === 2 ? profileStepSchema : registerSchema, magic: emailOnlySchema, forgot: emailOnlySchema, reset: resetPasswordSchema }[mode];
     const values = mode === "signup" ? { name, email, password, confirm, ...profile, whatsapp: profile.whatsapp || undefined, preferredRole: profile.preferredRole || null, pkmRole: profile.pkmRole || null } : { name, email, password, confirm };
     const parsed = schema.safeParse(values);
     if (!parsed.success) {
-      setErrors(fieldErrors(parsed.error));
+      const fe = fieldErrors(parsed.error);
+      if (mode === "signup" && step === 3 && ["name", "email", "password", "confirm"].some((k) => fe[k])) {
+        setStep(1);
+        setErrors({ ...fe, form: "Enter your password again. We never keep passwords on this device." });
+      } else setErrors(fe);
       setSubmitted(true);
       return;
     }
 
-    if (mode === "signup" && step === 1) {
-      setStep(2);
+    if (mode === "signup" && step === 1) { setStep(2); return; }
+    if (mode === "signup" && step === 2) {
+      if (nimAvail === "taken") { setErrors({ nim: NIM_TAKEN }); setSubmitted(true); return; }
+      setStep(3);
       return;
     }
 
@@ -169,7 +218,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
       if (!res.ok) {
         if (res.fieldErrors) {
           setErrors(res.fieldErrors);
-          if (mode === "signup" && ["name", "email", "password", "confirm"].some((k) => res.fieldErrors?.[k])) setStep(1);
+          if (mode === "signup") setStep(["name", "email", "password", "confirm"].some((k) => res.fieldErrors?.[k]) ? 1 : 2);
         }
         setErrors((p) => ({ ...p, form: res.error ?? "Something went wrong." }));
         setSubmitted(true);
@@ -182,6 +231,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           setErrors({ form: "Your account was created, but we could not sign you in. Try signing in." });
           return;
         }
+        clearDraft(window.localStorage);
         if (cvFile) await uploadCv(cvFile).catch(() => toast("error", "Your account is ready, but the CV upload failed. Add it from your profile."));
         setDone(name.trim().split(/\s+/)[0] || "there");
         setTimeout(() => router.replace(safeNext()), 1400);
@@ -257,19 +307,41 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
 
   return (
     <div>
+      {mode === "signup" && pending && (
+        <div role="region" aria-label="Saved sign-up" className="mb-5 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-slate-800">
+          <p className="font-medium">Continue where you left off?</p>
+          <p className="mt-0.5 text-xs text-slate-600">Saved {ago(pending.savedAt)}. Your password is not saved, so you will enter it again.</p>
+          <div className="mt-3 flex gap-2">
+            <button type="button" onClick={() => {
+              setName(pending.name); setEmail(pending.email); setProfile({ ...EMPTY_PROFILE, ...pending.profile });
+              setDir("fwd"); setStepRaw(pending.step); setPending(null);
+            }} className="inline-flex h-9 items-center rounded-lg bg-brand-600 px-3.5 text-xs font-medium text-white hover:bg-brand-700">Continue</button>
+            <button type="button" onClick={() => { clearDraft(window.localStorage); setPending(null); setDraftState("idle"); }} className="inline-flex h-9 items-center rounded-lg border border-slate-300 bg-white px-3.5 text-xs font-medium text-slate-700 hover:bg-slate-50">Start over</button>
+          </div>
+        </div>
+      )}
       {mode === "signup" && (
         <ol className="mb-5 flex items-center gap-2 text-xs font-medium" aria-label="Sign-up progress">
-          {["Account", "Profile"].map((t, i) => (
-            <li key={t} className="flex flex-1 items-center gap-2">
-              <span className={cn("flex h-6 w-6 items-center justify-center rounded-full text-[11px]", step >= i + 1 ? "bg-brand-600 text-white" : "bg-slate-200 text-slate-500")}>{i + 1}</span>
-              <span className={step >= i + 1 ? "text-slate-900" : "text-slate-500"}>{t}</span>
-              <span className={cn("h-px flex-1", step > i + 1 ? "bg-brand-600" : "bg-slate-200")} />
-            </li>
-          ))}
+          {["Account", "Profile", "Review"].map((t, i) => {
+            const n = (i + 1) as 1 | 2 | 3;
+            const reached = step >= n;
+            const body = (
+              <>
+                <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px]", reached ? "bg-brand-600 text-white" : "bg-slate-200 text-slate-500")}>{step > n ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : n}</span>
+                <span className={reached ? "text-slate-900" : "text-slate-500"}>{t}</span>
+              </>
+            );
+            return (
+              <li key={t} className="flex flex-1 items-center gap-2" aria-current={step === n ? "step" : undefined}>
+                {step > n ? <button type="button" onClick={() => setStep(n)} className="flex items-center gap-2 rounded hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">{body}</button> : <span className="flex items-center gap-2">{body}</span>}
+                {i < 2 && <span className={cn("h-px flex-1", step > n ? "bg-brand-600" : "bg-slate-200")} />}
+              </li>
+            );
+          })}
         </ol>
       )}
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-heading">{mode === "signup" && step === 2 ? "Tell us about you" : copy.h}</h1>
-      <p className="mt-1.5 text-sm text-slate-600">{mode === "signup" && step === 2 ? "This sets up your profile and helps us point you to the right opportunities. You can change everything later." : copy.p}</p>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-heading">{mode === "signup" && step === 2 ? "Tell us about you" : mode === "signup" && step === 3 ? "Check your details" : copy.h}</h1>
+      <p className="mt-1.5 text-sm text-slate-600">{mode === "signup" && step === 2 ? "This sets up your profile and helps us point you to the right opportunities. You can change everything later." : mode === "signup" && step === 3 ? "One last look. Use Edit to change anything before you create the account." : copy.p}</p>
 
       <form onSubmit={submit} noValidate className="mt-6 space-y-4">
         {errors.form && (
@@ -279,7 +351,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        <div key={`${mode}-${step}`} className="step-in space-y-4">
+        <div key={`${mode}-${step}`} data-dir={dir} className="step-in space-y-4">
         {mode === "signup" && step === 1 && (
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium text-slate-700">Full name</label>
@@ -288,7 +360,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {mode !== "reset" && !(mode === "signup" && step === 2) && (
+        {mode !== "reset" && !(mode === "signup" && step >= 2) && (
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
             <input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => touch("email")} placeholder="you@mahasiswa.itb.ac.id" className={input("email", !!errors.email)} aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-err" : undefined} />
@@ -296,7 +368,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {usesPassword && !(mode === "signup" && step === 2) && (
+        {usesPassword && !(mode === "signup" && step >= 2) && (
           <div>
             <div className="mb-1.5 flex items-center justify-between">
               <label htmlFor="password" className="text-sm font-medium text-slate-700">{mode === "reset" ? "New password" : "Password"}</label>
@@ -332,20 +404,53 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
           </div>
         )}
 
-        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} cv={{ label: cvFile?.name ?? null, onPick: (f) => { setCvFile(f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? null : f); setErrors((p) => ({ ...p, cv: f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? "Use a PDF of 5 MB or less." : "" })); }, error: errors.cv }} />}
+        {mode === "signup" && step === 2 && <ProfileFields value={profile} onChange={setProfile} errors={errors} onNimAvailability={setNimAvail} cv={{ label: cvFile?.name ?? null, onPick: (f) => { setCvFile(f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? null : f); setErrors((p) => ({ ...p, cv: f && (f.type !== "application/pdf" || f.size > 5 * 1024 * 1024) ? "Use a PDF of 5 MB or less." : "" })); }, error: errors.cv }} />}
 
+
+        {mode === "signup" && step === 3 && (
+          <div className="space-y-3">
+            {([
+              { n: 1 as const, title: "Account", rows: [["Name", name], ["Email", email]] },
+              { n: 2 as const, title: "Profile", rows: [
+                ["University", profile.institution],
+                [nimLabel(profile.institution), profile.nim],
+                ["Faculty", profile.faculty], ["Major", profile.major], ["Entry year", String(profile.year)],
+                ["WhatsApp", profile.whatsapp],
+                ["Skills", [...profile.skills, ...profile.softSkills].join(", ")],
+                ["Interests", profile.interests.map((x) => labelOf(INTERESTS, x)).join(", ")],
+                ["Fields", profile.fields.map((x) => labelOf(FIELDS, x)).join(", ")],
+                ["Preferred role", labelOf(PREFERRED_ROLES, profile.preferredRole)],
+                ["PKM role", labelOf(PKM_ROLES, profile.pkmRole)],
+                ["LinkedIn", profile.linkedinUrl],
+                ["CV", cvFile?.name ?? ""],
+              ] },
+            ]).map((sec) => (
+              <section key={sec.title} className="rounded-lg border border-slate-200 bg-white p-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold text-slate-900">{sec.title}</h2>
+                  <button type="button" onClick={() => setStep(sec.n)} className="text-xs font-medium text-brand-700 hover:underline">Edit<span className="sr-only"> {sec.title.toLowerCase()}</span></button>
+                </div>
+                <dl className="mt-2 grid grid-cols-[7rem_1fr] gap-x-3 gap-y-1.5 text-sm">
+                  {sec.rows.filter(([, v]) => v).map(([k, v]) => (<div key={k} className="contents"><dt className="text-slate-500">{k}</dt><dd className="break-words text-slate-900">{v}</dd></div>))}
+                </dl>
+              </section>
+            ))}
+            <p className="text-xs text-slate-500">Your password is not shown here. If you came back to a saved sign-up, you will be asked for it once more.</p>
+          </div>
+        )}
         </div>
 
-        {mode === "signup" && step === 2 && (
-          <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-700">
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to account details
+        {mode === "signup" && step > 1 && (
+          <button type="button" onClick={() => setStep((step - 1) as 1 | 2)} className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-brand-700">
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> {step === 2 ? "Back to account details" : "Back to profile"}
           </button>
         )}
 
         <button type="submit" disabled={loading} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand-600 text-sm font-medium text-white hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70">
           {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
-          {loading ? "Working…" : mode === "signup" && step === 2 ? "Create account" : copy.cta}
+          {loading ? "Working…" : mode === "signup" && step === 2 ? "Review" : mode === "signup" && step === 3 ? "Create account" : copy.cta}
         </button>
+        {mode === "signup" && <SaveStatus state={draftState} />}
       </form>
 
       <div className="mt-6 space-y-3 text-center text-sm text-slate-600">

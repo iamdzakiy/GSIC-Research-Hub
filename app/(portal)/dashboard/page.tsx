@@ -6,6 +6,8 @@ import { ArrowRight, Award, CalendarDays, Settings, Target, TrendingUp } from "l
 import { useAuth } from "@/components/AuthContext";
 import { INTERESTS, PREFERRED_ROLES, labelOf } from "@/lib/profile-options";
 import dynamic from "next/dynamic";
+import DraftsBlock from "@/components/portal/dashboard/DraftsBlock";
+import { NimBanner } from "@/components/portal/NimGate";
 import HomeHooks from "@/components/portal/dashboard/HomeHooks";
 import MyEvents from "@/components/portal/dashboard/MyEvents";
 import JourneyStepper from "@/components/portal/dashboard/JourneyStepper";
@@ -115,6 +117,8 @@ export default function DashboardPage() {
         <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
           {tab === "ringkasan" && (
             <div className="space-y-4">
+              <NimBanner />
+              <DraftsBlock />
               <HomeHooks />
               <MyEvents />
               <h2 className="font-display text-lg font-bold text-slate-900">Your progress</h2>

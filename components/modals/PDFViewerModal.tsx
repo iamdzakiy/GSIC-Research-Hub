@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X, FileText, Download } from "lucide-react";
 
 interface PDFViewerModalProps {
@@ -34,14 +34,14 @@ export default function PDFViewerModal({ open, onClose, url, title = "Document" 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm"
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
-          <motion.div
+          <m.div
             initial={{ scale: 0.95, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 20, opacity: 0 }}
@@ -50,7 +50,7 @@ export default function PDFViewerModal({ open, onClose, url, title = "Document" 
           >
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 bg-white/[0.03]">
               <div className="flex items-center gap-2 min-w-0">
-                <FileText className="w-5 h-5 text-[#5CE3B6] shrink-0" />
+                <FileText className="w-5 h-5 text-mint shrink-0" />
                 <h3 className="font-semibold text-white font-heading truncate">{title}</h3>
               </div>
               <div className="flex items-center gap-1">
@@ -59,7 +59,7 @@ export default function PDFViewerModal({ open, onClose, url, title = "Document" 
                   target="_blank"
                   rel="noopener noreferrer"
                   download
-                  className="p-2 rounded-lg text-white/60 hover:text-[#5CE3B6] hover:bg-white/5 transition"
+                  className="p-2 rounded-lg text-white/60 hover:text-mint hover:bg-white/5 transition"
                   title="Download"
                 >
                   <Download className="w-5 h-5" />
@@ -74,11 +74,11 @@ export default function PDFViewerModal({ open, onClose, url, title = "Document" 
               </div>
             </div>
 
-            <div className="flex-1 bg-[#0B1120]">
+            <div className="flex-1 bg-navy">
               <iframe src={url} title={title} className="w-full h-full border-0" />
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

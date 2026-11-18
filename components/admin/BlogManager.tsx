@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Plus, Edit3, Trash2, Pencil, Globe, FileWarning, Save, Clock, ImagePlus, X, Loader2 } from "lucide-react";
 import { BlogPost, PostStatus } from "@/lib/types";
 import { createBlogPost, updateBlogPost, deleteBlogPost, CreateBlogInput } from "@/services/blog";
@@ -141,11 +141,11 @@ export default function BlogManager() {
       <div className="glass rounded-2xl p-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h3 className="font-semibold flex items-center gap-2 font-heading">
-            <Pencil className="w-4 h-4 text-[#5CE3B6]" /> Blog Posts ({posts.length})
+            <Pencil className="w-4 h-4 text-mint" /> Blog Posts ({posts.length})
           </h3>
           <button
             onClick={openCreate}
-            className="flex items-center gap-1 text-sm bg-[#3352CD] hover:bg-[#2a44ad] text-white px-4 py-2 rounded-full font-medium transition"
+            className="flex items-center gap-1 text-sm bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-full font-medium transition"
           >
             <Plus className="w-4 h-4" /> New Post
           </button>
@@ -156,7 +156,7 @@ export default function BlogManager() {
             <button
               key={f}
               onClick={() => setActiveFilter(f as any)}
-              className={cn("text-xs px-3 py-1.5 rounded-full border capitalize transition", activeFilter === f ? "bg-[#3352CD]/40 border-[#3352CD] text-white" : "bg-white/5 border-white/10 text-white/50 hover:text-white")}
+              className={cn("text-xs px-3 py-1.5 rounded-full border capitalize transition", activeFilter === f ? "bg-brand-600/40 border-brand-600 text-white" : "bg-white/5 border-white/10 text-white/50 hover:text-white")}
             >{f}</button>
           ))}
         </div>
@@ -174,7 +174,7 @@ export default function BlogManager() {
                   <p className="text-sm font-medium truncate">{post.title}</p>
                   <p className="text-[10px] text-white/30 flex items-center gap-2">
                     <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {fmtDate(post.publishedAt || post.createdAt)}</span>
-                    <span className={cn("flex items-center gap-1", post.status === "published" ? "text-[#5CE3B6]" : "text-[#F2F8C9]")}>
+                    <span className={cn("flex items-center gap-1", post.status === "published" ? "text-mint" : "text-cream")}>
                       {post.status === "published" ? <Globe className="w-3 h-3" /> : <FileWarning className="w-3 h-3" />}
                       {post.status}
                     </span>
@@ -185,7 +185,7 @@ export default function BlogManager() {
                     onClick={() => toggleStatus(post)}
                     title={post.status === "published" ? "Move to draft" : "Publish"}
                     className={cn("text-xs px-2.5 py-1 rounded-full border transition",
-                      post.status === "published" ? "bg-[#5CE3B6]/15 text-[#5CE3B6] border-[#5CE3B6]/30 hover:bg-[#5CE3B6]/25" : "bg-[#F2F8C9]/15 text-[#F2F8C9] border-[#F2F8C9]/30 hover:bg-[#F2F8C9]/25")}
+                      post.status === "published" ? "bg-mint/15 text-mint border-mint/30 hover:bg-mint/25" : "bg-cream/15 text-cream border-cream/30 hover:bg-cream/25")}
                   >
                     {post.status === "published" ? "Unpublish" : "Publish"}
                   </button>
@@ -200,7 +200,7 @@ export default function BlogManager() {
 
       {editorOpen && (
         <div className="fixed inset-0 z-[105] flex items-start justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-4xl glass-strong rounded-2xl border border-white/10 shadow-2xl my-6">
+          <m.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="relative w-full max-w-4xl glass-strong rounded-2xl border border-white/10 shadow-2xl my-6">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
               <h3 className="font-bold text-white font-heading">{editingId ? "Edit Post" : "New Post"}</h3>
               <button onClick={() => setEditorOpen(false)} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition">✕</button>
@@ -210,11 +210,11 @@ export default function BlogManager() {
                 value={draft.title}
                 onChange={(e) => setDraft({ ...draft, title: e.target.value })}
                 placeholder="Post title"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-lg font-heading font-semibold text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-lg font-heading font-semibold text-white placeholder-white/30 focus:outline-none focus:border-brand-600/60"
               />
               <TipTapEditor value={draft.content} onChange={(html) => setDraft({ ...draft, content: html })} placeholder="Start writing…" />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input value={draft.excerpt} onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })} placeholder="Short excerpt (optional)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
+                <input value={draft.excerpt} onChange={(e) => setDraft({ ...draft, excerpt: e.target.value })} placeholder="Short excerpt (optional)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-brand-600/60" />
                 <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white">
                   {draft.coverImage ? (
                     <>
@@ -238,8 +238,8 @@ export default function BlogManager() {
                     </label>
                   )}
                 </div>
-                <input value={draft.slug} onChange={(e) => setDraft({ ...draft, slug: e.target.value })} placeholder="URL slug (auto)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
-                <input value={draft.tags} onChange={(e) => setDraft({ ...draft, tags: e.target.value })} placeholder="Tags (comma separated)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#3352CD]/60" />
+                <input value={draft.slug} onChange={(e) => setDraft({ ...draft, slug: e.target.value })} placeholder="URL slug (auto)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-brand-600/60" />
+                <input value={draft.tags} onChange={(e) => setDraft({ ...draft, tags: e.target.value })} placeholder="Tags (comma separated)" className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-brand-600/60" />
               </div>
               <div className="flex items-center justify-end gap-2">
                 <label className="text-xs text-white/60 mr-auto flex items-center gap-2">
@@ -247,19 +247,19 @@ export default function BlogManager() {
                   <button
                     onClick={() => setDraft((d) => ({ ...d, status: d.status === "published" ? "draft" : "published" }))}
                     className={cn("text-xs px-3 py-1 rounded-full border transition",
-                      draft.status === "published" ? "bg-[#5CE3B6]/20 text-[#5CE3B6] border-[#5CE3B6]/40" : "bg-[#F2F8C9]/20 text-[#F2F8C9] border-[#F2F8C9]/40")}
+                      draft.status === "published" ? "bg-mint/20 text-mint border-mint/40" : "bg-cream/20 text-cream border-cream/40")}
                   >
                     {draft.status === "published" ? "Published" : "Draft"}
                   </button>
                 </label>
                 <button onClick={save} disabled={saving}
-                  className="flex items-center gap-2 text-sm bg-[#3352CD] hover:bg-[#2a44ad] text-white px-5 py-2 rounded-full font-medium shadow-lg disabled:opacity-50 transition">
+                  className="flex items-center gap-2 text-sm bg-brand-600 hover:bg-brand-700 text-white px-5 py-2 rounded-full font-medium shadow-lg disabled:opacity-50 transition">
                   <Save className="w-4 h-4" /> {saving ? "Saving…" : "Save Post"}
                 </button>
               </div>
               {error && <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">{error}</div>}
             </div>
-          </motion.div>
+          </m.div>
         </div>
       )}
     </div>

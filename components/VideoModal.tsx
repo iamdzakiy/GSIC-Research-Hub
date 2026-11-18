@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
 interface VideoModalProps {
@@ -69,23 +69,23 @@ export default function VideoModal({ open, onClose, videoUrl, title }: VideoModa
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           onClick={close}
         >
-          <motion.div
+          <m.div
             initial={{ scale: 0.9, y: 20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.9, y: 20, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative w-full max-w-4xl xl:max-w-5xl bg-[#111827] rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-4xl xl:max-w-5xl bg-navy-800 rounded-2xl overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-gradient-to-r from-[#111827] to-[#1F2937]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-navy-800">
               <h3 className="font-bold text-white font-heading">{title || "Media"}</h3>
               <button
                 onClick={close}
@@ -123,8 +123,8 @@ export default function VideoModal({ open, onClose, videoUrl, title }: VideoModa
                 </div>
               )}
             </div>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       )}
     </AnimatePresence>
   );

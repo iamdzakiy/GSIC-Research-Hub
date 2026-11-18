@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin, requireUser } from "@/lib/auth-helper";
 import { withErrorHandler } from "@/lib/api-utils";
-import { buildRapor } from "@/lib/scoring";
+import { buildRaporV3 } from "@/lib/rapor";
 
 export const dynamic = "force-dynamic";
 
@@ -13,14 +13,14 @@ export const GET = withErrorHandler(async (request: Request) => {
   let userId = me.id;
   if (asUser && asUser !== me.id) { await requireAdmin(request); userId = asUser; }
 
-  const regs = await prisma.registration.findMany({ where: { userId }, orderBy: { registeredAt: "desc" } });
+  const regs = await prisma.registration.findMany({ where: { userId, status: { notIn: ["cancelled", "waitlisted"] } }, orderBy: { registeredAt: "desc" } });
   const eventIds = regs.map((r) => r.eventId);
   const [events, tests, results, profile] = await Promise.all([
-    prisma.event.findMany({ where: { id: { in: eventIds } }, select: { id: true, title: true, type: true, startDate: true, location: true } }),
+    prisma.event.findMany({ where: { id: { in: eventIds } }, select: { id: true, slug: true, title: true, type: true, startDate: true, location: true, certificateEnabled: true } }),
     prisma.test.findMany({ where: { eventId: { in: eventIds } } }),
     prisma.testResult.findMany({ where: { userId } }),
-    prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, faculty: true, major: true, year: true } }),
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, nim: true, faculty: true, major: true, year: true } }),
   ]);
-  const rapor = buildRapor(regs, events, tests as never, results);
+  const rapor = buildRaporV3(regs, events, tests, results);
   return NextResponse.json({ profile, ...rapor });
 });

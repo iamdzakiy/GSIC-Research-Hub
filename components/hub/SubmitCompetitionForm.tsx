@@ -9,6 +9,11 @@ import { COMPETITION_CATEGORIES } from "@/lib/competitions";
 import { submitCompetitionSchema } from "@/lib/validation/submit-competition";
 import { fieldErrors } from "@/lib/validation/auth";
 import { cn } from "@/lib/cn";
+import { z } from "zod";
+import { useDraftedForm } from "@/lib/hooks/useFormDraft";
+import SaveStatus from "@/components/motion/SaveStatus";
+
+const draftSchema = z.object({ title: z.string().max(300), organizer: z.string().max(300), category: z.string().max(60), theme: z.string().max(300), link: z.string().max(500), guidebookUrl: z.string().max(500), deadline: z.string().max(40), registrationFee: z.string().max(100), notes: z.string().max(3000) });
 
 const EMPTY = { title: "", organizer: "", category: "", theme: "", link: "", guidebookUrl: "", deadline: "", registrationFee: "", notes: "" };
 
@@ -28,6 +33,7 @@ export default function SubmitCompetitionForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const draft = useDraftedForm("competition-submit", draftSchema, f, (d) => setF((p) => ({ ...p, ...d })), { enabled: !!user });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => setF((p) => ({ ...p, [k]: e.target.value }));
 
   async function submit(e: React.FormEvent) {
@@ -37,7 +43,7 @@ export default function SubmitCompetitionForm() {
     setBusy(true);
     const r = await callApi("/api/competitions/submit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(parsed.data) });
     setBusy(false);
-    if (r.ok) { setDone(true); setF(EMPTY); setErrors({}); } else setErrors({ ...(r.fieldErrors ?? {}), form: r.error });
+    if (r.ok) { await draft.clear(); setDone(true); setF(EMPTY); setErrors({}); } else setErrors({ ...(r.fieldErrors ?? {}), form: r.error });
   }
 
   if (loading) return <div className="h-96 animate-pulse rounded-2xl bg-white" />;
@@ -78,7 +84,7 @@ export default function SubmitCompetitionForm() {
       <F errors={errors} k="link" label="Registration or info link"><input id="sc-link" type="url" value={f.link} onChange={set("link")} placeholder="https://" className={input(!!errors.link)} /></F>
       <F errors={errors} k="guidebookUrl" label="Guidebook link" hint="(optional)"><input id="sc-guidebookUrl" type="url" value={f.guidebookUrl} onChange={set("guidebookUrl")} placeholder="https://drive.google.com/…" className={input(!!errors.guidebookUrl)} /></F>
       <F errors={errors} k="notes" label="Anything else" hint="(optional)"><textarea id="sc-notes" rows={3} maxLength={600} value={f.notes} onChange={set("notes")} className={cn(input(), "h-auto py-2.5")} /></F>
-      <div className="flex justify-end border-t border-slate-100 pt-5"><button type="submit" disabled={busy} className={btnPrimary}>{busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}Submit for review</button></div>
+      <div className="flex items-center justify-between border-t border-slate-100 pt-5"><SaveStatus state={draft.status} /><button type="submit" disabled={busy} className={btnPrimary}>{busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}Submit for review</button></div>
     </form>
   );
 }

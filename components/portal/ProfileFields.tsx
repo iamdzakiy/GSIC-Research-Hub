@@ -4,9 +4,12 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { FACULTY_MAJOR_MAP, FACULTY_NAMES } from "@/lib/types";
+import NimField, { type NimAvailability } from "@/components/portal/NimField";
+import { isItb, parseNim } from "@/lib/nim";
 import { FIELDS, HARD_SKILLS, INTERESTS, PKM_ROLES, PREFERRED_ROLES, SOFT_SKILLS, YEARS } from "@/lib/profile-options";
 
 export interface ProfileValues {
+  nim: string;
   faculty: string;
   major: string;
   year: number;
@@ -22,7 +25,7 @@ export interface ProfileValues {
 }
 
 export const EMPTY_PROFILE: ProfileValues = {
-  faculty: "", major: "", year: new Date().getFullYear(), whatsapp: "",
+  nim: "", faculty: "", major: "", year: new Date().getFullYear(), whatsapp: "",
   skills: [], softSkills: [], interests: [], linkedinUrl: "", preferredRole: "", pkmRole: "", fields: [], institution: "ITB",
 };
 
@@ -86,15 +89,42 @@ export interface CvControl {
 }
 
 export default function ProfileFields({
-  value, onChange, errors = {}, cv,
-}: { value: ProfileValues; onChange: (v: ProfileValues) => void; errors?: Record<string, string>; cv?: CvControl }) {
+  value, onChange, errors = {}, cv, onNimAvailability,
+}: { value: ProfileValues; onChange: (v: ProfileValues) => void; errors?: Record<string, string>; cv?: CvControl; onNimAvailability?: (s: NimAvailability) => void }) {
   const set = <K extends keyof ProfileValues>(k: K, v: ProfileValues[K]) => onChange({ ...value, [k]: v });
+  const itb = isItb(value.institution);
+  // A recognised program code fills faculty, major and intake year. The user can still change all three.
+  const setNim = (nim: string) => {
+    const info = itb ? parseNim(nim) : null;
+    if (info?.valid && info.faculty && info.major && FACULTY_MAJOR_MAP[info.faculty]) onChange({ ...value, nim, faculty: info.faculty, major: info.major, year: info.intakeYear ?? value.year });
+    else if (info?.valid && info.intakeYear) onChange({ ...value, nim, year: info.intakeYear });
+    else onChange({ ...value, nim });
+  };
   const majors = FACULTY_MAJOR_MAP[value.faculty] ?? [];
   const Err = ({ k }: { k: string }) => (errors[k] ? <p className="mt-1.5 text-xs text-rose-600">{errors[k]}</p> : null);
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
+        <fieldset className="sm:col-span-2">
+          <legend className="mb-1.5 text-sm font-medium text-slate-700">University</legend>
+          <div className="flex gap-2">
+            {[["ITB", true], ["Another university", false]].map(([label, isIt]) => (
+              <button key={String(label)} type="button" aria-pressed={itb === isIt} onClick={() => itb !== isIt && onChange({ ...value, institution: isIt ? "ITB" : "" })}
+                className={cn("press h-10 flex-1 rounded-lg border text-sm font-medium transition-colors", itb === isIt ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-brand-400")}>{label}</button>
+            ))}
+          </div>
+          {!itb && (
+            <div className="mt-3">
+              <label htmlFor="institution" className="mb-1.5 block text-sm font-medium text-slate-700">University name</label>
+              <input id="institution" value={value.institution} onChange={(e) => set("institution", e.target.value)} autoComplete="organization" className={field(errors.institution)} />
+              <Err k="institution" />
+            </div>
+          )}
+        </fieldset>
+        <div className="sm:col-span-2">
+          <NimField institution={value.institution} value={value.nim} onChange={setNim} error={errors.nim} onAvailability={onNimAvailability} />
+        </div>
         <div className="sm:col-span-2">
           <label htmlFor="faculty" className="mb-1.5 block text-sm font-medium text-slate-700">Faculty or school</label>
           <select id="faculty" value={value.faculty} onChange={(e) => onChange({ ...value, faculty: e.target.value, major: "" })} className={field(errors.faculty)}>
@@ -114,7 +144,7 @@ export default function ProfileFields({
           <Err k="major" />
         </div>
         <div>
-          <label htmlFor="year" className="mb-1.5 block text-sm font-medium text-slate-700">Entry year</label>
+          <label htmlFor="year" className="mb-1.5 block text-sm font-medium text-slate-700">Intake year</label>
           <select id="year" value={value.year} onChange={(e) => set("year", Number(e.target.value))} className={field(errors.year)}>
             {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
           </select>

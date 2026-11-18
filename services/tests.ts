@@ -7,7 +7,7 @@ export async function getTests(params?: { page?: number; pageSize?: number; even
   if (params?.pageSize) qs.set("pageSize", String(params.pageSize));
   if (params?.eventId) qs.set("eventId", params.eventId);
   const suffix = qs.toString() ? `?${qs.toString()}` : "";
-  const res = await fetch(`/api/tests${suffix}`);
+  const res = await apiFetch(`/api/tests${suffix}`);
   if (!res.ok) throw new Error("Failed to fetch");
   const data = await res.json();
   return Array.isArray(data) ? data : (data.tests || []);
@@ -65,7 +65,7 @@ export async function createTest(data: Partial<Test>) {
 }
 
 export async function updateTest(id: string, data: Partial<Test>) {
-  const res = await apiFetch(`/api/tests/${id}`, {
+  const res = await apiFetch("/api/tests", {
     method: "PUT",
     body: JSON.stringify({ id, ...data }),
   });
@@ -98,4 +98,9 @@ export function summarizeResults(results: TestResult[]): {
   const maxScore = Math.max(...results.map((r) => r.maxScore), 1);
   const averageScore = results.reduce((sum, r) => sum + r.score, 0) / results.length;
   return { count: results.length, averageScore, maxScore, passRate: 0, passingScore: 0 };
+}
+export async function duplicateTest(id: string) {
+  const res = await apiFetch("/api/tests", { method: "POST", body: JSON.stringify({ duplicateOf: id }) });
+  if (!res.ok) throw new Error(await extractError(res));
+  return res.json() as Promise<Test>;
 }

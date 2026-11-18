@@ -63,7 +63,7 @@ export const FIELDS = [
   { id: "technology", label: "Technology" },
 ] as const;
 
-export const YEARS = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
+export const YEARS = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() - i);
 
 export const INTEREST_IDS: string[] = INTERESTS.map((i) => i.id);
 export const PREFERRED_ROLE_IDS: string[] = PREFERRED_ROLES.map((r) => r.id);

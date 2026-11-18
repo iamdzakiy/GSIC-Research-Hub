@@ -10,7 +10,7 @@ const WIB = 7 * 3600_000;
 const toLocal = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() + WIB).toISOString().slice(0, 16) : "");
 const fromLocal = (v: string) => (v ? new Date(`${v}:00+07:00`).toISOString() : null);
 
-const box = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] text-sm";
+const box = "w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint text-sm";
 const label = "block text-xs text-white/50 mb-1";
 
 export default function EventEditor({ event, onClose, onSaved }: { event: GSICEvent; onClose: () => void; onSaved: (e: GSICEvent) => void }) {
@@ -55,13 +55,13 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
 
   return (
     <div className="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto bg-black/70 p-4" role="dialog" aria-modal="true" aria-label="Edit event">
-      <form onSubmit={save} className="my-6 w-full max-w-3xl rounded-2xl border border-white/10 bg-[#0B1120] text-white shadow-xl">
+      <form onSubmit={save} className="my-6 w-full max-w-3xl rounded-2xl border border-white/10 bg-navy text-white shadow-xl">
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <h2 className="font-semibold font-heading">Edit event</h2>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-md p-1.5 text-white/60 hover:bg-white/10"><X className="h-5 w-5" /></button>
         </div>
         <div className="grid gap-4 px-6 py-5 sm:grid-cols-2">
-          <label className="sm:col-span-2 flex items-start gap-3 rounded-xl border border-[#5CE3B6]/30 bg-[#5CE3B6]/5 p-3 text-sm"><input type="checkbox" checked={f.comingSoon} onChange={(e) => set("comingSoon", e.target.checked)} className="mt-0.5 accent-[#5CE3B6]" /><span><b>Coming soon</b><br /><span className="text-white/60">Hides dates, capacity, speakers and registration. Turning it off needs start, end, deadline, location and capacity, and e-mails everyone who pressed &quot;Notify me&quot; (if registration is open).</span></span></label>
+          <label className="sm:col-span-2 flex items-start gap-3 rounded-xl border border-mint/30 bg-mint/5 p-3 text-sm"><input type="checkbox" checked={f.comingSoon} onChange={(e) => set("comingSoon", e.target.checked)} className="mt-0.5 accent-mint" /><span><b>Coming soon</b><br /><span className="text-white/60">Hides dates, capacity, speakers and registration. Turning it off needs start, end, deadline, location and capacity, and e-mails everyone who pressed &quot;Notify me&quot; (if registration is open).</span></span></label>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-series">Series</label><select id="ee-series" className={box} value={f.series} onChange={(e) => set("series", e.target.value)}><option value="">(by type)</option><option>GSIC PKM Bootcamp</option><option>The Sandbox Series</option></select></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-title">Title</label><input id="ee-title" className={box} value={f.title} onChange={(e) => set("title", e.target.value)} required /></div>
           <div><label className={label} htmlFor="ee-slug">Slug (URL: /events/slug)</label><input id="ee-slug" className={box} value={f.slug} onChange={(e) => set("slug", e.target.value)} pattern="[a-z0-9-]*" /></div>
@@ -77,9 +77,9 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
           <div><label className={label} htmlFor="ee-mode">Mode</label><select id="ee-mode" className={box} value={f.mode} onChange={(e) => set("mode", e.target.value as "online")}><option value="online">online</option><option value="onsite">onsite</option><option value="hybrid">hybrid</option></select></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-url">Meeting link (only registered users see it)</label><input id="ee-url" type="url" className={box} value={f.meetingUrl} onChange={(e) => set("meetingUrl", e.target.value)} placeholder="https://zoom.us/j/..." /></div>
           <div><label className={label} htmlFor="ee-status">Status</label><select id="ee-status" className={box} value={f.status} onChange={(e) => set("status", e.target.value)}>{["upcoming", "ongoing", "completed", "archived", "active"].map((s) => <option key={s}>{s}</option>)}</select></div>
-          <label className="flex items-center gap-2 text-sm sm:mt-6"><input type="checkbox" checked={f.registrationOpen} onChange={(e) => set("registrationOpen", e.target.checked)} className="accent-[#5CE3B6]" /> Registration open</label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.hasPreTest} onChange={(e) => set("hasPreTest", e.target.checked)} className="accent-[#5CE3B6]" /> Has pre-test</label>
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.hasPostTest} onChange={(e) => set("hasPostTest", e.target.checked)} className="accent-[#5CE3B6]" /> Has post-test</label>
+          <label className="flex items-center gap-2 text-sm sm:mt-6"><input type="checkbox" checked={f.registrationOpen} onChange={(e) => set("registrationOpen", e.target.checked)} className="accent-mint" /> Registration open</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.hasPreTest} onChange={(e) => set("hasPreTest", e.target.checked)} className="accent-mint" /> Has pre-test</label>
+          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={f.hasPostTest} onChange={(e) => set("hasPostTest", e.target.checked)} className="accent-mint" /> Has post-test</label>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-pre">Pre-test explanation</label><textarea id="ee-pre" rows={2} className={box} value={f.preTestExplanation} onChange={(e) => set("preTestExplanation", e.target.value)} /></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-post">Post-test explanation</label><textarea id="ee-post" rows={2} className={box} value={f.postTestExplanation} onChange={(e) => set("postTestExplanation", e.target.value)} /></div>
           <div className="sm:col-span-2"><label className={label} htmlFor="ee-mod">Modules / episodes (JSON list: title, description, dateLabel, durationHours)</label><textarea id="ee-mod" rows={8} className={`${box} font-mono text-xs`} value={f.modules} onChange={(e) => set("modules", e.target.value)} /></div>
@@ -88,7 +88,7 @@ export default function EventEditor({ event, onClose, onSaved }: { event: GSICEv
         </div>
         <div className="flex justify-end gap-2 border-t border-white/10 px-6 py-4">
           <button type="button" onClick={onClose} className="rounded-lg border border-white/20 px-4 py-2 text-sm hover:bg-white/10">Cancel</button>
-          <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-[#3352CD] px-5 py-2 text-sm font-semibold hover:bg-[#4a6cf7] disabled:opacity-60">
+          <button type="submit" disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2 text-sm font-semibold hover:bg-brand-500 disabled:opacity-60">
             {busy && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}{busy ? "Saving…" : "Save event"}
           </button>
         </div>

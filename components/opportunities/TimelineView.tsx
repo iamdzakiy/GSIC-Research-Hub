@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { CheckCircle2, Clock, Calendar } from "lucide-react";
 import { OpportunityTimeline } from "@/lib/types";
 import { cn } from "@/lib/cn";
@@ -23,7 +23,7 @@ export default function TimelineView({ items }: { items: OpportunityTimeline[] }
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
-          <motion.li
+          <m.li
             key={`${item.phase}-${index}`}
             initial={{ opacity: 0, x: -16 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -36,8 +36,8 @@ export default function TimelineView({ items }: { items: OpportunityTimeline[] }
               className={cn(
                 "absolute -left-[9px] top-1 flex items-center justify-center rounded-full",
                 isLast
-                  ? "w-4.5 h-4.5 text-[#5CE3B6]"
-                  : "w-4 h-4 bg-[#3352CD] border border-[#5CE3B6]/50 shadow-[0_0_12px_rgba(92,227,182,0.6)]"
+                  ? "w-4.5 h-4.5 text-mint"
+                  : "w-4 h-4 bg-brand-600 border border-mint/50 shadow-lift"
               )}
             >
               {isLast ? <CheckCircle2 className="w-5 h-5" /> : null}
@@ -47,7 +47,7 @@ export default function TimelineView({ items }: { items: OpportunityTimeline[] }
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <h4 className="text-sm font-semibold text-white font-heading">{item.phase}</h4>
                 {item.date && (
-                  <span className="inline-flex items-center gap-1 text-xs text-[#5CE3B6]">
+                  <span className="inline-flex items-center gap-1 text-xs text-mint">
                     <Calendar className="w-3 h-3" />
                     {item.date}
                   </span>
@@ -57,7 +57,7 @@ export default function TimelineView({ items }: { items: OpportunityTimeline[] }
                 <p className="mt-1.5 text-sm text-white/55 leading-relaxed">{item.description}</p>
               )}
             </div>
-          </motion.li>
+          </m.li>
         );
       })}
 

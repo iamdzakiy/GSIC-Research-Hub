@@ -3,20 +3,15 @@ import { Bricolage_Grotesque, IBM_Plex_Mono, Plus_Jakarta_Sans } from "next/font
 import "./globals.css";
 import "./legacy-bridge.css";
 import { AuthProvider } from "@/components/AuthContext";
+import MotionProvider from "@/components/motion/MotionProvider";
+import ViewTransitions from "@/components/motion/ViewTransitions";
+import { HERO_SCRIPT } from "@/components/hub/HeroIntro";
+import { siteBase } from "@/lib/site";
 
 // Display: Bricolage Grotesque (headings, numbers). Text: Plus Jakarta Sans (designed in Jakarta). Labels: IBM Plex Mono.
 const display = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-display", display: "swap", weight: ["500", "600", "700", "800"] });
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 const mono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["500"] });
-
-/** A malformed NEXT_PUBLIC_SITE_URL (e.g. missing "https://") must never take the whole site down at module load. */
-function siteBase(): URL {
-  const raw = (process.env.NEXT_PUBLIC_SITE_URL || "").trim();
-  for (const candidate of [raw, raw && `https://${raw}`, "http://localhost:3000"]) {
-    try { if (candidate) return new URL(candidate); } catch { /* try next */ }
-  }
-  return new URL("http://localhost:3000");
-}
 
 export const viewport: Viewport = { themeColor: "#3352CD", width: "device-width", initialScale: 1 };
 
@@ -51,7 +46,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${display.variable} ${jakarta.variable} ${mono.variable}`}>
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <script dangerouslySetInnerHTML={{ __html: HERO_SCRIPT }} />
+        <MotionProvider><ViewTransitions /><AuthProvider>{children}</AuthProvider></MotionProvider>
       </body>
     </html>
   );

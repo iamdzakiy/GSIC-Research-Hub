@@ -1,0 +1,87 @@
+/* GSIC Hub design tokens. The single source for colour, radius, shadow, type size, duration and easing.
+   Colours are RGB triplets so Tailwind can apply opacity: rgb(var(--brand-600) / <alpha-value>).
+   See DESIGN.md for what each token is for. */
+:root {
+  --brand-50: 239 243 253;
+  --brand-100: 221 229 250;
+  --brand-200: 189 203 245;
+  --brand-300: 147 168 238;
+  --brand-400: 101 128 226;
+  --brand-500: 68 101 214;
+  --brand-600: 51 82 205;
+  --brand-700: 41 67 173;
+  --brand-800: 35 56 137;
+  --brand-900: 31 50 110;
+
+  --logo-indigo: 55 79 122;
+  --logo-periwinkle: 116 143 185;
+  --logo-teal: 56 179 151;
+  --logo-emerald: 12 196 133;
+  --logo-wordmark: 57 73 121;
+
+  --mint-50: 238 251 246;
+  --mint-100: 213 246 234;
+  --mint-200: 173 239 213;
+  --mint-300: 133 233 195;
+  --mint-400: 92 227 182;
+  --mint-600: 31 167 127;
+  --mint-700: 15 126 94;
+  --mint-800: 11 96 73;
+  --mint-900: 9 74 57;
+
+  --cream-50: 250 252 234;
+  --cream-100: 242 248 201;
+  --cream-200: 230 240 161;
+  --cream-300: 212 226 116;
+  --cream-700: 107 122 18;
+
+  --paper-1: 247 248 242;
+  --paper-2: 238 240 230;
+
+  --ink-1: 11 17 32;
+  --ink-2: 51 65 85;
+  --ink-3: 91 100 117;
+
+  --navy-900: 11 17 32;
+  --navy-800: 17 28 51;
+  --navy-700: 22 35 63;
+
+  --success-50: 232 247 240;
+  --success-500: 31 163 107;
+  --success-700: 15 122 77;
+
+  --danger-50: 253 236 236;
+  --danger-500: 229 72 77;
+  --danger-700: 180 35 42;
+
+  --warning-50: 254 246 224;
+  --warning-500: 242 182 50;
+  --warning-800: 122 86 0;
+
+  --info-50: 230 246 248;
+  --info-500: 20 165 184;
+  --info-700: 11 107 121;
+
+  /* The one signature gradient: brand mark, progress indicators and one hero accent line. Never a page or card background. */
+  --logo-gradient: linear-gradient(90deg, rgb(var(--logo-indigo)) 0%, rgb(var(--logo-periwinkle)) 34%, rgb(var(--logo-teal)) 70%, rgb(var(--logo-emerald)) 100%);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-lift: 0 10px 24px -14px rgb(var(--navy-900) / 0.35);
+  --shadow-pop: 0 18px 40px -18px rgb(var(--navy-900) / 0.45);
+
+  --space-gutter: 1rem;
+  --space-section: 4rem;
+
+  --text-label: 0.6875rem;
+  --text-figure: clamp(2.25rem, 6vw, 3.75rem);
+
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --dur-slow: 420ms;
+  --dur-set-piece: 700ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

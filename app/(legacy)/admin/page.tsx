@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   Shield,
   Plus,
@@ -55,6 +55,9 @@ import {
   deleteOpportunity,
 } from "@/services/opportunities";
 import { getCurated, createCurated, deleteCurated } from "@/services/curated";
+import ResultsPanel from "@/components/admin/ResultsPanel";
+import AssessmentsPanel from "@/components/admin/AssessmentsPanel";
+import MarkCompleted, { CertificateToggle } from "@/components/admin/MarkCompleted";
 import { getEvents, createEvent, deleteEvent as apiDeleteEvent } from "@/services/events";
 import { getTests, createTest, deleteTest } from "@/services/tests";
 import { getDocuments, createDocument, deleteDocument } from "@/services/documents";
@@ -325,9 +328,9 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-hero-gradient">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#3352CD] to-[#5CE3B6] flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 animate-pulse">
+          <div className="w-16 h-16 rounded-2xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center text-white font-bold text-2xl mx-auto mb-4 animate-pulse">
             G
           </div>
           <div className="text-white/60 font-body">Loading GSIC Hub...</div>
@@ -338,7 +341,7 @@ export default function AdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-hero-gradient font-body pt-20">
+      <div className="min-h-screen font-body pt-20">
         <Navbar />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
           <Shield className="w-16 h-16 text-red-400 mx-auto mb-4" />
@@ -352,14 +355,14 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-hero-gradient font-body pt-20">
+    <div className="min-h-screen font-body pt-20">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl md:text-4xl font-extrabold font-heading">
-              <span className="gradient-text">Admin Dashboard</span>
+              <span className="text-brand-700">Admin Dashboard</span>
             </h1>
             <p className="text-sm text-white/40 mt-1 font-body">
               Manage events, opportunities, registrations, and admin accounts
@@ -380,6 +383,7 @@ export default function AdminDashboard() {
             { id: "tabSpeakers", label: "Speakers" },
             { id: "tabUsers", label: "Users" },
             { id: "tabTests", label: "Tests" },
+            { id: "tabResults", label: "Results" },
             { id: "tabDocs", label: "Documents" },
             { id: "tabLinks", label: "Links" },
             { id: "tabGallery", label: "Gallery" },
@@ -391,7 +395,7 @@ export default function AdminDashboard() {
               onClick={() => setActiveTab(tab.id)}
               className={`px-3 py-1.5 rounded-lg transition ${
                 activeTab === tab.id
-                  ? "bg-[#3352CD]/30 border border-[#3352CD]/40 font-medium"
+                  ? "bg-brand-600/30 border border-brand-600/40 font-medium"
                   : "hover:bg-white/5"
               }`}
             >
@@ -401,83 +405,83 @@ export default function AdminDashboard() {
         </div>
 
         {activeTab === "tabEvents" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="glass rounded-2xl p-6 md:p-8">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Plus className="w-4 h-4 text-[#5CE3B6]" /> Create New Event
+                <Plus className="w-4 h-4 text-mint" /> Create New Event
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs text-white/40">Title *</label>
-                    <input type="text" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} placeholder="e.g. PKM Bootcamp 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" required />
+                    <input type="text" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} placeholder="e.g. PKM Bootcamp 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint" required />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Type *</label>
-                    <select value={eventForm.type} onChange={(e) => setEventForm({ ...eventForm, type: e.target.value as "bootcamp" | "sandbox" })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]">
+                    <select value={eventForm.type} onChange={(e) => setEventForm({ ...eventForm, type: e.target.value as "bootcamp" | "sandbox" })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-mint">
                       <option value="bootcamp">Bootcamp (PKM)</option>
                       <option value="sandbox">Sandbox</option>
                     </select>
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Short Description</label>
-                    <input type="text" value={eventForm.shortDescription} onChange={(e) => setEventForm({ ...eventForm, shortDescription: e.target.value })} placeholder="Brief summary..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                    <input type="text" value={eventForm.shortDescription} onChange={(e) => setEventForm({ ...eventForm, shortDescription: e.target.value })} placeholder="Brief summary..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Full Description *</label>
-                    <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} rows={3} placeholder="Detailed description..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] resize-none" required />
+                    <textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} rows={3} placeholder="Detailed description..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint resize-none" required />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-white/40">Start Date</label>
-                      <input type="date" value={eventForm.startDate} onChange={(e) => setEventForm({ ...eventForm, startDate: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]" />
+                      <input type="date" value={eventForm.startDate} onChange={(e) => setEventForm({ ...eventForm, startDate: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-mint" />
                     </div>
                     <div>
                       <label className="text-xs text-white/40">End Date</label>
-                      <input type="date" value={eventForm.endDate} onChange={(e) => setEventForm({ ...eventForm, endDate: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]" />
+                      <input type="date" value={eventForm.endDate} onChange={(e) => setEventForm({ ...eventForm, endDate: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-mint" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-xs text-white/40">Registration Deadline</label>
-                      <input type="date" value={eventForm.registrationDeadline} onChange={(e) => setEventForm({ ...eventForm, registrationDeadline: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]" />
+                      <input type="date" value={eventForm.registrationDeadline} onChange={(e) => setEventForm({ ...eventForm, registrationDeadline: e.target.value })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-mint" />
                     </div>
                     <div>
                       <label className="text-xs text-white/40">Location</label>
-                      <input type="text" value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} placeholder="e.g. GSIC Lab, KM ITB" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]" />
+                      <input type="text" value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} placeholder="e.g. GSIC Lab, KM ITB" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Max Participants</label>
-                    <input type="number" value={eventForm.maxParticipants} onChange={(e) => setEventForm({ ...eventForm, maxParticipants: parseInt(e.target.value) || 50 })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#5CE3B6]" />
+                    <input type="number" value={eventForm.maxParticipants} onChange={(e) => setEventForm({ ...eventForm, maxParticipants: parseInt(e.target.value) || 50 })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-mint" />
                   </div>
                 </div>
 
                 <div className="space-y-4">
                   <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                     <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle className="w-4 h-4 text-[#5CE3B6]" />
+                      <CheckCircle className="w-4 h-4 text-mint" />
                       <span className="text-xs font-semibold text-white/70">Assessment Configuration</span>
                     </div>
                     <div className="space-y-3">
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={eventForm.hasPreTest} onChange={(e) => setEventForm({ ...eventForm, hasPreTest: e.target.checked })} className="accent-[#5CE3B6]" />
+                        <input type="checkbox" checked={eventForm.hasPreTest} onChange={(e) => setEventForm({ ...eventForm, hasPreTest: e.target.checked })} className="accent-mint" />
                         <span className="text-xs text-white/60">Include Pre-Test (before event)</span>
                       </label>
                       {eventForm.hasPreTest && (
                         <div>
                           <label className="text-xs text-white/40">Pre-Test Explanation</label>
-                          <textarea value={eventForm.preTestExplanation} onChange={(e) => setEventForm({ ...eventForm, preTestExplanation: e.target.value })} rows={3} placeholder="Explain what the pre-test is for..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] resize-none text-sm" />
+                          <textarea value={eventForm.preTestExplanation} onChange={(e) => setEventForm({ ...eventForm, preTestExplanation: e.target.value })} rows={3} placeholder="Explain what the pre-test is for..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint resize-none text-sm" />
                         </div>
                       )}
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={eventForm.hasPostTest} onChange={(e) => setEventForm({ ...eventForm, hasPostTest: e.target.checked })} className="accent-[#5CE3B6]" />
+                        <input type="checkbox" checked={eventForm.hasPostTest} onChange={(e) => setEventForm({ ...eventForm, hasPostTest: e.target.checked })} className="accent-mint" />
                         <span className="text-xs text-white/60">Include Post-Test (after event)</span>
                       </label>
                       {eventForm.hasPostTest && (
                         <div>
                           <label className="text-xs text-white/40">Post-Test Explanation</label>
-                          <textarea value={eventForm.postTestExplanation} onChange={(e) => setEventForm({ ...eventForm, postTestExplanation: e.target.value })} rows={3} placeholder="Explain what the post-test is for..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6] resize-none text-sm" />
+                          <textarea value={eventForm.postTestExplanation} onChange={(e) => setEventForm({ ...eventForm, postTestExplanation: e.target.value })} rows={3} placeholder="Explain what the post-test is for..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint resize-none text-sm" />
                         </div>
                       )}
                     </div>
@@ -487,7 +491,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  <button onClick={handleCreateEvent} className="w-full bg-gradient-to-r from-[#3352CD] to-[#4a6cf7] hover:from-[#4a6cf7] hover:to-[#5a7cff] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2">
+                  <button onClick={handleCreateEvent} className="w-full bg-brand-600 text-white hover:bg-brand-700 transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2">
                     <Plus className="w-4 h-4" /> Create Event
                   </button>
                 </div>
@@ -496,7 +500,7 @@ export default function AdminDashboard() {
 
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Layers className="w-4 h-4 text-[#5CE3B6]" /> Manage Events
+                <Layers className="w-4 h-4 text-mint" /> Manage Events
               </h3>
               <div className="space-y-3">
                 {events.length === 0 ? (
@@ -505,8 +509,8 @@ export default function AdminDashboard() {
                   events.map((evt) => (
                     <div key={evt.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3352CD]/30 to-[#5CE3B6]/30 flex items-center justify-center flex-shrink-0">
-                          {evt.type === "bootcamp" ? <GraduationCap className="w-4 h-4 text-[#5CE3B6]" /> : <Sparkles className="w-4 h-4 text-[#5CE3B6]" />}
+                        <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center flex-shrink-0">
+                          {evt.type === "bootcamp" ? <GraduationCap className="w-4 h-4 text-mint" /> : <Sparkles className="w-4 h-4 text-mint" />}
                         </div>
                         <div className="truncate">
                           <span className="text-sm font-medium block truncate">{evt.title}</span>
@@ -514,7 +518,9 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <button onClick={() => setEditingEvent(evt)} className="text-xs text-[#5CE3B6] hover:underline">Edit</button>
+                        {evt.slug && <CertificateToggle slug={evt.slug} enabled={!!(evt as { certificateEnabled?: boolean }).certificateEnabled} onDone={(v) => setEvents((list) => list.map((x) => (x.id === evt.id ? ({ ...x, certificateEnabled: v } as GSICEvent) : x)))} />}
+                        {evt.slug && <MarkCompleted slug={evt.slug} status={evt.status} onDone={(st) => setEvents((list) => list.map((x) => (x.id === evt.id ? { ...x, status: st as GSICEvent["status"] } : x)))} />}
+                        <button onClick={() => setEditingEvent(evt)} className="text-xs text-mint hover:underline">Edit</button>
                         <button onClick={() => handleDeleteEvent(evt.id)} className="text-xs text-red-400 hover:text-red-300" title="Delete">
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -528,14 +534,14 @@ export default function AdminDashboard() {
             <p className="text-xs text-white/40">
               Seed the real programs with <code>npx tsx scripts/seed-events.ts</code>. Re-running it is safe.
             </p>
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabOpps" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Target className="w-4 h-4 text-[#5CE3B6]" /> Opportunities ({opportunities.length})
+                <Target className="w-4 h-4 text-mint" /> Opportunities ({opportunities.length})
               </h3>
 
               <div className="flex flex-wrap gap-2 mb-4">
@@ -543,7 +549,7 @@ export default function AdminDashboard() {
                   value={opportunitySearch}
                   onChange={(e) => setOpportunitySearch(e.target.value)}
                   placeholder="Search opportunities..."
-                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#5CE3B6]"
+                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-mint"
                 />
                 <select
                   value={opportunitySort}
@@ -584,7 +590,7 @@ export default function AdminDashboard() {
                     {sortableOpps.filter((o) => o.title.toLowerCase().includes(opportunitySearch.toLowerCase())).map((opp) => {
                       const days = new Date(opp.deadline).getTime() - new Date().getTime();
                       const daysLeft = Math.ceil(days / (1000 * 60 * 60 * 24));
-                      const deadlineColor = daysLeft <= 0 ? "text-red-400" : daysLeft <= 7 ? "text-orange-400" : "text-[#5CE3B6]";
+                      const deadlineColor = daysLeft <= 0 ? "text-red-400" : daysLeft <= 7 ? "text-orange-400" : "text-mint";
                       return (
                         <tr key={opp.id} className="border-b border-white/5">
                           <td className="py-2 font-medium">{opp.title}</td>
@@ -601,7 +607,7 @@ export default function AdminDashboard() {
                           </td>
                           <td className="py-2 text-xs text-white/60">{opp.cpName} · {opp.cpContact}</td>
                           <td className="py-2 flex gap-2">
-                            <button onClick={() => openOppEditor(opp)} className="text-xs bg-[#3352CD]/30 px-2 py-1 rounded hover:bg-[#3352CD]/50">Edit</button>
+                            <button onClick={() => openOppEditor(opp)} className="text-xs bg-brand-600/30 px-2 py-1 rounded hover:bg-brand-600/50">Edit</button>
                             <button onClick={async () => { opp.status = opp.status === "active" ? "archived" : "active"; await updateOpportunity(opp.id, { status: opp.status }); loadData(); }} className="text-xs bg-white/10 px-2 py-1 rounded hover:bg-white/20">Toggle</button>
                             <button onClick={async () => { await deleteOpportunity(opp.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">Delete</button>
                           </td>
@@ -614,14 +620,14 @@ export default function AdminDashboard() {
             </div>
 
             {/* Full Opportunity Editor */}
-            <div className="glass rounded-2xl p-6 border border-[#5CE3B6]/20">
+            <div className="glass rounded-2xl p-6 border border-mint/20">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold flex items-center gap-2 font-heading">
-                  <FileText className="w-4 h-4 text-[#5CE3B6]" /> Rich Opportunity Editor
+                  <FileText className="w-4 h-4 text-mint" /> Rich Opportunity Editor
                 </h3>
                 <button
                   onClick={() => openOppEditor()}
-                  className="bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2"
+                  className="bg-brand-600 text-white hover:bg-brand-700 transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> New Opportunity
                 </button>
@@ -632,15 +638,15 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Opportunity Form (1 kalimat) */}
-            <div className="glass rounded-2xl p-6 border border-[#F2F8C9]/20">
+            <div className="glass rounded-2xl p-6 border border-cream/20">
               <h3 className="font-semibold mb-2 flex items-center gap-2 font-heading">
-                <MessageSquare className="w-4 h-4 text-[#F2F8C9]" /> Quick Opportunity (1 Kalimat)
+                <MessageSquare className="w-4 h-4 text-cream" /> Quick Opportunity (1 Kalimat)
               </h3>
               <p className="text-xs text-white/40 mb-4">
                 Add an opportunity in one sentence. Just fill in the title, type, and organizer — the rest will be auto-filled.
               </p>
               {!quickOppOpen ? (
-                <button onClick={() => setQuickOppOpen(true)} className="bg-gradient-to-r from-[#F2F8C9] to-[#d4df9e] text-[#0a0a2e] hover:from-[#d4df9e] hover:to-[#F2F8C9] transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2">
+                <button onClick={() => setQuickOppOpen(true)} className="bg-cream text-navy hover:bg-cream-200 text-navy transition py-2 px-4 rounded-xl font-medium text-sm flex items-center gap-2">
                   <Plus className="w-4 h-4" /> Add Quick Opportunity
                 </button>
               ) : (
@@ -648,11 +654,11 @@ export default function AdminDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       <label className="text-xs text-white/40">Title *</label>
-                      <input type="text" value={quickOpp.title} onChange={(e) => setQuickOpp({ ...quickOpp, title: e.target.value })} placeholder="e.g. GSIC Research Grant 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#F2F8C9]" />
+                      <input type="text" value={quickOpp.title} onChange={(e) => setQuickOpp({ ...quickOpp, title: e.target.value })} placeholder="e.g. GSIC Research Grant 2026" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-cream" />
                     </div>
                     <div>
                       <label className="text-xs text-white/40">Type</label>
-                      <select value={quickOpp.type} onChange={(e) => setQuickOpp({ ...quickOpp, type: e.target.value as Opportunity["type"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-[#F2F8C9]">
+                      <select value={quickOpp.type} onChange={(e) => setQuickOpp({ ...quickOpp, type: e.target.value as Opportunity["type"] })} className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cream">
                         <option value="research">Research</option>
                         <option value="scholarship">Scholarship</option>
                         <option value="career">Career</option>
@@ -661,7 +667,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <label className="text-xs text-white/40">Organizer *</label>
-                      <input type="text" value={quickOpp.organizer} onChange={(e) => setQuickOpp({ ...quickOpp, organizer: e.target.value })} placeholder="e.g. GSIC" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#F2F8C9]" />
+                      <input type="text" value={quickOpp.organizer} onChange={(e) => setQuickOpp({ ...quickOpp, organizer: e.target.value })} placeholder="e.g. GSIC" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-cream" />
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -698,7 +704,7 @@ export default function AdminDashboard() {
                           showToast("Failed to add opportunity", "error");
                         }
                       }}
-                      className="bg-gradient-to-r from-[#F2F8C9] to-[#d4df9e] text-[#0a0a2e] hover:from-[#d4df9e] hover:to-[#F2F8C9] transition py-2 px-4 rounded-xl font-medium text-sm"
+                      className="bg-cream text-navy hover:bg-cream-200 text-navy transition py-2 px-4 rounded-xl font-medium text-sm"
                     >
                       <Plus className="w-4 h-4" /> Add
                     </button>
@@ -712,7 +718,7 @@ export default function AdminDashboard() {
 
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Calendar className="w-4 h-4 text-[#F2F8C9]" /> Curated Opportunities ({curated.length})
+                <Calendar className="w-4 h-4 text-cream" /> Curated Opportunities ({curated.length})
               </h3>
               <div className="space-y-2">
                 {curated.length === 0 ? (
@@ -732,40 +738,40 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabSpeakers" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Users className="w-4 h-4 text-[#8B5CF6]" /> Speaker Management ({speakers.length})
+                <Users className="w-4 h-4 text-brand-400" /> Speaker Management ({speakers.length})
               </h3>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs text-white/40">Full Name *</label>
-                    <input type="text" value={speakerForm.name} onChange={(e) => setSpeakerForm({ ...speakerForm, name: e.target.value })} placeholder="e.g. Dr. Rina Wijaya" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                    <input type="text" value={speakerForm.name} onChange={(e) => setSpeakerForm({ ...speakerForm, name: e.target.value })} placeholder="e.g. Dr. Rina Wijaya" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Role / Title *</label>
-                    <input type="text" value={speakerForm.roleTitle} onChange={(e) => setSpeakerForm({ ...speakerForm, roleTitle: e.target.value })} placeholder="e.g. Lead AI Researcher" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                    <input type="text" value={speakerForm.roleTitle} onChange={(e) => setSpeakerForm({ ...speakerForm, roleTitle: e.target.value })} placeholder="e.g. Lead AI Researcher" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Institution *</label>
-                    <input type="text" value={speakerForm.institution} onChange={(e) => setSpeakerForm({ ...speakerForm, institution: e.target.value })} placeholder="e.g. GSIC & Ganesha University" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                    <input type="text" value={speakerForm.institution} onChange={(e) => setSpeakerForm({ ...speakerForm, institution: e.target.value })} placeholder="e.g. GSIC & Ganesha University" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Avatar URL</label>
-                    <input type="text" value={speakerForm.avatarUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, avatarUrl: e.target.value })} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                    <input type="text" value={speakerForm.avatarUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, avatarUrl: e.target.value })} placeholder="https://..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">Bio</label>
-                    <textarea value={speakerForm.bio} onChange={(e) => setSpeakerForm({ ...speakerForm, bio: e.target.value })} rows={3} placeholder="Short bio..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6] resize-none" />
+                    <textarea value={speakerForm.bio} onChange={(e) => setSpeakerForm({ ...speakerForm, bio: e.target.value })} rows={3} placeholder="Short bio..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400 resize-none" />
                   </div>
                   <div>
                     <label className="text-xs text-white/40">LinkedIn URL</label>
-                    <input type="text" value={speakerForm.linkedinUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, linkedinUrl: e.target.value })} placeholder="https://linkedin.com/in/..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-[#8B5CF6]" />
+                    <input type="text" value={speakerForm.linkedinUrl} onChange={(e) => setSpeakerForm({ ...speakerForm, linkedinUrl: e.target.value })} placeholder="https://linkedin.com/in/..." className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white placeholder-white/20 focus:outline-none focus:border-brand-400" />
                   </div>
                   <button
                     onClick={async () => {
@@ -791,7 +797,7 @@ export default function AdminDashboard() {
                         showToast("Failed to add speaker", "error");
                       }
                     }}
-                    className="w-full bg-gradient-to-r from-[#8B5CF6] to-[#06B6D4] hover:from-[#A78BFA] hover:to-[#22D3EE] transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2"
+                    className="w-full bg-brand-600 text-white hover:bg-brand-700 transition py-2.5 rounded-xl font-medium flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" /> Add Speaker
                   </button>
@@ -804,7 +810,7 @@ export default function AdminDashboard() {
                     speakers.map((s) => (
                       <div key={s.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2563EB] to-[#06B6D4] flex items-center justify-center text-white text-sm font-bold overflow-hidden flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white text-sm font-bold overflow-hidden flex-shrink-0">
                             {s.avatarUrl ? <img src={s.avatarUrl} alt={s.name} className="w-full h-full object-cover" /> : s.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="truncate">
@@ -813,7 +819,7 @@ export default function AdminDashboard() {
                           </div>
                         </div>
                         <div className="flex gap-1 flex-shrink-0">
-                          <button onClick={async () => { await updateSpeaker(s.id, { isActive: !s.isActive }); loadData(); }} className={`text-xs px-2 py-1 rounded ${s.isActive ? "bg-[#10B981]/20 text-[#34D399]" : "bg-white/10 text-white/40"}`}>
+                          <button onClick={async () => { await updateSpeaker(s.id, { isActive: !s.isActive }); loadData(); }} className={`text-xs px-2 py-1 rounded ${s.isActive ? "bg-mint-600/20 text-mint-400" : "bg-white/10 text-white/40"}`}>
                             {s.isActive ? "Active" : "Inactive"}
                           </button>
                           <button onClick={async () => { await deleteSpeaker(s.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
@@ -826,14 +832,14 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabUsers" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <UserIcon className="w-4 h-4 text-[#60A5FA]" /> Registered Participants ({users.length})
+                <UserIcon className="w-4 h-4 text-brand-300" /> Registered Participants ({users.length})
               </h3>
 
               <div className="flex flex-wrap gap-2 mb-4">
@@ -860,9 +866,9 @@ export default function AdminDashboard() {
                       return true;
                     });
                     const csv = [
-                      ["Name", "Email", "Faculty", "Major", "Major Code", "Verified", "Role", "Created"],
-                      ...filtered.map(u => [u.name, u.email, u.faculty, u.major, u.majorCode || "", u.isVerified ? "Yes" : "No", u.role, u.createdAt])
-                    ].map(row => row.join(",")).join("\n");
+                      ["NIM", "Name", "Email", "Faculty", "Major", "Major Code", "Verified", "Role", "Created"],
+                      ...filtered.map(u => [u.nim || "", u.name, u.email, u.faculty, u.major, u.majorCode || "", u.isVerified ? "Yes" : "No", u.role, u.createdAt])
+                    ].map(row => row.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
                     const blob = new Blob([csv], { type: "text/csv" });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
@@ -882,6 +888,7 @@ export default function AdminDashboard() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className="text-white/40 border-b border-white/10">
+                      <th className="py-2">NIM</th>
                       <th className="py-2">Name</th>
                       <th className="py-2">Email</th>
                       <th className="py-2">Faculty</th>
@@ -900,13 +907,14 @@ export default function AdminDashboard() {
                       return true;
                     }).map((u) => (
                       <tr key={u.uid} className="border-b border-white/5">
+                        <td className="py-2 tnum">{u.nim || "—"}</td>
                         <td className="py-2 font-medium">{u.name || "—"}</td>
                         <td className="py-2 text-white/60">{u.email}</td>
                         <td className="py-2">{u.faculty || "—"}</td>
                         <td className="py-2">{u.major || "—"}</td>
                         <td className="py-2 text-white/40">{u.majorCode || "—"}</td>
                         <td className="py-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${u.isVerified ? "bg-[#10B981]/20 text-[#34D399]" : "bg-yellow-500/20 text-yellow-400"}`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${u.isVerified ? "bg-mint-600/20 text-mint-400" : "bg-yellow-500/20 text-yellow-400"}`}>
                             {u.isVerified ? "Verified" : "Pending"}
                           </span>
                         </td>
@@ -917,68 +925,26 @@ export default function AdminDashboard() {
                 </table>
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabTests" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
-            <div className="glass rounded-2xl p-6">
-              <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <Award className="w-4 h-4 text-[#5CE3B6]" /> Tests ({tests.length})
-              </h3>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <select
-                  value={builderEventId}
-                  onChange={(e) => setBuilderEventId(e.target.value)}
-                  className="bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none"
-                >
-                  <option value="">Select event…</option>
-                  {events.map((ev) => (
-                    <option key={ev.id} value={ev.id}>{ev.title}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={() => {
-                    if (!builderEventId) {
-                      setToast({ msg: "Select an event first", type: "error" });
-                      return;
-                    }
-                    setTestBuilderOpen(true);
-                  }}
-                  className="flex items-center gap-1 text-sm bg-gradient-to-r from-[#3352CD] to-[#5CE3B6] hover:from-[#4a6cf7] hover:to-[#7ff0cc] text-white px-4 py-2 rounded-full font-medium transition"
-                >
-                  <Plus className="w-4 h-4" /> New Test
-                </button>
-              </div>
-              <div className="space-y-2">
-                {tests.length === 0 ? (
-                  <div className="text-center py-8 text-white/30">No tests yet. Tests are created automatically when you create an event with pre/post test enabled.</div>
-                ) : (
-                  tests.map((test) => (
-                    <div key={test.id} className="flex items-center justify-between bg-white/5 p-3 rounded-xl">
-                      <div className="truncate">
-                        <span className="text-sm font-medium block truncate">{test.title}</span>
-                        <span className="text-[10px] text-white/30">{test.type} · {test.eventId} · {test.questions.length} questions</span>
-                      </div>
-                      <div className="flex gap-1 flex-shrink-0">
-                        <span className="text-xs bg-white/10 px-2 py-1 rounded">{test.type === "pre" ? "Pre" : "Post"}</span>
-                        <button onClick={async () => { await deleteTest(test.id); loadData(); }} className="text-xs text-red-400 hover:text-red-300">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </motion.div>
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <AssessmentsPanel events={events} tests={tests} reload={loadData} />
+          </m.div>
+        )}
+
+        {activeTab === "tabResults" && (
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+            <ResultsPanel events={events} />
+          </m.div>
         )}
 
         {activeTab === "tabDocs" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <div className="glass rounded-2xl p-6">
               <h3 className="font-semibold mb-4 flex items-center gap-2 font-heading">
-                <FileText className="w-4 h-4 text-[#5CE3B6]" /> Documents ({documents.length})
+                <FileText className="w-4 h-4 text-mint" /> Documents ({documents.length})
               </h3>
               <div className="space-y-2">
                 {documents.length === 0 ? (
@@ -998,32 +964,32 @@ export default function AdminDashboard() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabLinks" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <LinksManager />
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabGallery" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <GalleryManager />
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabBlog" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <BlogManager />
-          </motion.div>
+          </m.div>
         )}
 
         {activeTab === "tabSync" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+          <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
             <HubOpsPanel />
             <DataSyncPanel />
-          </motion.div>
+          </m.div>
         )}
 
       </main>
@@ -1041,19 +1007,6 @@ export default function AdminDashboard() {
         }}
       />
 
-      {/* Test Builder Modal */}
-      {testBuilderOpen && builderEventId && (
-        <TestBuilder
-          eventId={builderEventId}
-          onClose={() => setTestBuilderOpen(false)}
-          onSaved={async () => {
-            setTestBuilderOpen(false);
-            setToast({ msg: "Test saved!", type: "success" });
-            await loadData();
-          }}
-        />
-      )}
-
       {editingEvent && (
         <EventEditor
           event={editingEvent}
@@ -1062,7 +1015,7 @@ export default function AdminDashboard() {
         />
       )}
       {toast && (
-        <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-[#5CE3B6]" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>
+        <div className={`fixed bottom-6 right-6 px-6 py-3.5 rounded-2xl glass border ${toast.type === "success" ? "border-mint" : "border-red-400"} text-white font-medium z-50 shadow-2xl backdrop-blur-xl flex items-center gap-2`}>
           <span>{toast.type === "success" ? "" : ""}</span>
           {toast.msg}
         </div>

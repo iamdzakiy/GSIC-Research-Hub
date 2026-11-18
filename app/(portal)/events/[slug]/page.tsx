@@ -5,6 +5,8 @@ import { ArrowLeft, CalendarDays, MapPin, Users, Video } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { eventTime, eventWhen } from "@/lib/event-links";
 import EventRegister from "@/components/events/EventRegister";
+import Materi from "@/components/events/Materi";
+import { BOOTCAMP_EVENT_SLUG } from "@/lib/blog-series";
 import CampusSilhouette from "@/components/hub/CampusSilhouette";
 import { seriesOf } from "@/lib/event-links";
 
@@ -36,8 +38,8 @@ export default async function EventPage({ params }: Props) {
   const closed =
     !e.registrationOpen ? "Pendaftaran belum dibuka." :
     e.status === "completed" || e.status === "archived" ? "Acara ini sudah selesai." :
-    !e.registrationDeadline || now > e.registrationDeadline ? "Pendaftaran sudah ditutup." :
-    seatsLeft === 0 ? "Kuota penuh." : null;
+    !e.registrationDeadline || now > e.registrationDeadline ? "Pendaftaran sudah ditutup." : null;
+  const isCompleted = e.status === "completed";
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
@@ -94,6 +96,8 @@ export default async function EventPage({ params }: Props) {
             </section>
           )}
 
+          {e.slug === BOOTCAMP_EVENT_SLUG && <Materi />}
+
           {(e.hasPreTest || e.hasPostTest) && (
             <section aria-labelledby="tes">
               <h2 id="tes" className="font-heading text-lg font-bold text-slate-900">Pra-tes dan pasca-tes</h2>
@@ -106,7 +110,9 @@ export default async function EventPage({ params }: Props) {
         <aside className="self-start lg:sticky lg:top-24">
           <EventRegister
             event={{ id: e.id, slug: e.slug ?? e.id, type: e.type, title: e.title, mode: e.mode }}
-            closedReason={closed}
+            closedReason={isCompleted ? null : closed}
+            full={seatsLeft === 0}
+            completed={isCompleted ? { recap: e.recap } : null}
           />
         </aside>
       </div>
@@ -117,7 +123,7 @@ export default async function EventPage({ params }: Props) {
 type Ev = NonNullable<Awaited<ReturnType<typeof load>>>;
 
 /** Calm placeholder while a program has no confirmed details: what it is, and "Notify me". */
-function ComingSoon({ e }: { e: Ev }) {
+async function ComingSoon({ e }: { e: Ev }) {
   return (
     <main>
       <section className="relative overflow-hidden border-b border-slate-200 bg-navy text-white">
@@ -139,6 +145,7 @@ function ComingSoon({ e }: { e: Ev }) {
               <div key={k} className="bg-white px-4 py-3"><dt className="label-mono text-ink-3">{k}</dt><dd className="mt-1 text-sm font-medium text-ink-2">{v}</dd></div>
             ))}
           </dl>
+          {e.slug === BOOTCAMP_EVENT_SLUG && <div className="mt-10"><Materi tone="ink" /></div>}
         </section>
         <aside className="self-start lg:sticky lg:top-24">
           <EventRegister event={{ id: e.id, slug: e.slug ?? e.id, type: e.type, title: e.title, mode: e.mode, comingSoon: true }} closedReason={null} />

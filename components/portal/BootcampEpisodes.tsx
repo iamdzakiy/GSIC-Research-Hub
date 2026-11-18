@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, m, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { EPISODES } from "@/lib/pkm-content";
@@ -32,7 +32,7 @@ export default function BootcampEpisodes() {
             </button>
             <AnimatePresence initial={false}>
               {on && (
-                <motion.div id={`ep-${e.n}`} initial={reduce ? false : { height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={reduce ? undefined : { height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
+                <m.div id={`ep-${e.n}`} initial={reduce ? false : { height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={reduce ? undefined : { height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
                   <div className="grid gap-5 border-t border-slate-100 px-5 py-5 text-sm md:grid-cols-2">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Workshop</p>
@@ -44,7 +44,7 @@ export default function BootcampEpisodes() {
                       <p className="mt-4 rounded-lg bg-cream-100 px-3 py-2 text-xs text-slate-800">{e.task}</p>
                     </div>
                   </div>
-                </motion.div>
+                </m.div>
               )}
             </AnimatePresence>
           </li>

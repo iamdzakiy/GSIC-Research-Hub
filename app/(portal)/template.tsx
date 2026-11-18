@@ -1,9 +1,8 @@
 "use client";
-import { motion, useReducedMotion } from "framer-motion";
+import { m } from "framer-motion";
+import { DUR } from "@/lib/motion";
 
-/** Re-mounts on every navigation, so each page fades in. */
+/** Re-mounts on every navigation, so each page cross-fades in. Opacity only: no layout shift, and fine under reduced motion. */
 export default function Template({ children }: { children: React.ReactNode }) {
-  const reduce = useReducedMotion();
-  if (reduce) return <>{children}</>;
-  return <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, ease: "easeOut" }}>{children}</motion.div>;
+  return <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.base, ease: "easeOut" }}>{children}</m.div>;
 }
