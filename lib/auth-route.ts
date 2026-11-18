@@ -31,7 +31,7 @@ export async function guard<S extends ZodTypeAny>(
 
   const email = (parsed.data as { email: string }).email;
   if (!isAllowedEmailDomain(email)) {
-    return { ok: false, res: fail(422, "This email domain is not allowed.", { fieldErrors: { email: "Use an email address from an allowed domain (for example ITB)." } }) };
+    return { ok: false, res: fail(422, "This email domain is not allowed.", { fieldErrors: { email: "Use a different email address; this domain is not accepted." } }) };
   }
   const perEmail = rateLimit(`${scope}:email:${email}`, 3, WINDOW);
   if (!perEmail.ok) {

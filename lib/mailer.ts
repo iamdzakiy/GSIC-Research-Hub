@@ -1,7 +1,8 @@
 // ============================================================
-// SMTP mailer (GSIC mailbox) — configured purely via environment:
-//   SMTP_HOST  SMTP_PORT  SMTP_USER  SMTP_PASSWORD  SMTP_FROM
-//   (optional) SMTP_SECURE=true|false  (defaults: true when port 465)
+// Mailer — configured purely via environment. Two providers, first one that is set wins:
+//   1. Resend (HTTPS API, no mailbox needed):  RESEND_API_KEY  and  MAIL_FROM="GSIC Hub <no-reply@your-verified-domain>"
+//   2. SMTP (GSIC mailbox or Gmail app password):  SMTP_HOST  SMTP_PORT  SMTP_USER  SMTP_PASSWORD  SMTP_FROM
+//      (optional) SMTP_SECURE=true|false  (defaults: true when port 465)
 // ============================================================
 import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
@@ -14,7 +15,7 @@ function transporter(): Transporter {
   if (cached) return cached;
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASSWORD) {
-    throw new MailConfigError("SMTP is not configured (SMTP_HOST / SMTP_USER / SMTP_PASSWORD).");
+    throw new MailConfigError("Email is not configured (set RESEND_API_KEY + MAIL_FROM, or SMTP_HOST / SMTP_USER / SMTP_PASSWORD).");
   }
   const port = Number(SMTP_PORT) || 587;
   const secure = process.env.SMTP_SECURE ? process.env.SMTP_SECURE === "true" : port === 465;
@@ -34,8 +35,35 @@ function transporter(): Transporter {
 
 export interface MailInput { to: string; subject: string; html: string; text: string; attachments?: { filename: string; content: string; contentType: string }[]; headers?: Record<string, string> }
 
-export async function sendMail({ to, subject, html, text, attachments, headers }: MailInput): Promise<void> {
-  const from = process.env.SMTP_FROM || `GSIC Hub <${process.env.SMTP_USER}>`;
+async function sendViaResend(key: string, from: string, { to, subject, html, text, attachments, headers }: MailInput): Promise<void> {
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from, to: [to], subject, html, text,
+      headers: { "X-Auto-Response-Suppress": "OOF, AutoReply", ...headers },
+      attachments: attachments?.map((a) => ({ filename: a.filename, content: Buffer.from(a.content).toString("base64"), content_type: a.contentType })),
+    }),
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    // 401/403 = bad key or unverified sender domain; 422 = bad address or sender. Shown in the server log only.
+    const err = new Error(`Resend ${res.status}: ${body.slice(0, 300)}`) as Error & { code?: string; responseCode?: number };
+    if (res.status === 401 || res.status === 403) err.code = "EAUTH";
+    throw err;
+  }
+}
+
+export async function sendMail(mail: MailInput): Promise<void> {
+  const { to, subject, html, text, attachments, headers } = mail;
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    const from = process.env.MAIL_FROM || process.env.SMTP_FROM;
+    if (!from) throw new MailConfigError("MAIL_FROM is not set (for example MAIL_FROM=\"GSIC Hub <no-reply@your-domain>\").");
+    return sendViaResend(resendKey, from, mail);
+  }
+  const from = process.env.MAIL_FROM || process.env.SMTP_FROM || `GSIC Hub <${process.env.SMTP_USER}>`;
   await transporter().sendMail({ from, to, subject, html, text, attachments, headers: { "X-Auto-Response-Suppress": "OOF, AutoReply", ...headers } });
 }
 

@@ -363,7 +363,7 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
         {mode !== "reset" && !(mode === "signup" && step >= 2) && (
           <div>
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
-            <input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => touch("email")} placeholder="you@mahasiswa.itb.ac.id" className={input("email", !!errors.email)} aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-err" : undefined} />
+            <input id="email" type="email" inputMode="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} onBlur={() => touch("email")} placeholder="you@gmail.com" className={input("email", !!errors.email)} aria-invalid={!!errors.email} aria-describedby={errors.email ? "email-err" : undefined} />
             <Err k="email" />
           </div>
         )}
