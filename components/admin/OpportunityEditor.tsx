@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Loader2, Plus, Trash2, X } from "lucide-react";
+import { Check, Copy, Loader2, Plus, Sparkles, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { apiFetch } from "@/lib/apiFetch";
 import { COMPETITION_CATEGORIES } from "@/lib/competitions";
 import { BENEFIT_CATEGORIES, LEVELS } from "@/lib/opportunity-status";
 import { FUNDING_LABEL, MODE_LABEL, OPP_TYPE_ORDER, TYPE_CONFIG, type OppType } from "@/lib/opportunity-config";
 import type { Opportunity } from "@/lib/types";
+import { slugify } from "@/lib/slugify";
+import { buildBroadcast, buildUpsertSql, captionLang, hubUrl, type BcLang } from "@/lib/opportunity-broadcast";
 
 /* ----------------------------------------------------------------- helpers */
 type Row = Record<string, string | boolean>;
@@ -74,7 +76,7 @@ function Chips({ options, value, onChange, labels }: { options: readonly string[
 
 /* -------------------------------------------------------------------- form */
 const TABS = [
-  ["dasar", "Basics"], ["ringkas", "Quick Facts"], ["kriteria", "Eligibility"], ["daftar", "How to Apply & Documents"], ["seleksi", "Selection, Timeline & FAQ"], ["kontak", "Contact & Links"],
+  ["dasar", "Basics"], ["ringkas", "Quick Facts"], ["kriteria", "Eligibility"], ["daftar", "How to Apply & Documents"], ["seleksi", "Selection, Timeline & FAQ"], ["kontak", "Contact & Links"], ["share", "BC & SQL"],
 ] as const;
 
 type O = Opportunity & Record<string, any>;
@@ -127,6 +129,12 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [fe, setFe] = useState<Record<string, string>>({});
+  const [aiText, setAiText] = useState("");
+  const [aiUrl, setAiUrl] = useState("");
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiNotes, setAiNotes] = useState<string[] | null>(null);
+  const [lang, setLang] = useState<BcLang>(() => captionLang(init?.description ?? ""));
+  const [copied, setCopied] = useState<string | null>(null);
   const cfg = useMemo(() => TYPE_CONFIG[f.type], [f.type]);
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((p) => ({ ...p, [k]: v }));
 
@@ -139,6 +147,31 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
       requiredDocuments: p.requiredDocuments.trim() ? p.requiredDocuments : cfg.presetDocs.join("\n"),
       applySteps: p.applySteps.length ? p.applySteps : cfg.presetSteps.map((s) => ({ ...s })),
     }));
+  };
+
+  const runImport = async () => {
+    setErr(null); setAiNotes(null);
+    if (!aiText.trim() && !aiUrl.trim()) { setErr("Paste the announcement text or a link first."); return; }
+    setAiBusy(true);
+    try {
+      const res = await apiFetch("/api/admin/opportunities/import", { method: "POST", body: JSON.stringify({ text: aiText, url: aiUrl.trim() }) });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) { setErr(body.error ?? `AI import failed (${res.status}).`); return; }
+      setF(initial(body.payload as O));
+      setLang(body.draft?.lang === "id" ? "id" : "en");
+      setAiNotes(Array.isArray(body.warnings) ? body.warnings : []);
+      setTab("dasar");
+    } finally { setAiBusy(false); }
+  };
+
+  const slug = init?.slug ?? (slugify(f.title) || "opportunity");
+  const site = process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "");
+  const share = tab === "share" ? {
+    bc: buildBroadcast(f.description, lang, hubUrl(site, f.type, slug)),
+    sql: buildUpsertSql(toPayload(f) as Record<string, unknown>, { slug, id: init?.id }),
+  } : null;
+  const copy = async (key: string, text: string) => {
+    try { await navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(null), 1500); } catch { setErr("Could not copy. Select the text and copy it by hand."); }
   };
 
   const save = async () => {
@@ -165,6 +198,23 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
         </div>
 
         <div className="space-y-5 px-5 py-5">
+          {!init && (
+            <div className="rounded-xl border border-violet-200 bg-violet-50/60 p-4">
+              <p className="flex items-center gap-2 text-sm font-semibold text-violet-900"><Sparkles className="h-4 w-4" aria-hidden="true" />Fill with AI</p>
+              <p className="mt-1 text-xs text-violet-800">Paste the announcement (caption, web page text, guidebook summary) and/or a link. AI fills every tab and writes the BC caption into the description. Nothing is saved until you check it and press Publish.</p>
+              <textarea rows={4} className={cn(area, "mt-3")} value={aiText} onChange={(e) => setAiText(e.target.value)} placeholder="Paste the announcement text here" />
+              <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                <input type="url" className={input} value={aiUrl} onChange={(e) => setAiUrl(e.target.value)} placeholder="https://… (optional link to the official page)" />
+                <button type="button" onClick={runImport} disabled={aiBusy} className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-60">{aiBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}{aiBusy ? "Reading…" : "Fill with AI"}</button>
+              </div>
+              {aiNotes && (
+                <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+                  <p className="font-semibold">Filled. Check every tab before publishing{aiNotes.length ? ", especially:" : "."}</p>
+                  {aiNotes.length > 0 && <ul className="mt-1 list-disc pl-5">{aiNotes.map((n, i) => <li key={i}>{n}</li>)}</ul>}
+                </div>
+              )}
+            </div>
+          )}
           {err && <div role="alert" className="rounded-lg border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-sm text-rose-800">{err}{Object.keys(fe).length > 0 && <ul className="mt-1 list-disc pl-5 text-xs">{Object.entries(fe).map(([k, m]) => <li key={k}>{k}: {m}</li>)}</ul>}</div>}
 
           {tab === "dasar" && (
@@ -279,6 +329,26 @@ export default function OpportunityEditor({ open, initial: init, onClose, onSave
               <div><p className="mb-2 text-xs font-medium text-slate-700">Selection stages</p><RowsEditor value={f.selectionStages} onChange={(v) => set("selectionStages", v)} addLabel="Add stage" cols={[{ key: "stage", label: "Stage", flex: "w-56" }, { key: "date", label: "Time", flex: "w-40" }, { key: "description", label: "Notes" }]} /></div>
               <div><p className="mb-2 text-xs font-medium text-slate-700">FAQ</p><RowsEditor value={f.faqs} onChange={(v) => set("faqs", v)} addLabel="Add FAQ" cols={[{ key: "q", label: "Question" }, { key: "a", label: "Answer", area: true }]} /></div>
               <Field label="Tips for applicants" hint="Markdown or HTML."><textarea rows={5} className={area} value={f.tips} onChange={(e) => set("tips", e.target.value)} /></Field>
+            </div>
+          )}
+
+          {tab === "share" && share && (
+            <div className="space-y-5">
+              <div className="flex flex-wrap items-center gap-2 rounded-lg bg-brand-50 px-4 py-3 text-sm text-brand-800">
+                <span className="mr-auto">The BC is the full description plus a link to this page on GSIC Hub. Edit the description in Basics to change it.</span>
+                <span className="text-xs font-medium">Hub link language:</span>
+                {(["id", "en"] as const).map((l) => <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)} className={cn("rounded-full border px-3 py-1 text-xs font-medium", lang === l ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-slate-600")}>{l === "id" ? "Indonesia" : "English"}</button>)}
+              </div>
+              {[["bc", "Group broadcast (BC)", share.bc, 14], ["sql", "Supabase SQL (upsert on slug, re-runnable)", share.sql, 10]].map(([key, label, text, rowsN]) => (
+                <div key={key as string}>
+                  <div className="mb-1 flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-700">{label}</span>
+                    <button type="button" onClick={() => copy(key as string, text as string)} className="inline-flex items-center gap-1.5 rounded-md border border-slate-300 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50">{copied === key ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}{copied === key ? "Copied" : "Copy"}</button>
+                  </div>
+                  <textarea readOnly rows={rowsN as number} className={cn(area, "font-mono text-xs")} value={text as string} />
+                </div>
+              ))}
+              <p className="text-xs text-slate-500">Publish saves the row directly, so the SQL is only needed to run it yourself in the Supabase SQL editor. If another opportunity already uses the slug <code>{slug}</code>, Publish adds a number to it, so copy the BC link from the saved page in that case.</p>
             </div>
           )}
 
