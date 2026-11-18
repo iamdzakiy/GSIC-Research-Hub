@@ -13,7 +13,8 @@ export class MailConfigError extends Error {}
 
 function transporter(): Transporter {
   if (cached) return cached;
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER } = process.env;
+  const SMTP_PASSWORD = process.env.SMTP_PASSWORD || process.env.SMTP_PASS; // SMTP_PASS is accepted as an alias
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASSWORD) {
     throw new MailConfigError("Email is not configured (set RESEND_API_KEY + MAIL_FROM, or SMTP_HOST / SMTP_USER / SMTP_PASSWORD).");
   }
