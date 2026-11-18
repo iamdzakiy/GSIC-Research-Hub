@@ -34,3 +34,18 @@ describe("sendMail via Resend", () => {
     await expect(sendMail({ to: "a@gmail.com", subject: "s", html: "h", text: "t" })).rejects.toBeInstanceOf(MailConfigError);
   });
 });
+
+describe("SMTP password alias", () => {
+  it("accepts SMTP_PASS when SMTP_PASSWORD is unset", async () => {
+    vi.stubEnv("RESEND_API_KEY", "");
+    vi.stubEnv("SMTP_HOST", "smtp.example.org");
+    vi.stubEnv("SMTP_USER", "u");
+    vi.stubEnv("SMTP_PASSWORD", "");
+    vi.stubEnv("SMTP_PASS", "p");
+    const create = vi.fn().mockReturnValue({ sendMail: vi.fn().mockResolvedValue({}) });
+    vi.doMock("nodemailer", () => ({ default: { createTransport: create } }));
+    const { sendMail } = await import("@/lib/mailer");
+    await sendMail({ to: "a@gmail.com", subject: "s", html: "h", text: "t" });
+    expect(create.mock.calls[0][0].auth).toEqual({ user: "u", pass: "p" });
+  });
+});
