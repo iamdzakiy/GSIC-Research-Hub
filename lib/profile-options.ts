@@ -45,6 +45,10 @@ export const PREFERRED_ROLES = [
   { id: "methodology-analyst", label: "Methodology / Data Analyst", hint: "Designs the method, handles data." },
   { id: "literature-content", label: "Literature / Content Specialist", hint: "Reviews sources, writes the content." },
   { id: "finance-pm", label: "Finance / Project Management", hint: "Budget, timeline, coordination." },
+  { id: "strategy-analyst", label: "Strategy / Business Analyst", hint: "Frames the problem, builds the recommendation (BCC, case)." },
+  { id: "hacker", label: "Hacker", hint: "Builds the product: backend, frontend, mobile, ML." },
+  { id: "hipster", label: "Hipster", hint: "Designs it: UI/UX, prototype, slides, brand." },
+  { id: "hustler", label: "Hustler", hint: "Sells it: business model, pitch, validation." },
 ] as const;
 
 export const PKM_ROLES = [

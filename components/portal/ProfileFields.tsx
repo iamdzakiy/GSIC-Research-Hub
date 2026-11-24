@@ -18,6 +18,8 @@ export interface ProfileValues {
   softSkills: string[];
   interests: string[];
   linkedinUrl: string;
+  githubUrl: string;
+  lineId: string;
   preferredRole: string;
   pkmRole: string;
   fields: string[];
@@ -26,7 +28,7 @@ export interface ProfileValues {
 
 export const EMPTY_PROFILE: ProfileValues = {
   nim: "", faculty: "", major: "", year: new Date().getFullYear(), whatsapp: "",
-  skills: [], softSkills: [], interests: [], linkedinUrl: "", preferredRole: "", pkmRole: "", fields: [], institution: "ITB",
+  skills: [], softSkills: [], interests: [], linkedinUrl: "", githubUrl: "", lineId: "", preferredRole: "", pkmRole: "", fields: [], institution: "ITB",
 };
 
 const toggle = (list: string[], v: string, max: number) =>
@@ -159,6 +161,16 @@ export default function ProfileFields({
           <input id="linkedin" type="url" inputMode="url" autoComplete="url" value={value.linkedinUrl} onChange={(e) => set("linkedinUrl", e.target.value)} placeholder="linkedin.com/in/your-name" aria-invalid={!!errors.linkedinUrl} aria-describedby={errors.linkedinUrl ? "linkedin-err" : undefined} className={field(errors.linkedinUrl)} />
           {errors.linkedinUrl ? <p id="linkedin-err" className="mt-1.5 text-xs text-rose-600">{errors.linkedinUrl}</p> : <p className="mt-1.5 text-xs text-slate-500">Teammates check this before they contact you.</p>}
         </div>
+        <div>
+          <label htmlFor="lineId" className="mb-1.5 block text-sm font-medium text-slate-700">ID Line <span className="font-normal text-slate-500">(optional)</span></label>
+          <input id="lineId" autoComplete="off" value={value.lineId} onChange={(e) => set("lineId", e.target.value)} placeholder="your.line.id" aria-invalid={!!errors.lineId} className={field(errors.lineId)} />
+          <Err k="lineId" />
+        </div>
+        <div>
+          <label htmlFor="githubUrl" className="mb-1.5 block text-sm font-medium text-slate-700">GitHub <span className="font-normal text-slate-500">(optional)</span></label>
+          <input id="githubUrl" type="url" inputMode="url" autoComplete="off" value={value.githubUrl} onChange={(e) => set("githubUrl", e.target.value)} placeholder="github.com/your-name" aria-invalid={!!errors.githubUrl} className={field(errors.githubUrl)} />
+          <Err k="githubUrl" />
+        </div>
         {cv && (
           <div className="sm:col-span-2">
             <label htmlFor="cv" className="mb-1.5 block text-sm font-medium text-slate-700">Add your CV <span className="font-normal text-slate-500">(optional, recommended for team calls)</span></label>
@@ -170,7 +182,7 @@ export default function ProfileFields({
         )}
       </div>
 
-      <Group title="Preferred team role" note="A balanced team has one of each. Pick the role you want to take.">
+      <Group title="Preferred team role" note="A balanced team covers every role. Pick the one you want to take: research and PKM, business case (BCC), or hackathon (hacker, hipster, hustler).">
         <div className="grid gap-2 sm:grid-cols-2">
           {PREFERRED_ROLES.map((r) => {
             const on = value.preferredRole === r.id;

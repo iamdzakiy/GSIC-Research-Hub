@@ -53,7 +53,7 @@ export default function SettingsClient() {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
   const [values, setValues] = useState<ProfileValues>(EMPTY_PROFILE);
-  const [hub, setHub] = useState({ username: "", headline: "", portfolioUrl: "", githubUrl: "", openToTeam: true, directoryVisible: true, competitionInterests: [] as string[] });
+  const [hub, setHub] = useState({ username: "", headline: "", portfolioUrl: "", githubUrl: "", lineId: "", openToTeam: true, directoryVisible: true, competitionInterests: [] as string[] });
   const [ach, setAch] = useState<Ach[]>([]);
   const [cvFile, setCvFile] = useState<File | null>(null);
   const [errs, setErrs] = useState<Record<string, string>>({});
@@ -67,8 +67,8 @@ export default function SettingsClient() {
     const u = userProfile;
     setName(u.name ?? ""); setBio(u.bio ?? "");
     setValues({ nim: u.nim ?? "", faculty: u.faculty ?? "", major: u.major ?? "", year: u.year ?? new Date().getFullYear(), whatsapp: u.whatsapp ?? "", skills: u.skills ?? [], softSkills: u.softSkills ?? [],
-      interests: u.interests ?? [], linkedinUrl: u.linkedinUrl ?? "", preferredRole: u.preferredRole ?? "", pkmRole: u.pkmRole ?? "", fields: u.fields ?? [], institution: u.institution ?? "ITB" });
-    setHub({ username: u.username ?? "", headline: u.headline ?? "", portfolioUrl: u.portfolioUrl ?? "", githubUrl: u.githubUrl ?? "", openToTeam: u.openToTeam ?? true, directoryVisible: u.directoryVisible ?? true, competitionInterests: u.competitionInterests ?? [] });
+      interests: u.interests ?? [], linkedinUrl: u.linkedinUrl ?? "", githubUrl: u.githubUrl ?? "", lineId: u.lineId ?? "", preferredRole: u.preferredRole ?? "", pkmRole: u.pkmRole ?? "", fields: u.fields ?? [], institution: u.institution ?? "ITB" });
+    setHub({ username: u.username ?? "", headline: u.headline ?? "", portfolioUrl: u.portfolioUrl ?? "", githubUrl: u.githubUrl ?? "", lineId: u.lineId ?? "", openToTeam: u.openToTeam ?? true, directoryVisible: u.directoryVisible ?? true, competitionInterests: u.competitionInterests ?? [] });
     setAch(u.achievements ?? []);
   }, [userProfile]);
   const { nim: _nim, ...profileDraft } = values; void _nim;
@@ -147,6 +147,7 @@ export default function SettingsClient() {
             <div><label htmlFor="st-head" className="mb-1.5 block text-sm font-medium text-ink">Headline</label><input id="st-head" value={hub.headline} maxLength={120} onChange={(e) => setHub({ ...hub, headline: e.target.value })} placeholder="IE 2025 · BCC analyst · 2x finalist" className={input()} /></div>
             <div><label htmlFor="st-port" className="mb-1.5 block text-sm font-medium text-ink">Portfolio <span className="font-normal text-ink-3">(optional)</span></label><input id="st-port" type="url" value={hub.portfolioUrl} onChange={(e) => setHub({ ...hub, portfolioUrl: e.target.value })} placeholder="https://" className={input()} /></div>
             <div><label htmlFor="st-gh" className="mb-1.5 block text-sm font-medium text-ink">GitHub <span className="font-normal text-ink-3">(optional)</span></label><input id="st-gh" type="url" value={hub.githubUrl} onChange={(e) => setHub({ ...hub, githubUrl: e.target.value })} placeholder="https://github.com/you" className={input()} /></div>
+            <div><label htmlFor="st-line" className="mb-1.5 block text-sm font-medium text-ink">ID Line <span className="font-normal text-ink-3">(optional)</span></label><input id="st-line" value={hub.lineId} onChange={(e) => setHub({ ...hub, lineId: e.target.value })} placeholder="your.line.id" className={input()} /></div>
           </div>
           <fieldset className="mt-6">
             <legend className="text-sm font-medium text-ink">Competitions you want <span className="font-normal text-ink-3">(up to 8, used for your Monday digest and matching)</span></legend>
@@ -170,7 +171,7 @@ export default function SettingsClient() {
             <Toggle on={hub.openToTeam} onChange={(v) => setHub({ ...hub, openToTeam: v })} label="Open to joining a team" hint="Shows a badge on your profile and in the matching sheet." />
             <Toggle on={hub.directoryVisible} onChange={(v) => setHub({ ...hub, directoryVisible: v })} label="Show me in the member directory" hint="Anyone on GSIC Hub can find you by skill and role. Your email and WhatsApp are never shown there." />
           </div>
-          <Save s="hub" data={{ ...hub, username: hub.username || undefined, portfolioUrl: hub.portfolioUrl || null, githubUrl: hub.githubUrl || null, achievements: ach.filter((a) => a.title.trim()) }} />
+          <Save s="hub" data={{ ...hub, username: hub.username || undefined, portfolioUrl: hub.portfolioUrl || null, githubUrl: hub.githubUrl || null, lineId: hub.lineId || null, achievements: ach.filter((a) => a.title.trim()) }} />
         </Card>
 
         <Card id="notifications" title="Email" note={`Sent from GSIC to ${userProfile.email}. Account emails such as password resets always arrive.`}>

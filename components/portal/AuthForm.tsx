@@ -422,6 +422,8 @@ export default function AuthForm({ initialMode }: { initialMode: AuthMode }) {
                 ["Preferred role", labelOf(PREFERRED_ROLES, profile.preferredRole)],
                 ["PKM role", labelOf(PKM_ROLES, profile.pkmRole)],
                 ["LinkedIn", profile.linkedinUrl],
+                ["ID Line", profile.lineId],
+                ["GitHub", profile.githubUrl],
                 ["CV", cvFile?.name ?? ""],
               ] },
             ]).map((sec) => (

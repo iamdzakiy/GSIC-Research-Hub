@@ -31,7 +31,7 @@ export const DELETE = withErrorHandler(async (request: Request) => {
       where: { id: me.id },
       data: {
         email: anonEmail, name: "Deleted user", username: null, whatsapp: null, avatarUrl: null, linkedinUrl: null, cvPath: null, bio: null,
-        headline: null, portfolioUrl: null, githubUrl: null, achievements: [], skills: [], softSkills: [], interests: [], fields: [],
+        headline: null, portfolioUrl: null, githubUrl: null, lineId: null, achievements: [], skills: [], softSkills: [], interests: [], fields: [],
         competitionInterests: [], directoryVisible: false, openToTeam: false, notifyPrefs: {}, deletedAt: new Date(),
       },
     });

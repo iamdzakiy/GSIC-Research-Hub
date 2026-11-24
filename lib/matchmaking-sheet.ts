@@ -20,7 +20,7 @@ const DEFAULT_SHEET_ID = "13pRyUeItGva-t-2cmJmQsydK5j1jo0NZQa6eoYoQG_s";
 const TAB = "Database";
 const HEADER_IDX = 2; // row 3
 const FIRST_FREE_IDX = 5; // row 6; row 5 is the example
-const OWN_HEADERS = ["NIM", "Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At", "Headline", "Competition Interests", "Open to Team", "Portfolio", "GitHub", "Profile URL"] as const;
+const OWN_HEADERS = ["NIM", "Email", "WhatsApp", "Hard Skills", "Soft Skills", "CV", "Updated At", "Headline", "Competition Interests", "Open to Team", "Portfolio", "Line", "GitHub", "Profile URL"] as const;
 
 export const sheetConfigured = () => !!(process.env.GOOGLE_SHEETS_CLIENT_EMAIL && process.env.GOOGLE_SHEETS_PRIVATE_KEY);
 const sheetId = () => process.env.MATCHMAKING_SHEET_ID || DEFAULT_SHEET_ID;
@@ -68,6 +68,10 @@ export function cellToInterests(text: string): string[] {
 function cellToRole(text: string): string | null {
   const t = norm(text);
   if (!t) return null;
+  if (/hacker/.test(t)) return "hacker";
+  if (/hipster/.test(t)) return "hipster";
+  if (/hustler/.test(t)) return "hustler";
+  if (/strateg|business/.test(t)) return "strategy-analyst";
   if (/lead|principal|\bpi\b/.test(t)) return "research-lead";
   if (/analy|method|data/.test(t)) return "methodology-analyst";
   if (/literat|content|writer/.test(t)) return "literature-content";
@@ -88,7 +92,7 @@ export interface SheetUser {
   major: string | null; majorCode: string | null; institution: string; faculty: string | null; linkedinUrl: string | null;
   whatsapp: string | null; skills: string[]; softSkills: string[]; cvPath: string | null; updatedAt: Date;
   nim?: string | null;
-  headline: string | null; competitionInterests: string[]; openToTeam: boolean; portfolioUrl: string | null; githubUrl: string | null; username: string | null;
+  headline: string | null; competitionInterests: string[]; openToTeam: boolean; portfolioUrl: string | null; githubUrl: string | null; lineId?: string | null; username: string | null;
 }
 
 const site = () => (process.env.NEXT_PUBLIC_SITE_URL || "").replace(/\/$/, "");
@@ -115,6 +119,7 @@ export function userCells(u: SheetUser): Record<string, string> {
     "Competition Interests": u.competitionInterests.map((c) => labelOf(COMPETITION_CATEGORIES, c)).join(", "),
     "Open to Team": u.openToTeam ? "Yes" : "No",
     "Portfolio": u.portfolioUrl ?? "",
+    "Line": u.lineId ?? "",
     "GitHub": u.githubUrl ?? "",
     "Profile URL": u.username && site() ? `${site()}/u/${u.username}` : "",
   };
@@ -207,7 +212,7 @@ export function upsertUsers(users: SheetUser[]): Promise<{ updated: number; adde
   });
 }
 
-const USER_SELECT = { nim: true, email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true, headline: true, competitionInterests: true, openToTeam: true, portfolioUrl: true, githubUrl: true, username: true } as const;
+const USER_SELECT = { nim: true, email: true, name: true, preferredRole: true, pkmRole: true, interests: true, fields: true, major: true, majorCode: true, institution: true, faculty: true, linkedinUrl: true, whatsapp: true, skills: true, softSkills: true, cvPath: true, updatedAt: true, headline: true, competitionInterests: true, openToTeam: true, portfolioUrl: true, githubUrl: true, lineId: true, username: true } as const;
 
 /** Called by the outbox: upserts these users' rows with their current DB data (deleted accounts are skipped). */
 export async function syncUsersToSheet(userIds: string[]) {

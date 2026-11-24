@@ -10,7 +10,7 @@ const user = {
   email: "a@itb.ac.id", name: "Ayu", preferredRole: null, pkmRole: null, interests: INTEREST_IDS.slice(0, 3), fields: [], major: "Teknik Industri",
   majorCode: null, institution: "ITB", faculty: null, linkedinUrl: "https://www.linkedin.com/in/ayu", whatsapp: "0812", skills: ["Excel"], softSkills: [],
   cvPath: null, updatedAt: new Date("2027-01-01T00:00:00Z"), headline: "BCC analyst", competitionInterests: ["bcc", "hackathon"], openToTeam: true,
-  portfolioUrl: null, githubUrl: "https://github.com/ayu", username: "ayu",
+  portfolioUrl: null, githubUrl: "https://github.com/ayu", lineId: "ayu.line", username: "ayu",
 };
 
 describe("matching sheet mapping", () => {
@@ -23,11 +23,19 @@ describe("matching sheet mapping", () => {
     expect(c["Headline"]).toBe("BCC analyst");
     expect(c["Open to Team"]).toBe("Yes");
     expect(c["GitHub"]).toBe("https://github.com/ayu");
+    expect(c["Line"]).toBe("ayu.line");
     expect(c["Competition Interests"]).toContain("Hackathon");
   });
   it("blanks every column it writes", () => {
     const b = blankCells();
     expect(Object.keys(b).sort()).toEqual(Object.keys(userCells(user)).sort());
     expect(Object.values(b).every((v) => v === "")).toBe(true);
+  });
+});
+
+describe("preferred roles beyond research", () => {
+  it("labels the BCC and hackathon roles in the sheet", () => {
+    expect(userCells({ ...user, preferredRole: "hustler" })["Preferred Role"]).toBe("Hustler");
+    expect(userCells({ ...user, preferredRole: "strategy-analyst" })["Preferred Role"]).toBe("Strategy / Business Analyst");
   });
 });

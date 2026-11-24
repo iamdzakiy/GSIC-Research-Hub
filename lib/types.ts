@@ -148,6 +148,7 @@ export interface UserProfile {
   directoryVisible?: boolean;
   portfolioUrl?: string | null;
   githubUrl?: string | null;
+  lineId?: string | null;
   achievements?: { title: string; year?: number; result?: string }[];
   /** Short-lived signed URL; only present on the user's own profile responses. */
   cvUrl?: string | null;
