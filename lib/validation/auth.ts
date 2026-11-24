@@ -33,7 +33,7 @@ export const accountSchema = accountFields.superRefine(refineConfirm);
 
 /** Step 2 of sign-up (profile). Faculty, major and LinkedIn are required here; everything else is optional. */
 export const signupProfileSchema = profileFields
-  .pick({ faculty: true, major: true, year: true, nim: true, whatsapp: true, skills: true, softSkills: true, interests: true, preferredRole: true, pkmRole: true, fields: true, institution: true })
+  .pick({ faculty: true, major: true, year: true, nim: true, whatsapp: true, skills: true, softSkills: true, interests: true, preferredRole: true, pkmRole: true, fields: true, institution: true, githubUrl: true, lineId: true })
   .extend({
     faculty: z.string({ required_error: "Choose your faculty or school" }).trim().min(1, "Choose your faculty or school"),
     major: z.string({ required_error: "Choose your major" }).trim().min(1, "Choose your major"),

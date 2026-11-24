@@ -132,6 +132,7 @@ model User {
   directoryVisible Boolean @default(true)
   portfolioUrl   String?
   githubUrl      String?
+  lineId         String?
   achievements   Json?    // [{ title, year, result }], max 5
   notifyPrefs    Json?    // { [kind]: boolean }, missing = default on
   deletedAt      DateTime?

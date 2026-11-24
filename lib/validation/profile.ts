@@ -61,6 +61,7 @@ export const profileFields = z.object({
   directoryVisible: z.boolean().optional(),
   portfolioUrl: optionalUrl(/./, "Use a full link, e.g. https://behance.net/you"),
   githubUrl: optionalUrl(/(^|\.)github\.com$/i, "Use a link like github.com/your-name"),
+  lineId: z.string().trim().max(40, "Keep it under 40 characters").regex(/^[A-Za-z0-9._@-]*$/, "Use letters, numbers, . _ - or @ only").nullish(),
   achievements: z.array(achievement).max(5, "Add at most 5").optional(),
   classcardTheme: z.enum(["blue", "mint", "cream", "dark", "purple", "sunset"]).optional(),
   bio: z.string().trim().max(500, "Bio must be at most 500 characters").optional(),
@@ -118,6 +119,7 @@ export function profileToData(p: z.infer<typeof profileFields>): Record<string, 
   set("openToTeam", p.openToTeam); set("directoryVisible", p.directoryVisible); set("achievements", p.achievements);
   if (p.portfolioUrl !== undefined) out.portfolioUrl = p.portfolioUrl || null;
   if (p.githubUrl !== undefined) out.githubUrl = p.githubUrl || null;
+  if (p.lineId !== undefined) out.lineId = p.lineId || null;
   set("emailConfirmed", p.emailConfirmed); set("provider", p.provider);
   if (p.lastSignInAt) { const d = new Date(p.lastSignInAt); if (!Number.isNaN(+d)) out.lastSignInAt = d; }
   return out;

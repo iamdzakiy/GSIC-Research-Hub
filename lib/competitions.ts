@@ -23,7 +23,7 @@ export const isCategory = (v: unknown): v is CompetitionCategory => typeof v ===
 export const categoryShort = (id?: string | null) => COMPETITION_CATEGORIES.find((c) => c.id === id)?.short ?? "";
 export const categoryLabel = (id?: string | null) => COMPETITION_CATEGORIES.find((c) => c.id === id)?.label ?? "";
 
-const PKM_ROLES = PREFERRED_ROLES.map((r) => r.label);
+const PKM_ROLES = PREFERRED_ROLES.filter((r) => ["research-lead", "methodology-analyst", "literature-content", "finance-pm"].includes(r.id)).map((r) => r.label);
 /** Suggested roles for a Seeking Partner post, by competition category. Free text is always allowed too. */
 export const ROLE_SUGGESTIONS: Record<string, string[]> = {
   bcc: ["Analyst", "Strategist", "Financial Modeler", "Slide Designer", "Presenter"],
